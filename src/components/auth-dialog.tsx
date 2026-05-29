@@ -99,12 +99,19 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
   const handleDemo = async () => {
     setDemoLoading(true);
     try {
-      await api.seedDatabase();
-      await authStore.login('demo@mayenailsart.com', 'password123');
+      try {
+        // Try to login first, as data might already be seeded
+        await authStore.login('demo@mayenailsart.com', 'password123');
+      } catch (loginError) {
+        console.log('Demo user not found, seeding database...');
+        await api.seedDatabase();
+        await authStore.login('demo@mayenailsart.com', 'password123');
+      }
       onSuccess();
       onOpenChange(false);
     } catch (err: any) {
       console.error('Demo login failed:', err);
+      // In a real app, we'd show a toast here
     } finally {
       setDemoLoading(false);
     }
