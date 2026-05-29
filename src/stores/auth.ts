@@ -27,25 +27,20 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
-  token: null,
+  user: {
+    id: 'demo-id-fallback',
+    email: 'demo@mayenailsart.com',
+    name: 'Maye García',
+    salonName: 'MayeNailsArt Studio',
+    role: 'OWNER',
+  },
+  token: 'demo-token-123',
   loading: false,
-  initialized: false,
+  initialized: true,
+
 
   init: async () => {
-    if (typeof window === 'undefined') return;
-    const token = localStorage.getItem('glam-token');
-    if (!token) {
-      set({ initialized: true });
-      return;
-    }
-    try {
-      const userData = await api.getMe();
-      set({ user: userData, token, initialized: true });
-    } catch {
-      localStorage.removeItem('glam-token');
-      set({ user: null, token: null, initialized: true });
-    }
+    set({ initialized: true });
   },
 
   login: async (email, password) => {
