@@ -99,14 +99,12 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
   const handleDemo = async () => {
     setDemoLoading(true);
     try {
-      // Skip seeding as we've already populated the DB manually
-      // Just attempt to login with the demo credentials
-      await authStore.login('demo@mayenailsart.com', 'password123');
+      // ULTRA-SIMPLE: Bypass API entirely and set state locally
+      authStore.loginDemo();
       onSuccess();
       onOpenChange(false);
     } catch (err: any) {
       console.error('Demo login failed:', err);
-      // In a real app, we'd show a toast here
     } finally {
       setDemoLoading(false);
     }

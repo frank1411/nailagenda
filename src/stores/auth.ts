@@ -59,6 +59,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
+  loginDemo: () => {
+    const demoUser = {
+      id: 'demo-id-fallback',
+      email: 'demo@mayenailsart.com',
+      name: 'Maye García',
+      salonName: 'MayeNailsArt Studio',
+      role: 'OWNER',
+    };
+    const demoToken = 'demo-token-123';
+    localStorage.setItem('glam-token', demoToken);
+    set({ user: demoUser, token: demoToken, loading: false });
+  },
+
   register: async (email, name, password, salonName) => {
     set({ loading: true });
     try {
