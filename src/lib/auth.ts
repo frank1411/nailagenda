@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
+import { db } from '@/lib/db';
 
 const BCRYPT_ROUNDS = 12;
 const TOKEN_EXPIRY = '7d';
