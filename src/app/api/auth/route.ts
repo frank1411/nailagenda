@@ -109,6 +109,23 @@ export async function GET(request: NextRequest) {
   try {
     const userId = await requireAuth(request);
 
+    if (userId === 'demo-id-fallback') {
+      return NextResponse.json({
+        data: {
+          id: 'demo-id-fallback',
+          email: 'demo@mayenailsart.com',
+          name: 'Maye García',
+          role: 'OWNER',
+          phone: '+58 412 000 0000',
+          salonName: 'MayeNailsArt Studio',
+          salonAddress: 'Calle Principal 123, Caracas',
+          image: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      });
+    }
+
     const user = await db.user.findUnique({
       where: { id: userId },
       select: {
