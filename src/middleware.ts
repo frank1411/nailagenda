@@ -60,21 +60,14 @@ export function middleware(request: NextRequest) {
         { status: 429 }
       );
     }
-  } else if (pathname === '/api/seed') {
-    // Disable seed endpoint in production
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json(
-        { error: 'Este endpoint no está disponible en producción' },
-        { status: 403 }
-      );
-    }
-    if (!checkRateLimit(`seed:${clientIp}`, RATE_LIMIT_MAX.seed)) {
-      return NextResponse.json(
-        { error: 'Demasiados intentos. Por favor, espera.' },
-        { status: 429 }
-      );
-    }
-  } else if (pathname.startsWith('/api/')) {
+    } else if (pathname === '/api/seed') {
+      if (!checkRateLimit(`seed:${clientIp}`, RATE_LIMIT_MAX.seed)) {
+        return NextResponse.json(
+          { error: 'Demasiados intentos. Por favor, espera.' },
+          { status: 429 }
+        );
+      }
+    } else if (pathname.startsWith('/api/')) {
     if (!checkRateLimit(`api:${clientIp}`, RATE_LIMIT_MAX.api)) {
       return NextResponse.json(
         { error: 'Demasiadas solicitudes. Por favor, espera un momento.' },
