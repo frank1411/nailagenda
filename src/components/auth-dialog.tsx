@@ -99,14 +99,9 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
   const handleDemo = async () => {
     setDemoLoading(true);
     try {
-      try {
-        // Try to login first, as data might already be seeded
-        await authStore.login('demo@mayenailsart.com', 'password123');
-      } catch (loginError) {
-        console.log('Demo user not found, seeding database...');
-        await api.seedDatabase();
-        await authStore.login('demo@mayenailsart.com', 'password123');
-      }
+      // Skip seeding as we've already populated the DB manually
+      // Just attempt to login with the demo credentials
+      await authStore.login('demo@mayenailsart.com', 'password123');
       onSuccess();
       onOpenChange(false);
     } catch (err: any) {
