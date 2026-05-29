@@ -1,0 +1,7 @@
+# Ignore environment and secret files
+.claude/settings.json
+.env
+
+# Common ignores (adjust as needed)
+node_modules/
+.DS_Store
