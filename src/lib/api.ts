@@ -30,8 +30,13 @@ class ApiClient {
       headers: this.headers(),
       body: JSON.stringify(body),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Request failed');
+
+    const contentType = res.headers.get('content-type');
+    const data = (contentType && contentType.includes('application/json')) 
+      ? await res.json() 
+      : { error: `Server returned non-JSON response (${res.status})` };
+
+    if (!res.ok) throw new Error(data.error || `Request failed with status ${res.status}`);
     return data.data;
   }
 
