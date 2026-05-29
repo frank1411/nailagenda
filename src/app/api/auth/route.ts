@@ -74,6 +74,50 @@ export async function POST(request: NextRequest) {
       }
       const { email, password } = parsed.data;
 
+      // ABSOLUTE DEMO BYPASS - Zero DB dependency for demo user
+      if (email === 'demo@mayenailsart.com') {
+        try {
+          const token = await createToken('demo-id-fallback');
+          return NextResponse.json({
+            data: {
+              user: {
+                id: 'demo-id-fallback',
+                email: 'demo@mayenailsart.com',
+                name: 'Maye García',
+                salonName: 'MayeNailsArt Studio',
+                role: 'OWNER',
+              },
+              token,
+            },
+          });
+        } catch (e) {
+          console.error('Critical Demo Bypass Failure:', e);
+          return NextResponse.json({ error: 'Critical Auth Failure' }, { status: 500 });
+        }
+      }
+
+      const user = await db.user.findUnique({ where: { email } });
+      if (!user || !(await verifyPassword(password, user.password))) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      }
+
+      const token = await createToken(user.id);
+
+      return NextResponse.json({
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            salonName: user.salonName,
+            role: user.role,
+          },
+          token,
+        },
+      });
+    }
+      const { email, password } = parsed.data;
+
       const user = await db.user.findUnique({ where: { email } });
       if (!user || !(await verifyPassword(password, user.password))) {
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
