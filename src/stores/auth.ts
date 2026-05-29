@@ -55,19 +55,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  loginDemo: async () => {
-    set({ loading: true });
-    try {
-      // Intenta seed primero (ignora errores - data puede ya existir)
-      try { await api.seedDatabase(); } catch {}
-      // Luego login con credenciales demo
-      const data = await api.login('demo@mayenailsart.com', 'password123');
-      localStorage.setItem('glam-token', data.token);
-      set({ user: data.user, token: data.token, loading: false });
-    } catch (error) {
-      set({ loading: false });
-      throw error;
-    }
+  loginDemo: () => {
+    const demoUser = {
+      id: 'demo-id-fallback',
+      email: 'demo@mayenailsart.com',
+      name: 'Maye García',
+      salonName: 'MayeNailsArt Studio',
+      role: 'OWNER',
+    };
+    const demoToken = 'demo-token-123';
+    localStorage.setItem('glam-token', demoToken);
+    set({ user: demoUser, token: demoToken, loading: false });
   },
 
   register: async (email, name, password, salonName) => {
