@@ -100,7 +100,7 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
     setDemoLoading(true);
     try {
       await api.seedDatabase();
-      await authStore.login('demo@glamcrm.com', 'password123');
+      await authStore.login('demo@mayenailsart.com', 'password123');
       onSuccess();
       onOpenChange(false);
     } catch (err: any) {

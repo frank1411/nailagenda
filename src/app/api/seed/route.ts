@@ -5,7 +5,7 @@ import { hashPassword } from '@/lib/auth';
 export async function POST() {
   try {
     // Check if demo user already exists
-    const existingUser = await db.user.findUnique({ where: { email: 'demo@glamcrm.com' } });
+    const existingUser = await db.user.findUnique({ where: { email: 'demo@mayenailsart.com' } });
     if (existingUser) {
       return NextResponse.json({
         data: {
@@ -19,11 +19,11 @@ export async function POST() {
     const hashedPassword = await hashPassword('password123');
     const user = await db.user.create({
       data: {
-        email: 'demo@glamcrm.com',
-        name: 'María García',
+        email: 'demo@mayenailsart.com',
+        name: 'Maye García',
         password: hashedPassword,
-        salonName: 'Glam Studio',
-        salonAddress: 'Calle Principal 123, Madrid',
+        salonName: 'MayeNailsArt Studio',
+        salonAddress: 'Calle Principal 123, Caracas',
         role: 'OWNER',
       },
     });
