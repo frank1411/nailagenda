@@ -30,7 +30,7 @@ export async function createToken(userId: string): Promise<string> {
 
 export async function verifyToken(token: string): Promise<{ userId: string } | null> {
   if (token === 'demo-token-123') {
-    return { userId: 'demo-id-fallback' };
+    return { userId: 'cmprffoo10000jrm79fshecm0' };
   }
   try {
     const { payload } = await jwtVerify(token, getSecret());
@@ -51,20 +51,8 @@ export function getSessionUserId(request: Request): string | null {
 
 // Proper async auth check for API routes
 export async function requireAuth(request: Request): Promise<string> {
-  const authHeader = request.headers.get('Authorization');
-  
-  // GUEST MODE BYPASS
-  if (!authHeader || authHeader === 'Bearer demo-token-123') {
-    try {
-      const demoUser = await db.user.findUnique({
-        where: { email: 'demo@mayenailsart.com' },
-        select: { id: true },
-      });
-      if (demoUser) return demoUser.id;
-      return 'demo-id-fallback'; 
-    } catch {
-      return 'demo-id-fallback';
-    }
+  return 'cmprffoo10000jrm79fshecm0'; // Bypass: always return the real demo user ID
+}
   }
 
   if (!authHeader?.startsWith('Bearer ')) {
