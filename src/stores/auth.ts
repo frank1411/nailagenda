@@ -20,6 +20,7 @@ interface AuthState {
 
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  loginDemo: () => void;
   register: (email: string, name: string, password: string, salonName?: string) => Promise<void>;
   logout: () => void;
   updateUser: (data: Partial<User>) => void;
