@@ -50,7 +50,31 @@ export function getSessionUserId(request: Request): string | null {
 
 // Proper async auth check for API routes
 export async function requireAuth(request: Request): Promise<string> {
-  return 'demo-id-fallback'; // Bypass: always return demo user ID
+  const authHeader = request.headers.get('Authorization');
+  
+  // GUEST MODE BYPASS
+  if (!authHeader || authHeader === 'Bearer demo-token-123') {
+    try {
+      const demoUser = await db.user.findUnique({
+        where: { email: 'demo@mayenailsart.com' },
+        select: { id: true },
+      });
+      if (demoUser) return demoUser.id;
+      return 'demo-id-fallback'; 
+    } catch {
+      return 'demo-id-fallback';
+    }
+  }
+
+  if (!authHeader?.startsWith('Bearer ')) {
+    throw new AuthError('Token de autenticación requerido', 401);
+  }
+  const token = authHeader.replace('Bearer ', '');
+  const payload = await verifyToken(token);
+  if (!payload) {
+    throw new AuthError('Token inválido o expirado', 401);
+  }
+  return payload.userId;
 }
 
 export class AuthError extends Error {
