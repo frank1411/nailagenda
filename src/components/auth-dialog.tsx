@@ -99,12 +99,12 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
   const handleDemo = async () => {
     setDemoLoading(true);
     try {
-      await authStore.loginDemo();
+      // Instant bypass: just set the store state (already done by default, but for safety)
+      authStore.loginDemo();
       onSuccess();
       onOpenChange(false);
     } catch (err: any) {
       console.error('Demo login failed:', err);
-      setLoginError(err.message || 'Error al cargar el demo');
     } finally {
       setDemoLoading(false);
     }
