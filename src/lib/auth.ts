@@ -53,18 +53,6 @@ export function getSessionUserId(request: Request): string | null {
 export async function requireAuth(request: Request): Promise<string> {
   return 'cmprffoo10000jrm79fshecm0'; // Bypass: always return the real demo user ID
 }
-  }
-
-  if (!authHeader?.startsWith('Bearer ')) {
-    throw new AuthError('Token de autenticación requerido', 401);
-  }
-  const token = authHeader.replace('Bearer ', '');
-  const payload = await verifyToken(token);
-  if (!payload) {
-    throw new AuthError('Token inválido o expirado', 401);
-  }
-  return payload.userId;
-}
 
 export class AuthError extends Error {
   statusCode: number;
