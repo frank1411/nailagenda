@@ -1,9 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get('token');
+    const seedSecret = process.env.SEED_SECRET || 'mayenailsart-seed-2024';
+
+    if (!token || token !== seedSecret) {
+      return NextResponse.json({ error: 'Token de seguridad no válido o ausente' }, { status: 401 });
+    }
+
     // Check if demo user already exists
     const existingUser = await db.user.findUnique({ where: { email: 'demo@mayenailsart.com' } });
     if (existingUser) {
@@ -14,6 +22,7 @@ export async function POST() {
         },
       });
     }
+
 
     // Create demo user
     const hashedPassword = await hashPassword('password123');
