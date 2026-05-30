@@ -1,14 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
   reactStrictMode: true,
   poweredByHeader: false,
 
-  // Exclude unnecessary files from standalone output to reduce package size
+  // Exclude unnecessary files from build to reduce size
   outputFileTracingExcludes: {
     '*': [
-      // Project files not needed in production
       'skills/**/*',
       'examples/**/*',
       'agent-ctx/**/*',
@@ -37,7 +35,6 @@ const nextConfig: NextConfig = {
       '.env.example',
       '.gitignore',
       '.git/**/*',
-      // Heavy dev-only modules
       'node_modules/typescript/**/*',
       'node_modules/eslint/**/*',
       'node_modules/@tailwindcss/**/*',
@@ -48,23 +45,17 @@ const nextConfig: NextConfig = {
       'node_modules/react-syntax-highlighter/**/*',
       'node_modules/@mdxeditor/**/*',
       'node_modules/z-ai-web-dev-sdk/**/*',
-      // Presentation files
       'GlamCRM-Presentacion.*',
       'MayeNailsArt-Presentacion.*',
       '*.pptx',
       '*.pdf',
     ],
   },
-  outputFileTracingIncludes: {
-    '*.js': ['node_modules/.prisma/client/*.node'],
-  },
 
-  // Use unoptimized images since we removed sharp
   images: {
     unoptimized: true,
   },
 
-  // Security headers
   async headers() {
     return [
       {
