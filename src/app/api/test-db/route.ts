@@ -1,24 +1,34 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
 
 export async function GET() {
-  console.log('Testing database connection...');
+  console.log('Checking environment...');
+  
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json({ 
+      status: 'error', 
+      message: 'DATABASE_URL is missing in environment variables' 
+    }, { status: 500 });
+  }
+
   try {
-    // Simple query to check connectivity
+    // Lazy load DB to prevent module-level crashes
+    const { db } = await import('@/lib/db');
+    console.log('Prisma client loaded. Attempting query...');
+    
     const user = await db.user.findFirst();
     
     return NextResponse.json({ 
       status: 'success', 
       message: 'Database connection successful!',
-      userExists: !!user,
-      data: user ? { email: user.email, name: user.name } : null
+      userExists: !!user
     });
   } catch (error: any) {
-    console.error('Database connection error:', error);
+    console.error('DATABASE_ERROR:', error);
     return NextResponse.json({ 
       status: 'error', 
       message: 'Database connection failed',
-      error: error.message 
+      error: error.message,
+      stack: error.stack
     }, { status: 500 });
   }
 }
