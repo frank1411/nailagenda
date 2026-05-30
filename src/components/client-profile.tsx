@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
+  Symmetry,
   ArrowLeft,
   Phone,
   Mail,
@@ -26,6 +27,8 @@ import {
   Ban,
 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { toast } from 'sonner';
+
 import {
   Card,
   CardContent,
@@ -296,6 +299,7 @@ function EditClientDialog({
         notes: form.notes.trim() || null,
         preferredStylist: form.preferredStylist.trim() || null,
       });
+      toast.success('Cliente actualizado exitosamente');
       onOpenChange(false);
       onSaved();
     } catch (err: unknown) {
@@ -734,8 +738,11 @@ export default function ClientProfile({ clientId, onBack }: ClientProfileProps) 
     try {
       setDeleting(true);
       await api.deleteClient(client.id);
+      toast.success('Cliente eliminado permanentemente');
       onBack();
-    } catch {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al eliminar cliente';
+      toast.error(msg);
       setDeleting(false);
     }
   };
@@ -750,12 +757,14 @@ export default function ClientProfile({ clientId, onBack }: ClientProfileProps) 
       setAddingNote(true);
       setNoteError(null);
       await api.addClientNote(clientId, noteContent.trim(), noteType);
+      toast.success('Nota agregada exitosamente');
       setNoteContent('');
       setNoteType('NOTE');
       fetchClient();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al agregar nota';
       setNoteError(msg);
+      toast.error(msg);
     } finally {
       setAddingNote(false);
     }

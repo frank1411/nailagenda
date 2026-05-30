@@ -166,12 +166,12 @@ function ServiceFormDialog({
   open,
   onOpenChange,
   editingService,
-  onSaved,
+  onSave,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editingService: ServiceItem | null;
-  onSaved: () => void;
+  onSave: (data: ServiceFormData, id?: string) => Promise<void>;
 }) {
   const [form, setForm] = useState<ServiceFormData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
@@ -215,24 +215,11 @@ function ServiceFormDialog({
     setError(null);
 
     try {
-      const payload = {
-        name: form.name.trim(),
-        category: form.category,
-        duration: form.duration,
-        price: form.price,
+      await onSave({
+        ...form,
         description: form.description.trim() || null,
-        active: form.active,
-      };
-
-      if (editingService) {
-        await api.updateService(editingService.id, payload);
-        toast.success('Servicio actualizado correctamente');
-      } else {
-        await api.createService(payload);
-        toast.success('Servicio creado correctamente');
-      }
+      }, editingService?.id);
       onOpenChange(false);
-      onSaved();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al guardar servicio';
       setError(msg);
@@ -391,12 +378,12 @@ function DeleteServiceDialog({
   open,
   onOpenChange,
   service,
-  onDeleted,
+  onDelete,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   service: ServiceItem | null;
-  onDeleted: () => void;
+  onDelete: (id: string) => Promise<void>;
 }) {
   const [deleting, setDeleting] = useState(false);
 
@@ -404,10 +391,8 @@ function DeleteServiceDialog({
     if (!service) return;
     setDeleting(true);
     try {
-      await api.deleteService(service.id);
-      toast.success('Servicio eliminado correctamente');
+      await onDelete(service.id);
       onOpenChange(false);
-      onDeleted();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al eliminar servicio';
       toast.error(msg);
@@ -628,6 +613,50 @@ export default function ServiceManagement() {
   };
 
   // Handlers
+  const handleSaveService = async (formData: ServiceFormData, id?: string) => {
+    const previousServices = [...services];
+    
+    try {
+      if (id) {
+        // Update
+        setServices((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, ...formData } : s))
+        );
+        await api.updateService(id, formData);
+        toast.success('Servicio actualizado correctamente');
+      } else {
+        // Create
+        const tempId = `temp-${Date.now()}`;
+        const newService: ServiceItem = {
+          ...formData,
+          id: tempId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setServices((prev) => [...prev, newService]);
+        
+        const created = await api.createService(formData);
+        setServices((prev) => prev.map((s) => (s.id === tempId ? created : s)));
+        toast.success('Servicio creado correctamente');
+      }
+    } catch (err) {
+      setServices(previousServices);
+      throw err;
+    }
+  };
+
+  const handleDeleteService = async (id: string) => {
+    const previousServices = [...services];
+    setServices((prev) => prev.filter((s) => s.id !== id));
+    try {
+      await api.deleteService(id);
+      toast.success('Servicio eliminado correctamente');
+    } catch (err) {
+      setServices(previousServices);
+      throw err;
+    }
+  };
+
   const handleEdit = (service: ServiceItem) => {
     setEditingService(service);
     setFormOpen(true);
@@ -793,7 +822,7 @@ export default function ServiceManagement() {
         open={formOpen}
         onOpenChange={setFormOpen}
         editingService={editingService}
-        onSaved={fetchServices}
+        onSave={handleSaveService}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -801,7 +830,7 @@ export default function ServiceManagement() {
         open={!!deleteTarget}
         onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
         service={deleteTarget}
-        onDeleted={fetchServices}
+        onDelete={handleDeleteService}
       />
     </div>
   );

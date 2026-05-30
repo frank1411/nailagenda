@@ -68,6 +68,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -443,6 +444,9 @@ export default function AutomationPanel() {
       setFormError('El nombre es obligatorio');
       return;
     }
+    
+    const previousAutomations = [...automations];
+    
     try {
       setSaving(true);
       setFormError(null);
@@ -456,16 +460,34 @@ export default function AutomationPanel() {
       };
 
       if (editingAutomation) {
+        // Optimistic Update
+        setAutomations((prev) =>
+          prev.map((a) => (a.id === editingAutomation.id ? { ...a, ...payload } : a))
+        );
         await api.updateAutomation(editingAutomation.id, payload);
+        toast.success('Automatización actualizada correctamente');
       } else {
-        await api.createAutomation(payload);
+        // Optimistic Create
+        const tempId = `temp-${Date.now()}`;
+        const newAutomation: AutomationRule = {
+          ...payload,
+          id: tempId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setAutomations((prev) => [...prev, newAutomation]);
+        
+        const created = await api.createAutomation(payload);
+        setAutomations((prev) => prev.map((a) => (a.id === tempId ? created : a)));
+        toast.success('Automatización creada correctamente');
       }
 
       setDialogOpen(false);
-      await fetchAutomations();
     } catch (err: unknown) {
+      setAutomations(previousAutomations);
       const message = err instanceof Error ? err.message : 'Error al guardar la automatización';
       setFormError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -474,11 +496,17 @@ export default function AutomationPanel() {
   // -- Delete automation --
   const handleDeleteConfirm = async () => {
     if (!deletingId) return;
+    
+    const previousAutomations = [...automations];
+    setAutomations((prev) => prev.filter((a) => a.id !== deletingId));
+    
     try {
       await api.deleteAutomation(deletingId);
-      setAutomations((prev) => prev.filter((a) => a.id !== deletingId));
-    } catch {
-      // Silently fail, list will be refreshed on next fetch
+      toast.success('Automatización eliminada correctamente');
+    } catch (err: unknown) {
+      setAutomations(previousAutomations);
+      const message = err instanceof Error ? err.message : 'Error al eliminar la automatización';
+      toast.error(message);
     } finally {
       setDeleteDialogOpen(false);
       setDeletingId(null);
