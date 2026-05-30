@@ -182,7 +182,7 @@ function NewClientDialog({
     setError(null);
 
     try {
-      await api.createClient({
+      const newClient = await api.createClient({
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
         email: form.email.trim() || null,
@@ -191,6 +191,8 @@ function NewClientDialog({
         notes: form.notes.trim() || null,
         preferredStylist: form.preferredStylist.trim() || null,
       });
+      
+      toast.success('Cliente creado exitosamente');
       resetForm();
       onOpenChange(false);
       onCreated();
@@ -465,9 +467,9 @@ export default function ClientList({ onSelectClient, selectedClientId }: ClientL
   }, [search]);
 
   // Fetch clients
-  const fetchClients = useCallback(async () => {
+  const fetchClients = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
       const params: { status?: string; search?: string } = {};
       if (activeFilter !== 'ALL') params.status = activeFilter;
@@ -658,7 +660,7 @@ export default function ClientList({ onSelectClient, selectedClientId }: ClientL
       <NewClientDialog
         open={newClientOpen}
         onOpenChange={setNewClientOpen}
-        onCreated={fetchClients}
+        onCreated={() => fetchClients(true)}
       />
     </div>
   );
