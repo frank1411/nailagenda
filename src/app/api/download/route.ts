@@ -4,12 +4,12 @@ import path from 'path';
 
 const FILES: Record<string, { path: string; name: string; type: string }> = {
   pptx: {
-    path: path.join(process.cwd(), 'MayeNailsArt-Presentacion.pptx'),
+    path: path.join(process.cwd(), 'public', 'MayeNailsArt-Presentacion.pptx'),
     name: 'MayeNailsArt-Presentacion.pptx',
     type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   },
   pdf: {
-    path: path.join(process.cwd(), 'MayeNailsArt-Presentacion.pdf'),
+    path: path.join(process.cwd(), 'public', 'MayeNailsArt-Presentacion.pdf'),
     name: 'MayeNailsArt-Presentacion.pdf',
     type: 'application/pdf',
   },
