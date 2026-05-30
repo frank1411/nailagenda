@@ -877,6 +877,15 @@ function NewAppointmentDialog({
 // Appointment Detail Dialog
 // ---------------------------------------------------------------------------
 
+interface AppointmentDetailDialogProps {
+  appointment: AppointmentItem | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onUpdated: (updatedApt?: AppointmentItem) => void;
+  onDeleted: () => void;
+  onSelectClient: (clientId: string) => void;
+}
+
 function AppointmentDetailDialog({
   appointment,
   open,
@@ -884,14 +893,7 @@ function AppointmentDetailDialog({
   onUpdated,
   onDeleted,
   onSelectClient,
-}: {
-  appointment: AppointmentItem | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onUpdated: () => void;
-  onDeleted: () => void;
-  onSelectClient: (clientId: string) => void;
-}) {
+}: AppointmentDetailDialogProps) {
   const [updating, setUpdating] = useState(false);
 
   if (!appointment) return null;
