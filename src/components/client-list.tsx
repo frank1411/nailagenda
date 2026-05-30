@@ -609,11 +609,12 @@ export default function ClientList({ onSelectClient, selectedClientId }: ClientL
             <p className="text-sm font-medium text-foreground mb-1">Error al cargar</p>
             <p className="text-xs text-muted-foreground mb-3">{error}</p>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchClients}
-            >
-              Reintentar
+               variant="outline"
+               size="sm"
+               onClick={() => fetchClients()}
+             >
+               Reintentar
+
             </Button>
           </div>
         ) : clients.length === 0 ? (
