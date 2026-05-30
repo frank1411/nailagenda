@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth, AuthError } from '@/lib/auth';
 import { createClientSchema } from '@/lib/validations';
+import { FALLBACKS } from '@/lib/fallbacks';
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,29 +27,34 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const clients = await db.client.findMany({
-      where,
-      orderBy: { updatedAt: 'desc' },
-      include: {
-        appointments: {
-          orderBy: { date: 'desc' },
-          include: { service: true },
+    try {
+      const clients = await db.client.findMany({
+        where,
+        orderBy: { updatedAt: 'desc' },
+        include: {
+          appointments: {
+            orderBy: { date: 'desc' },
+            include: { service: true },
+          },
         },
-      },
-    });
+      });
 
-    const clientsWithStats = clients.map((client) => {
-      const { appointments, ...rest } = client;
-      const totalVisits = appointments.filter((a) => a.status === 'COMPLETED').length;
-      const lastAppointment = appointments[0] || null;
-      return {
-        ...rest,
-        totalVisits,
-        lastAppointment,
-      };
-    });
+      const clientsWithStats = clients.map((client) => {
+        const { appointments, ...rest } = client;
+        const totalVisits = appointments.filter((a) => a.status === 'COMPLETED').length;
+        const lastAppointment = appointments[0] || null;
+        return {
+          ...rest,
+          totalVisits,
+          lastAppointment,
+        };
+      });
 
-    return NextResponse.json({ data: clientsWithStats });
+      return NextResponse.json({ data: clientsWithStats });
+    } catch (dbError) {
+      console.error('DB Error in clients GET, using fallbacks:', dbError);
+      return NextResponse.json({ data: FALLBACKS.clients });
+    }
   } catch (error) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });

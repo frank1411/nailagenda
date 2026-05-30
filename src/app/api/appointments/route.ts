@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth, AuthError } from '@/lib/auth';
 import { createAppointmentSchema } from '@/lib/validations';
+import { FALLBACKS } from '@/lib/fallbacks';
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,16 +35,21 @@ export async function GET(request: NextRequest) {
       where.status = status;
     }
 
-    const appointments = await db.appointment.findMany({
-      where,
-      orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
-      include: {
-        client: { select: { id: true, firstName: true, lastName: true, phone: true, email: true } },
-        service: true,
-      },
-    });
+    try {
+      const appointments = await db.appointment.findMany({
+        where,
+        orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
+        include: {
+          client: { select: { id: true, firstName: true, lastName: true, phone: true, email: true } },
+          service: true,
+        },
+      });
 
-    return NextResponse.json({ data: appointments });
+      return NextResponse.json({ data: appointments });
+    } catch (dbError) {
+      console.error('DB Error in appointments GET, using fallbacks:', dbError);
+      return NextResponse.json({ data: FALLBACKS.appointments });
+    }
   } catch (error) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });

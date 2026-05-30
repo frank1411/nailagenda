@@ -2,20 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth, AuthError } from '@/lib/auth';
 import { createAutomationSchema } from '@/lib/validations';
+import { FALLBACKS } from '@/lib/fallbacks';
 
 export async function GET(request: NextRequest) {
   try {
     const userId = await requireAuth(request);
 
-    const automations = await db.automationRule.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      include: {
-        _count: { select: { logs: true } },
-      },
-    });
+    try {
+      const automations = await db.automationRule.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          _count: { select: { logs: true } },
+        },
+      });
 
-    return NextResponse.json({ data: automations });
+      return NextResponse.json({ data: automations });
+    } catch (dbError) {
+      console.error('DB Error in automations GET, using fallbacks:', dbError);
+      return NextResponse.json({ data: FALLBACKS.automations });
+    }
   } catch (error) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });

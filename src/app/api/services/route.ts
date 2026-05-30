@@ -2,17 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth, AuthError } from '@/lib/auth';
 import { createServiceSchema } from '@/lib/validations';
+import { FALLBACKS } from '@/lib/fallbacks';
 
 export async function GET(request: NextRequest) {
   try {
     const userId = await requireAuth(request);
 
-    const services = await db.service.findMany({
-      where: { userId, active: true },
-      orderBy: { name: 'asc' },
-    });
+    try {
+      const services = await db.service.findMany({
+        where: { userId, active: true },
+        orderBy: { name: 'asc' },
+      });
 
-    return NextResponse.json({ data: services });
+      return NextResponse.json({ data: services });
+    } catch (dbError) {
+      console.error('DB Error in services GET, using fallbacks:', dbError);
+      return NextResponse.json({ data: FALLBACKS.services });
+    }
   } catch (error) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });
