@@ -55,6 +55,9 @@ const nextConfig: NextConfig = {
       '*.pdf',
     ],
   },
+  outputFileTracingIncludes: {
+    '*.js': ['node_modules/.prisma/client/*.node'],
+  },
 
   // Use unoptimized images since we removed sharp
   images: {
