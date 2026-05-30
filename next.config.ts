@@ -43,7 +43,6 @@ const nextConfig: NextConfig = {
       'node_modules/@tailwindcss/**/*',
       'node_modules/sharp/**/*',
       'node_modules/@img/**/*',
-      'node_modules/prisma/**/*',
       'node_modules/pptxgenjs/**/*',
       'node_modules/react-icons/**/*',
       'node_modules/react-syntax-highlighter/**/*',
