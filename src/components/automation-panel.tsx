@@ -462,7 +462,7 @@ export default function AutomationPanel() {
       if (editingAutomation) {
         // Optimistic Update
         setAutomations((prev) =>
-          prev.map((a) => (a.id === editingAutomation.id ? { ...a, ...payload } : a))
+          prev.map((a) => (a.id === editingAutomation.id ? { ...a, ...payload, config: JSON.stringify(formConfig) } : a))
         );
         await api.updateAutomation(editingAutomation.id, payload);
         toast.success('Automatización actualizada correctamente');
@@ -471,6 +471,7 @@ export default function AutomationPanel() {
         const tempId = `temp-${Date.now()}`;
         const newAutomation: AutomationRule = {
           ...payload,
+          config: JSON.stringify(formConfig),
           id: tempId,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
