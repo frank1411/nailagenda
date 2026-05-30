@@ -11,7 +11,6 @@ const nextConfig: NextConfig = {
       'examples/**/*',
       'agent-ctx/**/*',
       'download/**/*',
-      'src/**/*',
       '.zscripts/**/*',
       'mini-services/**/*',
       'presentations/**/*',
