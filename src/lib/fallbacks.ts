@@ -68,6 +68,18 @@ export const FALLBACKS = {
       clientId: 'client-1',
       serviceId: 'service-1',
       userId: DEMO_USER_ID,
+      client: {
+        id: 'client-1',
+        firstName: 'Ana',
+        lastName: 'García',
+        phone: '123456789',
+      },
+      service: {
+        id: 'service-1',
+        name: 'Manicura Rusa',
+        duration: 90,
+        price: 35.0,
+      },
     },
   ],
   dashboard: {
@@ -92,8 +104,26 @@ export const FALLBACKS = {
       },
     ],
     recentActivity: [
-      { id: 'act-1', type: 'APPOINTMENT_CREATED', message: 'Nueva cita para Ana García', date: new Date().toISOString() },
-      { id: 'act-2', type: 'CLIENT_ADDED', message: 'Cliente Lucía Martínez agregado', date: new Date().toISOString() },
+      { 
+        id: 'act-1', 
+        date: new Date().toISOString().split('T')[0],
+        startTime: '10:00',
+        status: 'COMPLETED',
+        updatedAt: new Date().toISOString(),
+        client: { id: 'client-1', firstName: 'Ana', lastName: 'García' }, 
+        service: { id: 'service-1', name: 'Manicura Rusa' }, 
+        message: 'Cita completada con éxito'
+      },
+      { 
+        id: 'act-2', 
+        date: new Date().toISOString().split('T')[0],
+        startTime: '14:00',
+        status: 'CONFIRMED',
+        updatedAt: new Date().toISOString(),
+        client: { id: 'client-2', firstName: 'Lucía', lastName: 'Martínez' }, 
+        service: { id: 'service-2', name: 'Uñas Acrílicas XL' }, 
+        message: 'Nueva cita agendada'
+      },
     ],
   },
   automations: [
