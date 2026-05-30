@@ -217,7 +217,7 @@ function ServiceFormDialog({
     try {
       await onSave({
         ...form,
-        description: form.description.trim() || null,
+        description: form.description.trim() || '',
       }, editingService?.id);
       onOpenChange(false);
     } catch (err: unknown) {
