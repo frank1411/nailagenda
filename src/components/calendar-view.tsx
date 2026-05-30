@@ -898,17 +898,24 @@ function AppointmentDetailDialog({
 
   const handleStatusChange = async (newStatus: string) => {
     setUpdating(true);
+    const previousAppointment = { ...appointment };
+
     try {
+      // Optimistic Update: trigger parent update immediately
+      onUpdated({ ...appointment, status: newStatus });
+      
       await api.updateAppointment(appointment.id, { status: newStatus });
       toast.success(`Estado actualizado a "${STATUS_CONFIG[newStatus]?.label || newStatus}"`);
-      onUpdated();
       onOpenChange(false);
     } catch (err: unknown) {
+      // Revert in parent
+      onUpdated(previousAppointment);
       toast.error(err instanceof Error ? err.message : 'Error al actualizar');
     } finally {
       setUpdating(false);
     }
   };
+
 
   const handleDelete = async () => {
     setUpdating(true);
@@ -1290,15 +1297,26 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
 
     if (apt.date === newDate && apt.startTime === newStartTime) return;
 
+    // --- OPTIMISTIC UPDATE ---
+    const previousAppointments = [...appointments];
+    setAppointments((prev) =>
+      prev.map((a) =>
+        a.id === aptId
+          ? { ...a, date: newDate, startTime: newStartTime, endTime: newEndTime }
+          : a
+      )
+    );
+
     try {
       await api.updateAppointment(aptId, {
         date: newDate,
         startTime: newStartTime,
         endTime: newEndTime,
       });
-      toast.success('Cita actualizada');
-      fetchAppointments();
+      toast.success('Cita movida');
     } catch (err: unknown) {
+      // Revert on error
+      setAppointments(previousAppointments);
       const message = err instanceof Error ? err.message : 'Error al mover la cita';
       if (message.includes('overlaps') || message.includes('409')) {
         toast.error('Conflicto: la cita se superpone con otra existente');
@@ -1308,8 +1326,14 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
     }
   };
 
-  const handleAppointmentUpdated = () => {
-    fetchAppointments();
+  const handleAppointmentUpdated = (updatedApt?: AppointmentItem) => {
+    if (updatedApt) {
+      setAppointments((prev) =>
+        prev.map((a) => (a.id === updatedApt.id ? updatedApt : a))
+      );
+    } else {
+      fetchAppointments();
+    }
   };
 
   // -- Title text --
