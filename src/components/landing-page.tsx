@@ -24,6 +24,7 @@ import { Separator } from '@/components/ui/separator';
 
 interface LandingPageProps {
   onGetStarted: () => void;
+  onViewDemo: () => void;
 }
 
 const fadeInUp = {
@@ -266,14 +267,15 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
                   Prueba Gratis
                   <ArrowRight className="size-4" />
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-base cursor-pointer"
-                  style={{ borderColor: '#B76E79', color: '#B76E79' }}
-                >
-                  Ver Demo
-                </Button>
+                 <Button
+                   size="lg"
+                   variant="outline"
+                   className="text-base cursor-pointer"
+                   style={{ borderColor: '#B76E79', color: '#B76E79' }}
+                   onClick={onViewDemo}
+                 >
+                   Ver Demo
+                 </Button>
               </motion.div>
 
               <motion.div variants={fadeInUp} className="flex items-center gap-4 pt-2">

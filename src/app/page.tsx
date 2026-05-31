@@ -258,7 +258,7 @@ function AppShell() {
 }
 
 export default function Home() {
-  const { user, initialized, init } = useAuthStore();
+  const { user, initialized, init, loginDemo } = useAuthStore();
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [onboardingOpen, setOnboardingOpen] = useState(false);
@@ -300,6 +300,7 @@ export default function Home() {
             setAuthMode('register');
             setAuthOpen(true);
           }}
+          onViewDemo={loginDemo}
         />
         <AuthDialog
           open={authOpen}
