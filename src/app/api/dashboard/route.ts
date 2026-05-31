@@ -25,12 +25,10 @@ export async function GET(request: NextRequest) {
         orderBy: { startTime: 'asc' },
       });
 
-      const weekStart = new Date(today);
-      weekStart.setDate(today.getDate() - today.getDay());
-      const weekStartStr = weekStart.toISOString().split('T')[0];
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      const weekEndStr = weekEnd.toISOString().split('T')[0];
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(today.getDate() - 6);
+      const weekStartStr = sevenDaysAgo.toISOString().split('T')[0];
+      const weekEndStr = todayStr;
 
       const completedWeekAppointments = await db.appointment.findMany({
         where: {
