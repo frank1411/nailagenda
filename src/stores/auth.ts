@@ -92,7 +92,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 }));
 
-type AppView = 'dashboard' | 'calendar' | 'clients' | 'services' | 'automations' | 'settings';
+type AppView = 'dashboard' | 'calendar' | 'clients' | 'services' | 'automations' | 'settings' | 'admin';
 
 interface AppState {
   currentView: AppView;
