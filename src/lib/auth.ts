@@ -76,8 +76,9 @@ export async function requireAuth(request: Request): Promise<string> {
     throw new AuthError('Esta cuenta ha sido inhabilitada', 403);
   }
 
-  // Check subscription expiration for non-admin users
-  if (user.role !== 'ADMIN' && user.subscriptionExpiresAt) {
+  // Check subscription expiration for non-admin and non-demo users
+  const isDemoUser = user.id === 'cmprffoo10000jrm79fshecm0';
+  if (user.role !== 'ADMIN' && !isDemoUser && user.subscriptionExpiresAt) {
     if (new Date() > user.subscriptionExpiresAt) {
       throw new AuthError('Suscripción expirada. Por favor, contacta al administrador para renovar.', 402);
     }

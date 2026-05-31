@@ -322,7 +322,7 @@ export default function Home() {
   }
 
   // Subscription check
-  if (user.role !== 'ADMIN' && user.subscriptionExpiresAt) {
+  if (user.role !== 'ADMIN' && user.email !== 'demo@mayenailsart.com' && user.subscriptionExpiresAt) {
     const expirationDate = new Date(user.subscriptionExpiresAt);
     if (new Date() > expirationDate) {
       return <SubscriptionExpiredView />;
