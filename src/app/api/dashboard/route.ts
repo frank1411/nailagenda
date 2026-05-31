@@ -8,11 +8,6 @@ export async function GET(request: NextRequest) {
     const userId = await requireAuth(request);
 
     try {
-      // Use DEMO_USER_ID for immediate bypass to guarantee demo stability
-      if (userId === DEMO_USER_ID) {
-        return NextResponse.json({ data: FALLBACKS.dashboard });
-      }
-
       const today = new Date();
       const todayStr = today.toISOString().split('T')[0];
 
