@@ -32,7 +32,17 @@ export async function POST(request: NextRequest) {
       const existing = await db.user.findUnique({ where: { email } });
       if (existing) return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
       const hashedPassword = await hashPassword(password);
-      const user = await db.user.create({ data: { email, name, password: hashedPassword, salonName: salonName || 'Mi Peluquería' } });
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 30);
+      const user = await db.user.create({ 
+        data: { 
+          email, 
+          name, 
+          password: hashedPassword, 
+          salonName: salonName || 'Mi Peluquería',
+          subscriptionExpiresAt: expirationDate
+        } 
+      });
       const token = await createToken(user.id);
       return NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role }, token }, }, { status: 201 });
     }

@@ -33,6 +33,7 @@ interface AdminUser {
   email: string;
   role: string;
   isActive: boolean;
+  subscriptionExpiresAt?: string;
   createdAt: string;
 }
 
@@ -69,6 +70,19 @@ export default function AdminView() {
       await fetchUsers();
     } catch (err: any) {
       toast.error(err.message || 'Error al actualizar el estado del usuario');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const extendSubscription = async (userId: string) => {
+    setUpdatingId(userId);
+    try {
+      await (api as any).extendUserSubscription(userId);
+      toast.success('Suscripción extendida por 30 días correctamente');
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message || 'Error al extender la suscripción');
     } finally {
       setUpdatingId(null);
     }
@@ -132,58 +146,75 @@ export default function AdminView() {
             <ScrollArea className="h-[calc(100vh-300px)]">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
-                    <tr>
-                      <th className="px-4 py-3 font-medium">Usuario</th>
-                      <th className="px-4 py-3 font-medium">Rol</th>
-                      <th className="px-4 py-3 font-medium">Estado</th>
-                      <th className="px-4 py-3 font-medium text-right">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {filteredUsers.length === 0 ? (
+                    <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
                       <tr>
-                        <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                          No se encontraron usuarios
-                        </td>
+                        <th className="px-4 py-3 font-medium">Usuario</th>
+                        <th className="px-4 py-3 font-medium">Rol</th>
+                        <th className="px-4 py-3 font-medium">Vencimiento</th>
+                        <th className="px-4 py-3 font-medium">Estado</th>
+                        <th className="px-4 py-3 font-medium text-right">Acciones</th>
                       </tr>
-                    ) : (
-                      filteredUsers.map((user) => (
-                        <tr key={user.id} className="hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3">
-                            <div className="flex flex-col">
-                              <span className="font-medium text-foreground">{user.name}</span>
-                              <span className="text-xs text-muted-foreground">{user.email}</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <Badge variant="secondary" className="text-[10px]">
-                              {user.role}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              {user.isActive ? (
-                                <UserCheck className="h-4 w-4 text-green-500" />
-                              ) : (
-                                <UserX className="h-4 w-4 text-red-500" />
-                              )}
-                              <span className={user.isActive ? 'text-green-600' : 'text-red-600'}>
-                                {user.isActive ? 'Activo' : 'Inactivo'}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <Switch 
-                              checked={user.isActive} 
-                              onCheckedChange={(checked) => toggleUserStatus(user.id, user.isActive)}
-                              disabled={updatingId === user.id}
-                            />
+                    </thead>
+                    <tbody className="divide-y">
+                      {filteredUsers.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                            No se encontraron usuarios
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
+                      ) : (
+                        filteredUsers.map((user) => (
+                          <tr key={user.id} className="hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3">
+                              <div className="flex flex-col">
+                               <span className="font-medium text-foreground">{user.name}</span>
+                               <span className="text-xs text-muted-foreground">{user.email}</span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <Badge variant="secondary" className="text-[10px]">
+                                {user.role}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="text-xs">
+                                {user.subscriptionExpiresAt 
+                                  ? new Date(user.subscriptionExpiresAt).toLocaleDateString('es-ES') 
+                                  : 'N/A'}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                {user.isActive ? (
+                                  <UserCheck className="h-4 w-4 text-green-500" />
+                                ) : (
+                                  <UserX className="h-4 w-4 text-red-500" />
+                                )}
+                                <span className={user.isActive ? 'text-green-600' : 'text-red-600'}>
+                                  {user.isActive ? 'Activo' : 'Inactivo'}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right flex items-center justify-end gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="h-8 text-[10px]"
+                                onClick={() => extendSubscription(user.id)}
+                                disabled={updatingId === user.id || user.role === 'ADMIN'}
+                              >
+                                +30 Días
+                              </Button>
+                              <Switch 
+                                checked={user.isActive} 
+                                onCheckedChange={(checked) => toggleUserStatus(user.id, user.isActive)}
+                                disabled={updatingId === user.id}
+                              />
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
                 </table>
               </div>
             </ScrollArea>

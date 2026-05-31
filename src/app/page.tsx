@@ -12,6 +12,7 @@ import ServiceManagement from '@/components/service-management';
 import AutomationPanel from '@/components/automation-panel';
 import SettingsPanel from '@/components/settings-panel';
 import AdminView from '@/components/admin-view';
+import SubscriptionExpiredView from '@/components/subscription-expired-view';
 import OnboardingTour, { hasCompletedOnboarding } from '@/components/onboarding-tour';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -320,6 +321,14 @@ export default function Home() {
     );
   }
 
+  // Subscription check
+  if (user.role !== 'ADMIN' && user.subscriptionExpiresAt) {
+    const expirationDate = new Date(user.subscriptionExpiresAt);
+    if (new Date() > expirationDate) {
+      return <SubscriptionExpiredView />;
+    }
+  }
+ 
   return (
     <>
       <AppShell />

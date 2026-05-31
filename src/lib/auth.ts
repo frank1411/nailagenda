@@ -65,17 +65,24 @@ export async function requireAuth(request: Request): Promise<string> {
 
   const user = await db.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, isActive: true },
+    select: { id: true, isActive: true, role: true, subscriptionExpiresAt: true },
   });
-
+ 
   if (!user) {
     throw new AuthError('Usuario no encontrado', 404);
   }
-
+ 
   if (!user.isActive) {
     throw new AuthError('Esta cuenta ha sido inhabilitada', 403);
   }
 
+  // Check subscription expiration for non-admin users
+  if (user.role !== 'ADMIN' && user.subscriptionExpiresAt) {
+    if (new Date() > user.subscriptionExpiresAt) {
+      throw new AuthError('Suscripción expirada. Por favor, contacta al administrador para renovar.', 402);
+    }
+  }
+ 
   return user.id;
 }
 

@@ -10,6 +10,7 @@ interface User {
   salonName: string;
   salonAddress?: string;
   image?: string;
+  subscriptionExpiresAt?: string;
 }
 
 interface AuthState {

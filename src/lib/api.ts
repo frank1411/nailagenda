@@ -199,6 +199,10 @@ class ApiClient {
   async updateUserStatus(id: string, isActive: boolean) {
     return this.patch(`/admin/users/${id}`, { isActive });
   }
+ 
+  async extendUserSubscription(id: string) {
+    return this.patch(`/admin/users/${id}`, { extendSubscription: true });
+  }
 }
 
 export const api = new ApiClient();

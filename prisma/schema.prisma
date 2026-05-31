@@ -9,18 +9,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String
-  password      String
-  role          String    @default("OWNER") // OWNER, STAFF, ADMIN
-  isActive      Boolean   @default(true)
-  phone         String?
-  salonName     String    @default("Mi Peluquería")
-  salonAddress  String?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  name                  String
+  password              String
+  role                  String    @default("OWNER") // OWNER, STAFF, ADMIN
+  isActive              Boolean   @default(true)
+  subscriptionExpiresAt DateTime? // Date when access expires
+  phone                 String?
+  salonName             String    @default("Mi Peluquería")
+  salonAddress          String?
+  image                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   clients       Client[]
   services      Service[]
