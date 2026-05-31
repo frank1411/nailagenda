@@ -4,11 +4,11 @@ import { requireAdmin, AuthError } from '@/lib/auth';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin(request);
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     if (typeof body.isActive !== 'boolean') {
