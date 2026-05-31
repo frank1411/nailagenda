@@ -51,7 +51,46 @@ export function getSessionUserId(request: Request): string | null {
 
 // Proper async auth check for API routes
 export async function requireAuth(request: Request): Promise<string> {
-  return 'cmprffoo10000jrm79fshecm0'; // Bypass: always return the real demo user ID
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    throw new AuthError('No se proporcionó un token de autenticación válido', 401);
+  }
+
+  const token = authHeader.slice(7);
+  const session = await verifyToken(token);
+
+  if (!session) {
+    throw new AuthError('Sesión expirada o token inválido', 401);
+  }
+
+  const user = await db.user.findUnique({
+    where: { id: session.userId },
+    select: { id: true, isActive: true },
+  });
+
+  if (!user) {
+    throw new AuthError('Usuario no encontrado', 404);
+  }
+
+  if (!user.isActive) {
+    throw new AuthError('Esta cuenta ha sido inhabilitada', 403);
+  }
+
+  return user.id;
+}
+
+export async function requireAdmin(request: Request): Promise<string> {
+  const userId = await requireAuth(request);
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+
+  if (!user || user.role !== 'ADMIN') {
+    throw new AuthError('Acceso denegado: se requieren permisos de administrador', 403);
+  }
+
+  return userId;
 }
 
 export class AuthError extends Error {

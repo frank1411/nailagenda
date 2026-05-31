@@ -11,6 +11,7 @@ import ClientProfile from '@/components/client-profile';
 import ServiceManagement from '@/components/service-management';
 import AutomationPanel from '@/components/automation-panel';
 import SettingsPanel from '@/components/settings-panel';
+import AdminView from '@/components/admin-view';
 import OnboardingTour, { hasCompletedOnboarding } from '@/components/onboarding-tour';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -29,7 +30,9 @@ import {
   Menu,
   ChevronLeft,
   Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
+
 
 const navItems = [
   { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
@@ -38,6 +41,7 @@ const navItems = [
   { id: 'services' as const, label: 'Servicios', icon: Scissors },
   { id: 'automations' as const, label: 'Automatizaciones', icon: Zap },
   { id: 'settings' as const, label: 'Configuración', icon: Settings },
+  { id: 'admin' as const, label: 'Administración', icon: ShieldCheck, adminOnly: true },
 ];
 
 function SidebarContent({ collapsed, onNavigate, onLogout }: { collapsed: boolean; onNavigate: () => void; onLogout: () => void }) {
@@ -64,37 +68,39 @@ function SidebarContent({ collapsed, onNavigate, onLogout }: { collapsed: boolea
       </div>
 
       {/* Navigation */}
-      <ScrollArea className="flex-1 py-3">
-        <nav className="space-y-1 px-2">
-          {navItems.map((item) => {
-            const isActive = currentView === item.id;
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setView(item.id);
-                  onNavigate();
-                }}
-                className={`
-                  w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                  transition-all duration-200 cursor-pointer
-                  ${isActive
-                    ? 'bg-[#B76E79]/10 text-[#B76E79]'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }
-                `}
-              >
-                <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#B76E79]' : ''}`} />
-                {!collapsed && <span>{item.label}</span>}
-                {isActive && !collapsed && (
-                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#B76E79]" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
-      </ScrollArea>
+       <ScrollArea className="flex-1 py-3">
+         <nav className="space-y-1 px-2">
+           {navItems
+             .filter(item => !item.adminOnly || user?.role === 'ADMIN')
+             .map((item) => {
+               const isActive = currentView === item.id;
+               const Icon = item.icon;
+               return (
+                 <button
+                   key={item.id}
+                   onClick={() => {
+                     setView(item.id);
+                     onNavigate();
+                   }}
+                   className={`
+                     w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                     transition-all duration-200 cursor-pointer
+                     ${isActive
+                       ? 'bg-[#B76E79]/10 text-[#B76E79]'
+                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                     }
+                   `}
+                 >
+                   <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#B76E79]' : ''}`} />
+                   {!collapsed && <span>{item.label}</span>}
+                   {isActive && !collapsed && (
+                     <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#B76E79]" />
+                   )}
+                 </button>
+               );
+             })}
+         </nav>
+       </ScrollArea>
 
       {/* User section */}
       <div className="border-t border-gray-100 p-3">
@@ -164,12 +170,14 @@ function AppShell() {
         return <ServiceManagement />;
       case 'automations':
         return <AutomationPanel />;
-      case 'settings':
-        return <SettingsPanel />;
-      default:
-        return <DashboardView onSelectClient={handleSelectClient} />;
-    }
-  };
+       case 'settings':
+         return <SettingsPanel />;
+       case 'admin':
+         return <AdminView />;
+       default:
+         return <DashboardView onSelectClient={handleSelectClient} />;
+     }
+   };
 
   return (
     <div className="flex h-screen bg-gray-50/50 overflow-hidden">

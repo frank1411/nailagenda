@@ -51,6 +51,17 @@ class ApiClient {
     return data.data;
   }
 
+  async patch(path: string, body: any): Promise<any> {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: 'PATCH',
+      headers: this.headers(),
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    return data.data;
+  }
+
   async delete(path: string): Promise<any> {
     const res = await fetch(`${API_BASE}${path}`, {
       method: 'DELETE',
@@ -178,6 +189,15 @@ class ApiClient {
   // Seed
   async seedDatabase() {
     return this.post('/seed', {});
+  }
+
+  // Admin
+  async getAdminUsers() {
+    return this.get('/admin/users');
+  }
+
+  async updateUserStatus(id: string, isActive: boolean) {
+    return this.patch(`/admin/users/${id}`, { isActive });
   }
 }
 

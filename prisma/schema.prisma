@@ -13,7 +13,8 @@ model User {
   email         String    @unique
   name          String
   password      String
-  role          String    @default("OWNER") // OWNER, STAFF
+  role          String    @default("OWNER") // OWNER, STAFF, ADMIN
+  isActive      Boolean   @default(true)
   phone         String?
   salonName     String    @default("Mi Peluquería")
   salonAddress  String?

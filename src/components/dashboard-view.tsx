@@ -653,7 +653,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
                 <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Ingresos últimos 7 días</p>
+                <p className="text-sm text-muted-foreground">Ingresos últ 7 días</p>
                 <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {formatCurrency(data?.weekRevenue ?? 0)}
                 </p>

@@ -145,20 +145,16 @@ export default function SettingsPanel() {
 
       {/* Tabs: General / Producción */}
       <div className="px-4 pt-3 sm:px-6 sm:pt-4">
-        <Tabs defaultValue="general" className="w-full">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="general" className="gap-1.5">
-              <Settings className="h-3.5 w-3.5" />
-              General
-            </TabsTrigger>
-            <TabsTrigger value="produccion" className="gap-1.5">
-              <Rocket className="h-3.5 w-3.5" />
-              Producción
-            </TabsTrigger>
-          </TabsList>
-
-          {/* ====== GENERAL TAB ====== */}
-          <TabsContent value="general">
+         <Tabs defaultValue="general" className="w-full">
+           <TabsList className="w-full sm:w-auto">
+             <TabsTrigger value="general" className="gap-1.5">
+               <Settings className="h-3.5 w-3.5" />
+               General
+             </TabsTrigger>
+           </TabsList>
+ 
+           {/* ====== GENERAL TAB ====== */}
+           <TabsContent value="general">
             <ScrollArea className="flex-1 min-h-0">
               <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-6">
 
@@ -550,15 +546,15 @@ export default function SettingsPanel() {
             </div>
           </ScrollArea>
         </TabsContent>
-      </Tabs>
-      </div>
-
-      {/* Onboarding Tour */}
-      <OnboardingTour
-        open={onboardingOpen}
-        onClose={() => setOnboardingOpen(false)}
-        onComplete={() => setOnboardingOpen(false)}
-      />
+         </Tabs>
+       </div>
+ 
+       {/* Onboarding Tour */}
+       <OnboardingTour
+         open={onboardingOpen}
+         onClose={() => setOnboardingOpen(false)}
+         onComplete={() => setOnboardingOpen(false)}
+       />
 
       {/* Seed Confirmation Dialog */}
       <AlertDialog open={seedDialogOpen} onOpenChange={setSeedDialogOpen}>
