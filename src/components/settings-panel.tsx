@@ -146,12 +146,18 @@ export default function SettingsPanel() {
       {/* Tabs: General / Producción */}
       <div className="px-4 pt-3 sm:px-6 sm:pt-4">
          <Tabs defaultValue="general" className="w-full">
-           <TabsList className="w-full sm:w-auto">
-             <TabsTrigger value="general" className="gap-1.5">
-               <Settings className="h-3.5 w-3.5" />
-               General
-             </TabsTrigger>
-           </TabsList>
+            <TabsList className="w-full sm:w-auto">
+              <TabsTrigger value="general" className="gap-1.5">
+                <Settings className="h-3.5 w-3.5" />
+                General
+              </TabsTrigger>
+              {user?.role === 'ADMIN' && (
+                <TabsTrigger value="produccion" className="gap-1.5">
+                  <Rocket className="h-3.5 w-3.5" />
+                  Producción
+                </TabsTrigger>
+              )}
+            </TabsList>
  
            {/* ====== GENERAL TAB ====== */}
            <TabsContent value="general">
