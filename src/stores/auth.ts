@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       id: 'cmprffoo10000jrm79fshecm0',
       email: 'demo@mayenailsart.com',
       name: 'Maye García',
-      salonName: 'MayeNailsArt Studio',
+      salonName: 'CrmNailsAgency Studio',
       role: 'OWNER',
     };
     const demoToken = 'demo-token-123';

@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const FILES: Record<string, { fileName: string; type: string }> = {
   pptx: {
-    fileName: 'MayeNailsArt-Presentacion.pptx',
+    fileName: 'CrmNailsAgency-Presentacion.pptx',
     type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   },
   pdf: {
-    fileName: 'MayeNailsArt-Presentacion.pdf',
+    fileName: 'CrmNailsAgency-Presentacion.pdf',
     type: 'application/pdf',
   },
 };

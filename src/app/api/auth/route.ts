@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
             id: DEMO_USER_ID,
             email: 'demo@mayenailsart.com',
             name: 'Maye García',
-            salonName: 'MayeNailsArt Studio',
+            salonName: 'CrmNailsAgency Studio',
             role: 'OWNER',
           },
           token: 'demo-token-123',
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     const userId = await requireAuth(request);
     if (userId === DEMO_USER_ID) {
       return NextResponse.json({
-        data: { id: DEMO_USER_ID, email: 'demo@mayenailsart.com', name: 'Maye García', role: 'OWNER', salonName: 'MayeNailsArt Studio', salonAddress: 'Calle Principal 123, Caracas', image: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+        data: { id: DEMO_USER_ID, email: 'demo@mayenailsart.com', name: 'Maye García', role: 'OWNER', salonName: 'CrmNailsAgency Studio', salonAddress: 'Calle Principal 123, Caracas', image: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
       });
     }
     const user = await db.user.findUnique({ where: { id: userId } });

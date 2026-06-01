@@ -148,7 +148,7 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
                 <Store size={18} style={{ color: roseGold }} />
               </div>
               <DialogTitle className="text-xl" style={{ color: charcoal }}>
-                Bienvenido a MayeNailsArt
+                Bienvenido a CrmNailsAgency
               </DialogTitle>
             </div>
             <DialogDescription className="text-sm" style={{ color: `${charcoal}99` }}>
@@ -404,7 +404,7 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
             )}
           </Button>
           <p className="text-xs text-center mt-2" style={{ color: `${charcoal}50` }}>
-            Explora MayeNailsArt con datos de ejemplo
+            Explora CrmNailsAgency con datos de ejemplo
           </p>
         </div>
       </DialogContent>

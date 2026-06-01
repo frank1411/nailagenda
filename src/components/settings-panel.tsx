@@ -396,7 +396,7 @@ export default function SettingsPanel() {
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
                       Carga datos de ejemplo incluyendo servicios, clientes, citas y automatizaciones
-                      para explorar todas las funcionalidades de MayeNailsArt.
+                      para explorar todas las funcionalidades de CrmNailsAgency.
                     </p>
                   </div>
                 </div>
@@ -421,7 +421,7 @@ export default function SettingsPanel() {
                 Presentación Comercial
               </CardTitle>
               <CardDescription className="text-sm">
-                Descarga y comparte MayeNailsArt con posibles clientes
+                Descarga y comparte CrmNailsAgency con posibles clientes
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -430,7 +430,7 @@ export default function SettingsPanel() {
                   <FileText className="h-5 w-5 shrink-0 mt-0.5" style={{ color: ROSE_GOLD }} />
                   <div className="flex-1">
                     <h4 className="font-medium text-sm" style={{ color: CHARCOAL }}>
-                      Presentación de MayeNailsArt
+                      Presentación de CrmNailsAgency
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
                       Presentación profesional de 10 diapositivas para compartir por correo electrónico,
@@ -473,7 +473,7 @@ export default function SettingsPanel() {
                 Guía de Uso
               </CardTitle>
               <CardDescription className="text-sm">
-                Aprende a usar MayeNailsArt
+                Aprende a usar CrmNailsAgency
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -482,7 +482,7 @@ export default function SettingsPanel() {
                   <Rocket className="h-5 w-5 shrink-0 mt-0.5" style={{ color: ROSE_GOLD }} />
                   <div className="flex-1">
                     <h4 className="font-medium text-sm" style={{ color: CHARCOAL }}>
-                      Tour Guiado de MayeNailsArt
+                      Tour Guiado de CrmNailsAgency
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1">
                       Repasa el recorrido interactivo para conocer todas las funcionalidades

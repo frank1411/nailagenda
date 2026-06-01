@@ -668,7 +668,7 @@ const slides: SlideData[] = [
   {
     illustration: RocketIllustration,
     title: 'Tu negocio de nail art, al siguiente nivel',
-    description: 'Ya conoces las funciones principales de MayeNailsArt. Recuerda: puedes volver a ver esta guía desde Configuración en cualquier momento.',
+    description: 'Ya conoces las funciones principales de CrmNailsAgency. Recuerda: puedes volver a ver esta guía desde Configuración en cualquier momento.',
     highlight: '¡Vamos!',
     highlightIcon: Rocket,
   },

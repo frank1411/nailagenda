@@ -1,4 +1,4 @@
-# MayeNailsArt CRM
+# CrmNailsAgency CRM
 
 CRM especializado para estudios de nail art. Gestiona clientes, citas, servicios y automatizaciones desde un solo lugar.
 

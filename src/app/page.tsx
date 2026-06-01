@@ -62,7 +62,7 @@ function SidebarContent({ collapsed, onNavigate, onLogout }: { collapsed: boolea
         </div>
         {!collapsed && (
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-[#2D2D2D] tracking-tight">MayeNailsArt</span>
+            <span className="text-sm font-bold text-[#2D2D2D] tracking-tight">CrmNailsAgency</span>
             <span className="text-[10px] text-gray-400 -mt-0.5">{user?.salonName || 'Mi Peluquería'}</span>
           </div>
         )}

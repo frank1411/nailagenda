@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         email: 'demo@mayenailsart.com',
         name: 'Maye García',
         password: hashedPassword,
-        salonName: 'MayeNailsArt Studio',
+        salonName: 'CrmNailsAgency Studio',
         salonAddress: 'Calle Principal 123, Caracas',
         role: 'OWNER',
       },

@@ -113,7 +113,7 @@ export default function LandingPage({ onGetStarted, onViewDemo }: LandingPagePro
             <div className="flex items-center gap-2">
               <Image
                 src="/glamcrm-logo.png"
-                alt="MayeNailsArt Logo"
+                alt="CrmNailsAgency Logo"
                 width={36}
                 height={36}
                 className="rounded-lg"
@@ -317,7 +317,7 @@ export default function LandingPage({ onGetStarted, onViewDemo }: LandingPagePro
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <Image
                   src="/salon-hero.png"
-                  alt="MayeNailsArt Dashboard"
+                  alt="CrmNailsAgency Dashboard"
                   width={700}
                   height={500}
                   className="w-full h-auto object-cover"
@@ -594,7 +594,7 @@ export default function LandingPage({ onGetStarted, onViewDemo }: LandingPagePro
               <div className="flex items-center gap-2 mb-4">
                 <Image
                   src="/glamcrm-logo.png"
-                  alt="MayeNailsArt Logo"
+                  alt="CrmNailsAgency Logo"
                   width={28}
                   height={28}
                   className="rounded-lg"
@@ -655,7 +655,7 @@ export default function LandingPage({ onGetStarted, onViewDemo }: LandingPagePro
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-white/40">
-              &copy; {new Date().getFullYear()} MayeNailsArt. Todos los derechos reservados.
+              &copy; {new Date().getFullYear()} CrmNailsAgency. Todos los derechos reservados.
             </p>
             <p className="text-sm text-white/40">
               Hecho con <Heart size={12} className="inline" style={{ color: '#B76E79' }} /> para nail art

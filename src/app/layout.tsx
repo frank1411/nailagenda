@@ -15,15 +15,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MayeNailsArt - CRM para Nail Art",
+  title: "CrmNailsAgency - CRM para Nail Art",
   description: "Gestiona tu negocio de nail art con estilo. CRM especializado con pipeline visual, calendario inteligente, automatizaciones y fidelización de clientes.",
   keywords: ["CRM", "nail art", "uñas", "salón", "gestión", "citas", "clientes", "automatización"],
-  authors: [{ name: "MayeNailsArt" }],
+  authors: [{ name: "CrmNailsAgency" }],
   icons: {
     icon: "/glamcrm-logo.png",
   },
   openGraph: {
-    title: "MayeNailsArt - CRM para Nail Art",
+    title: "CrmNailsAgency - CRM para Nail Art",
     description: "Gestiona tu negocio de nail art con estilo",
     type: "website",
   },

@@ -1,5 +1,5 @@
 // ============================================
-// MayeNailsArt CRM - Seed Script
+// CrmNailsAgency CRM - Seed Script
 // ============================================
 // Run against PostgreSQL:
 //   DATABASE_URL="postgresql://..." bun prisma/seed.ts
@@ -59,7 +59,7 @@ async function main() {
                 email: 'demo@mayenailsart.com',
                 name: 'Maye García',
                 password: hashedPassword,
-                salonName: 'MayeNailsArt Studio',
+                salonName: 'CrmNailsAgency Studio',
                 salonAddress: 'Calle Principal 123, Caracas',
                 role: 'OWNER',
                 phone: '+58 412 000 0000',
@@ -244,7 +244,7 @@ async function main() {
                 name: 'Recordatorio 24h',
                 description: 'Envía un recordatorio a los clientes 24 horas antes de su cita',
                 type: 'REMINDER',
-                config: JSON.stringify({ hoursBefore: 24, channel: 'whatsapp', template: 'Hola {nombre}, te recordamos tu cita mañana a las {hora} en MayeNailsArt Studio 💅' }),
+                config: JSON.stringify({ hoursBefore: 24, channel: 'whatsapp', template: 'Hola {nombre}, te recordamos tu cita mañana a las {hora} en CrmNailsAgency Studio 💅' }),
                 active: true,
             },
             {

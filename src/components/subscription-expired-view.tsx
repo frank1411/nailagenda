@@ -19,7 +19,7 @@ export default function SubscriptionExpiredView() {
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-gray-900">Suscripción Vencida</h1>
           <p className="text-gray-500">
-            Tu periodo de acceso a MayeNailsArt ha expirado. 
+            Tu periodo de acceso a CrmNailsAgency ha expirado. 
             Para continuar gestionando tu salón, por favor contacta al administrador para renovar tu suscripción.
           </p>
         </div>
@@ -34,7 +34,7 @@ export default function SubscriptionExpiredView() {
         <div className="flex flex-col gap-3">
           <Button 
             className="w-full bg-[#B76E79] hover:bg-[#9a5b64] text-white gap-2"
-            onClick={() => window.location.href = 'mailto:admin@mayenailsart.com?subject=Renovación de Suscripción MayeNailsArt'}
+            onClick={() => window.location.href = 'mailto:admin@mayenailsart.com?subject=Renovación de Suscripción CrmNailsAgency'}
           >
             <Mail className="h-4 w-4" />
             Contactar Administrador
