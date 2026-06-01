@@ -147,7 +147,7 @@ Work Log:
 - Built top bar with breadcrumb and quick action
 - Integrated all views with proper routing
 - Updated /src/app/layout.tsx with GlamCRM metadata
-- Fixed EuroSign → Euro icon import
+- Fixed DollarSign → Dollar icon import
 - Generated logo and hero images with AI
 
 Stage Summary:
@@ -257,7 +257,7 @@ Work Log:
   4. Clients: User profile card with gradient header, stats row, and category tags
   5. Services: Price menu card with category badges and service items
   6. Automations: Central gear with 4 orbiting action icons (Mail, UserPlus, Gift, Brain) and dotted orbit lines
-  7. Pipeline: Flow diagram (Nuevo → Recurrente → Inactivo) with animated arrows and reactivation badge
+  7. Tablero: Flow diagram (Nuevo → Recurrente → Inactivo) with animated arrows and reactivation badge
   8. Create Appointment: Booking form mockup with form fields, checkmarks, and availability badge
   9. Demo Data: Database cylinder stack with floating seed data labels
   10. Ready: Animated rocket with flame, star particles, and smoke puffs
@@ -294,12 +294,12 @@ Work Log:
   1. Cover: Dark gradient hero with GlamCRM title and tagline
   2. Problem: Pain points for hair salons (4 items with accent bars)
   3. Solution: Dark split layout - orange accent panel + 4 feature highlights
-  4. Pipeline: 3-card grid (Kanban, Profile, Filters) with icons
+  4. Tablero: 3-card grid (Kanban, Profile, Filters) with icons
   5. Calendar: Text/image split with mock appointment cards
   6. Automations: Dark background numbered list (4 automation types)
   7. KPI: 6 metrics in 2 rows (80%, 3x, 5h, +45%, 100%, 24/7)
   8. How to Start: 4-step timeline (Register, Configure, Automate, Grow)
-  9. Pricing: 3 pricing cards (Free, $12/mo, $29/mo) with Popular badge
+  9. Pricing: 3 pricing cards (Free, $12/mo, $20/mo) with Popular badge
   10. Closing: CTA with glamcrm.app URL and trust badges
 - Converted all HTML slides to PPTX using html2pptx.js engine
 - Fixed blocking errors (font size minimum 11pt enforcement)

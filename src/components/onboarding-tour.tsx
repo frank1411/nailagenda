@@ -24,7 +24,7 @@ import {
   UserX,
   UserPlus,
   FileText,
-  Euro,
+   DollarSign,
   Settings,
   Mail,
   MessageSquare,
@@ -229,8 +229,8 @@ function ClientsIllustration() {
               <span className="text-[9px] text-gray-500">12 visitas</span>
             </div>
             <div className="flex items-center gap-1">
-              <Euro className="w-3 h-3 text-emerald-500/60" />
-              <span className="text-[9px] text-gray-500">€480</span>
+               <DollarSign className="w-3 h-3 text-emerald-500/60" />
+               <span className="text-[9px] text-gray-500">$480</span>
             </div>
           </div>
           {/* Tags */}
@@ -263,10 +263,10 @@ function ServicesIllustration() {
         {/* Service items */}
         <div className="divide-y divide-gray-50">
           {[
-            { name: 'Corte Mujer', price: '€35', cat: 'Cortes', color: 'bg-[#B76E79]/10 text-[#B76E79]' },
-            { name: 'Coloración', price: '€65', cat: 'Color', color: 'bg-amber-50 text-amber-600' },
-            { name: 'Peinado Evento', price: '€50', cat: 'Estilismo', color: 'bg-purple-50 text-purple-600' },
-            { name: 'Tratamiento Keratina', price: '€80', cat: 'Tratam.', color: 'bg-emerald-50 text-emerald-600' },
+             { name: 'Corte Mujer', price: '$35', cat: 'Cortes', color: 'bg-[#B76E79]/10 text-[#B76E79]' },
+             { name: 'Coloración', price: '$65', cat: 'Color', color: 'bg-amber-50 text-amber-600' },
+             { name: 'Peinado Evento', price: '$50', cat: 'Estilismo', color: 'bg-purple-50 text-purple-600' },
+             { name: 'Tratamiento Keratina', price: '$80', cat: 'Tratam.', color: 'bg-emerald-50 text-emerald-600' },
           ].map((svc) => (
             <div key={svc.name} className="flex items-center justify-between px-4 py-2">
               <div className="flex items-center gap-2">
@@ -334,7 +334,7 @@ function AutomationsIllustration() {
   );
 }
 
-function PipelineIllustration() {
+function TableroIllustration() {
   return (
     <div className="relative flex items-center justify-center h-52 sm:h-60">
       {/* Flow: Nuevo → Recurrente → Inactivo */}
@@ -612,8 +612,8 @@ const slides: SlideData[] = [
   {
     illustration: DashboardIllustration,
     title: 'Visualiza el estado de tus clientes',
-    description: 'El pipeline muestra tus clientes en tres estados: Nuevos, Recurrentes e Inactivos. Arrastra las tarjetas entre columnas para cambiar el estado.',
-    highlight: 'Pipeline Kanban',
+    description: 'El tablero muestra tus clientes en tres estados: Nuevos, Recurrentes e Inactivos. Arrastra las tarjetas entre columnas para cambiar el estado.',
+    highlight: 'Tablero Kanban',
     highlightIcon: LayoutDashboard,
   },
   {
@@ -645,7 +645,7 @@ const slides: SlideData[] = [
     highlightIcon: Zap,
   },
   {
-    illustration: PipelineIllustration,
+    illustration: TableroIllustration,
     title: 'Sigue el ciclo de vida de tus clientes',
     description: 'Los clientes pasan por estados: cuando visitan por primera vez son Nuevos, al repetir se vuelven Recurrentes, y si no vuelven en un tiempo pasan a Inactivos. ¡Las automatizaciones te ayudan a reactivarlos!',
     highlight: 'Ciclo automático',

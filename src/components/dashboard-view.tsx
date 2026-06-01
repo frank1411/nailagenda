@@ -202,7 +202,7 @@ function AppointmentStatusBadge({ status }: { status: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Sortable client card (inside pipeline columns)
+// Sortable client card (inside tablero columns)
 // ---------------------------------------------------------------------------
 
 function SortableClientCard({
@@ -357,7 +357,7 @@ function StatsSkeleton() {
   );
 }
 
-function PipelineSkeleton() {
+function TableroSkeleton() {
   return (
     <Card>
       <CardHeader>
@@ -418,8 +418,8 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Pipeline: local state for client items (supports DnD reordering & moves)
-  const [pipelineClients, setPipelineClients] = useState<ClientItem[]>([]);
+  // Tablero: local state for client items (supports DnD reordering & moves)
+  const [tableroClients, setTableroClients] = useState<ClientItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
   // -- Fetch data --
@@ -429,7 +429,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
       setError(null);
       const result = await api.getDashboard();
       setData(result);
-      setPipelineClients(result.clientsByStatusList || []);
+      setTableroClients(result.clientsByStatusList || []);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al cargar el dashboard';
       setError(message);
@@ -449,20 +449,20 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
     })
   );
 
-  // -- Pipeline helpers --
+  // -- Tablero helpers --
   const getColumnClients = useCallback(
     (status: ClientStatus) =>
-      pipelineClients.filter((c) => c.status === status),
-    [pipelineClients]
+      tableroClients.filter((c) => c.status === status),
+    [tableroClients]
   );
 
   const findClientColumn = useCallback(
     (id: string): ClientStatus | null => {
-      const client = pipelineClients.find((c) => c.id === id);
+      const client = tableroClients.find((c) => c.id === id);
       if (!client) return null;
       return client.status as ClientStatus;
     },
-    [pipelineClients]
+    [tableroClients]
   );
 
   // -- DnD handlers --
@@ -492,7 +492,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
     if (!overCol || activeCol === overCol) return;
 
     // Move client to new column
-    setPipelineClients((prev) =>
+    setTableroClients((prev) =>
       prev.map((c) => (c.id === activeId ? { ...c, status: overCol! } : c))
     );
   };
@@ -520,7 +520,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
         if (oldIndex !== -1 && newIndex !== -1) {
           const reordered = arrayMove(colClients, oldIndex, newIndex);
           // Rebuild full list: replace the column items
-          setPipelineClients((prev) => {
+          setTableroClients((prev) => {
             const otherItems = prev.filter((c) => c.status !== activeCol);
             return [...otherItems, ...reordered];
           });
@@ -530,14 +530,14 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
     }
 
     // Cross-column: the item was already moved in handleDragOver, now persist via API
-    const client = pipelineClients.find((c) => c.id === activeId);
+    const client = tableroClients.find((c) => c.id === activeId);
     if (client && client.status !== activeCol) {
       // Client has already been moved locally; persist the new status
       try {
         await api.updateClient(activeId, { status: client.status });
       } catch {
         // Revert on error
-        setPipelineClients((prev) =>
+        setTableroClients((prev) =>
           prev.map((c) => (c.id === activeId ? { ...c, status: activeCol } : c))
         );
       }
@@ -550,7 +550,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
 
   // -- Active client for drag overlay --
   const activeClient = activeId
-    ? pipelineClients.find((c) => c.id === activeId) ?? null
+    ? tableroClients.find((c) => c.id === activeId) ?? null
     : null;
 
   // -- Computed stats --
@@ -562,7 +562,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
     return (
       <div className="space-y-6 p-4 md:p-6">
         <StatsSkeleton />
-        <PipelineSkeleton />
+        <TableroSkeleton />
         <BottomSkeleton />
       </div>
     );
@@ -663,12 +663,12 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
         </Card>
       </div>
 
-      {/* ===================== PIPELINE BOARD ===================== */}
+      {/* ===================== TABLERO BOARD ===================== */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg" style={{ color: CHARCOAL }}>
             <Users className="h-5 w-5" style={{ color: ROSE_GOLD }} />
-            Pipeline de Clientes
+            Tablero de Clientes
           </CardTitle>
         </CardHeader>
         <CardContent>

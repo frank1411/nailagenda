@@ -26,7 +26,7 @@ CRM especializado para estudios de nail art. Gestiona clientes, citas, servicios
 
 ## Características
 
-- **Pipeline Visual** — Clientes organizados por estado: Nuevos, Recurrentes, Inactivos
+- **Tablero Visual** — Clientes organizados por estado: Nuevos, Recurrentes, Inactivos
 - **Calendario Inteligente** — Gestión de citas con vista diaria/semanal
 - **Fichas de Cliente** — Historial completo, notas, preferencias y alertas
 - **Gestión de Servicios** — Catálogo con precios, duración y categorías
@@ -389,7 +389,7 @@ Crear datos demo. Protegido por token en producción.
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/api/dashboard` | Stats agregadas (KPIs, pipeline, citas del día) |
+| GET | `/api/dashboard` | Stats agregadas (KPIs, tablero, citas del día) |
 
 ---
 

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "CrmNailsAgency - CRM para Nail Art",
-  description: "Gestiona tu negocio de nail art con estilo. CRM especializado con pipeline visual, calendario inteligente, automatizaciones y fidelización de clientes.",
+  description: "Gestiona tu negocio de nail art con estilo. CRM especializado con tablero visual, calendario inteligente, automatizaciones y fidelización de clientes.",
   keywords: ["CRM", "nail art", "uñas", "salón", "gestión", "citas", "clientes", "automatización"],
   authors: [{ name: "CrmNailsAgency" }],
   icons: {

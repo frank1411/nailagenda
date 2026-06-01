@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Scissors,
   Clock,
-  Euro,
+   DollarSign,
   Plus,
   Pencil,
   Trash2,
@@ -134,8 +134,8 @@ const FILTER_TABS: { id: FilterTab; label: string }[] = [
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('es-ES', {
     style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
+    currency: 'USD',
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
 }
@@ -294,9 +294,9 @@ function ServiceFormDialog({
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="servicePrice">Precio (€)</Label>
+               <Label htmlFor="servicePrice">Precio ($)</Label>
               <div className="relative">
-                <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="servicePrice"
                   type="number"
@@ -475,7 +475,7 @@ function ServiceCard({
             <span>{service.duration} min</span>
           </div>
           <div className="flex items-center gap-1.5 text-sm font-medium" style={{ color: CHARCOAL }}>
-            <Euro className="h-3.5 w-3.5 shrink-0" />
+             <DollarSign className="h-3.5 w-3.5 shrink-0" />
             <span>{formatCurrency(service.price)}</span>
           </div>
         </div>

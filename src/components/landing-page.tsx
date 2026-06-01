@@ -43,8 +43,8 @@ const staggerContainer = {
 const features = [
   {
     icon: LayoutDashboard,
-    title: 'Pipeline Visual',
-    description: 'Visualiza clientes en pipeline: Nuevos, Recurrentes, Inactivos',
+    title: 'Tablero Visual',
+    description: 'Visualiza clientes en tablero: Nuevos, Recurrentes, Inactivos',
   },
   {
     icon: Calendar,
@@ -84,7 +84,7 @@ const pricingPlans = [
   },
   {
     name: 'Profesional',
-    price: '$29',
+    price: '$20',
     priceDetail: '/mes',
     features: ['Clientes ilimitados', 'Automatizaciones', 'Contacto inteligente', 'Calendario avanzado'],
     cta: 'Prueba Gratis',
@@ -119,7 +119,7 @@ export default function LandingPage({ onGetStarted, onViewDemo }: LandingPagePro
                 className="rounded-lg"
               />
               <span className="text-xl font-bold" style={{ color: '#2D2D2D' }}>
-                Maye<span style={{ color: '#B76E79' }}>NailsArt</span>
+                CrmNailsAgency
               </span>
             </div>
 
@@ -600,7 +600,7 @@ export default function LandingPage({ onGetStarted, onViewDemo }: LandingPagePro
                   className="rounded-lg"
                 />
                 <span className="text-lg font-bold text-white">
-                  Maye<span style={{ color: '#B76E79' }}>NailsArt</span>
+                  CrmNailsAgency
                 </span>
               </div>
               <p className="text-sm text-white/60 max-w-xs">
