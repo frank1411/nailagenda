@@ -77,9 +77,10 @@ export async function requireAuth(request: Request): Promise<string> {
   }
 
   // Check subscription expiration for non-admin and non-demo users
+  // Users with null subscriptionExpiresAt are treated as expired (except admin/demo)
   const isDemoUser = user.id === 'cmprffoo10000jrm79fshecm0';
-  if (user.role !== 'ADMIN' && !isDemoUser && user.subscriptionExpiresAt) {
-    if (new Date() > user.subscriptionExpiresAt) {
+  if (user.role !== 'ADMIN' && !isDemoUser) {
+    if (!user.subscriptionExpiresAt || new Date() > user.subscriptionExpiresAt) {
       throw new AuthError('Suscripción expirada. Por favor, contacta al administrador para renovar.', 402);
     }
   }

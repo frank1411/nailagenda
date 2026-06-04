@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
         email: true,
         role: true,
         isActive: true,
+        subscriptionExpiresAt: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
