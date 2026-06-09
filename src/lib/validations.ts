@@ -22,9 +22,9 @@ export const createClientSchema = z.object({
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   phone: z.string().max(30).optional(),
   status: z.enum(['NEW', 'RECURRING', 'INACTIVE']).default('NEW'),
-  notes: z.string().max(2000).optional(),
-  preferredStylist: z.string().max(100).optional(),
-  birthday: z.string().max(20).optional(),
+  notes: z.string().max(2000).nullable().optional(),
+  preferredStylist: z.string().max(100).nullable().optional(),
+  birthday: z.string().max(20).nullable().optional(),
 });
 
 export const updateClientSchema = createClientSchema.partial();
