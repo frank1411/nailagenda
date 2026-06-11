@@ -19,8 +19,8 @@ export const loginSchema = z.object({
 export const createClientSchema = z.object({
   firstName: z.string().min(1, 'Nombre requerido').max(50),
   lastName: z.string().min(1, 'Apellido requerido').max(50),
-  email: z.string().email('Email inválido').optional().or(z.literal('')),
-  phone: z.string().max(30).optional(),
+  email: z.string().email('Email inválido').nullable().optional().or(z.literal('')),
+  phone: z.string().max(30).nullable().optional(),
   status: z.enum(['NEW', 'RECURRING', 'INACTIVE']).default('NEW'),
   notes: z.string().max(2000).nullable().optional(),
   preferredStylist: z.string().max(100).nullable().optional(),
@@ -32,7 +32,7 @@ export const updateClientSchema = createClientSchema.partial();
 // Service schemas
 export const createServiceSchema = z.object({
   name: z.string().min(1, 'Nombre requerido').max(100),
-  description: z.string().max(500).optional(),
+  description: z.string().max(500).nullable().optional(),
   duration: z.number().int().min(5, 'Duración mínima: 5 minutos').max(480, 'Duración máxima: 8 horas'),
   price: z.number().min(0, 'Precio no puede ser negativo').max(10000),
   category: z.enum(['HAIRCUT', 'COLORING', 'STYLING', 'TREATMENT', 'GENERAL']).default('GENERAL'),
@@ -50,7 +50,7 @@ export const createAppointmentSchema = z.object({
   startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
   endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Formato de hora inválido'),
   status: z.enum(['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED', 'NO_SHOW']).default('PENDING'),
-  notes: z.string().max(1000).optional(),
+  notes: z.string().max(1000).nullable().optional(),
 });
 
 export const updateAppointmentSchema = createAppointmentSchema.partial().omit({ clientId: true, serviceId: true });
@@ -64,7 +64,7 @@ export const createNoteSchema = z.object({
 // Automation schemas
 export const createAutomationSchema = z.object({
   name: z.string().min(1, 'Nombre requerido').max(100),
-  description: z.string().max(500).optional(),
+  description: z.string().max(500).nullable().optional(),
   type: z.enum(['REMINDER', 'REACTIVATION', 'LOYALTY', 'SMART_CONTACT']),
   config: z.string().max(2000),
   active: z.boolean().default(true),
