@@ -1346,9 +1346,15 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
   };
 
   const handleDownloadWeek = async () => {
-    if (!posterRef.current || exporting) return;
+    if (exporting) return;
+    if (!posterRef.current) {
+      toast.error('No se pudo preparar la imagen, intenta de nuevo');
+      return;
+    }
     setExporting(true);
     try {
+      // First pass warms up font/style embedding; the second produces a clean render.
+      await toJpeg(posterRef.current, { quality: 0.95, pixelRatio: 2, backgroundColor: '#ffffff' });
       const dataUrl = await toJpeg(posterRef.current, {
         quality: 0.95,
         pixelRatio: 2,
@@ -1365,7 +1371,8 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
       link.href = dataUrl;
       link.click();
       toast.success('Calendario semanal descargado');
-    } catch {
+    } catch (err) {
+      console.error('Error al exportar el calendario:', err);
       toast.error('No se pudo generar la imagen');
     } finally {
       setExporting(false);
@@ -1552,7 +1559,7 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
         aria-hidden
         style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }}
       >
-        <WeeklyExportPoster weekStart={weekStart} appointments={appointments} />
+        <WeeklyExportPoster ref={posterRef} weekStart={weekStart} appointments={appointments} />
       </div>
     </div>
   );
