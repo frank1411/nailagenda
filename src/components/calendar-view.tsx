@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { toJpeg } from 'html-to-image';
 import {
   DndContext,
   DragOverlay,
@@ -48,6 +49,7 @@ import {
   Loader2,
   Search,
   GripVertical,
+  Download,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -76,6 +78,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import WeeklyExportPoster from '@/components/weekly-calendar-export';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -1192,6 +1195,10 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
   const [detailApt, setDetailApt] = useState<AppointmentItem | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
+  // Export
+  const posterRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
+
   // -- Computed date ranges --
   const dateRange = useMemo(() => {
     if (viewMode === 'month') {
@@ -1338,6 +1345,33 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
     }
   };
 
+  const handleDownloadWeek = async () => {
+    if (!posterRef.current || exporting) return;
+    setExporting(true);
+    try {
+      const dataUrl = await toJpeg(posterRef.current, {
+        quality: 0.95,
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+      });
+      const weekEnd = addDays(weekStart, 6);
+      const filename = `agenda-${format(weekStart, 'dd-MMM', { locale: es })}-al-${format(
+        weekEnd,
+        'dd-MMM-yyyy',
+        { locale: es }
+      )}.jpg`;
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = dataUrl;
+      link.click();
+      toast.success('Calendario semanal descargado');
+    } catch {
+      toast.error('No se pudo generar la imagen');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // -- Title text --
   const titleText = viewMode === 'month'
     ? format(currentDate, 'MMMM yyyy', { locale: es })
@@ -1412,6 +1446,23 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
               <TabsTrigger value="week" className="text-xs px-3">Semana</TabsTrigger>
             </TabsList>
           </Tabs>
+
+          {/* Download weekly calendar */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleDownloadWeek}
+            disabled={exporting}
+            style={{ borderColor: ROSE_GOLD, color: ROSE_GOLD }}
+            className="font-medium"
+          >
+            {exporting ? (
+              <Loader2 className="h-4 w-4 sm:mr-1 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 sm:mr-1" />
+            )}
+            <span className="hidden sm:inline">Descargar semana</span>
+          </Button>
 
           {/* New appointment */}
           <Button
@@ -1495,6 +1546,14 @@ export default function CalendarView({ onSelectClient }: CalendarViewProps) {
         onDeleted={handleAppointmentUpdated}
         onSelectClient={onSelectClient}
       />
+
+      {/* Off-screen poster used only for image export */}
+      <div
+        aria-hidden
+        style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }}
+      >
+        <WeeklyExportPoster weekStart={weekStart} appointments={appointments} />
+      </div>
     </div>
   );
 }

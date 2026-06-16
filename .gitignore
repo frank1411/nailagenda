@@ -1,6 +1,13 @@
 # Ignore environment and secret files
 .claude/settings.json
+.claude/settings*.json
+.claude/*.local.json
 .env
+.env.local
+
+# Build artifacts / generated
+tsconfig.tsbuildinfo
+next-env.d.ts
 
 # Common ignores (adjust as needed)
 node_modules/
