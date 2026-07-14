@@ -69,7 +69,7 @@ export async function requireAuth(request: Request): Promise<string> {
 
   const user = await db.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, isActive: true, role: true, subscriptionExpiresAt: true },
+    select: { id: true, isActive: true, role: true, subscriptionExpiresAt: true, isDemo: true },
   });
  
   if (!user) {
