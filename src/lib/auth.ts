@@ -79,7 +79,7 @@ export function clearTokenCookie(response: NextResponse): void {
  * Extract token from either the httpOnly cookie (preferred) or the
  * Authorization header (legacy — for backward compatibility during migration).
  */
-async function extractToken(request: Request): Promise<string | null> {
+export async function extractToken(request: Request): Promise<string | null> {
   // 1. Try cookie first
   try {
     const cookieStore = await cookies();
