@@ -28,25 +28,49 @@ export async function GET(request: NextRequest) {
     }
 
     try {
+      // Usar _count agregado de Prisma en lugar de traer todas las citas
+      // y solo la última cita (take: 1), no todas
       const clients = await db.client.findMany({
         where,
         orderBy: { updatedAt: 'desc' },
-        include: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          email: true,
+          notes: true,
+          preferredStylist: true,
+          birthday: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          userId: true,
+          // Contador agregado — lo calcula PostgreSQL, no carga datos
+          _count: {
+            select: { appointments: { where: { status: 'COMPLETED' } } },
+          },
+          // Solo traer la última cita, no todas
           appointments: {
             orderBy: { date: 'desc' },
-            include: { service: true },
+            take: 1,
+            select: {
+              id: true,
+              date: true,
+              startTime: true,
+              status: true,
+              service: { select: { name: true, price: true } },
+            },
           },
         },
       });
 
       const clientsWithStats = clients.map((client) => {
-        const { appointments, ...rest } = client;
-        const totalVisits = appointments.filter((a) => a.status === 'COMPLETED').length;
-        const lastAppointment = appointments[0] || null;
+        const { appointments, _count, ...rest } = client;
         return {
           ...rest,
-          totalVisits,
-          lastAppointment,
+          totalVisits: _count.appointments,
+          lastAppointment: appointments[0] || null,
         };
       });
 
