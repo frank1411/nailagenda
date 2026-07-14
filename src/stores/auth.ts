@@ -6,6 +6,7 @@ interface User {
   email: string;
   name: string;
   role: string;
+  isDemo?: boolean;
   phone?: string;
   salonName: string;
   salonAddress?: string;
@@ -21,7 +22,6 @@ interface AuthState {
 
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
-  loginDemo: () => void;
   register: (email: string, name: string, password: string, salonName?: string) => Promise<void>;
   logout: () => void;
   updateUser: (data: Partial<User>) => void;
@@ -59,19 +59,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: false });
       throw error;
     }
-  },
-
-  loginDemo: () => {
-    const demoUser = {
-      id: 'cmprffoo10000jrm79fshecm0',
-      email: 'demo@mayenailsart.com',
-      name: 'Maye García',
-      salonName: 'CrmNailsAgency Studio',
-      role: 'OWNER',
-    };
-    const demoToken = 'demo-token-123';
-    localStorage.setItem('glam-token', demoToken);
-    set({ user: demoUser, token: demoToken, loading: false });
   },
 
   register: async (email, name, password, salonName) => {

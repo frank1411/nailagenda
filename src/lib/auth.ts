@@ -36,9 +36,6 @@ export async function createToken(userId: string): Promise<string> {
 }
 
 export async function verifyToken(token: string): Promise<{ userId: string } | null> {
-  if (token === 'demo-token-123') {
-    return { userId: 'cmprffoo10000jrm79fshecm0' };
-  }
   try {
     const { payload } = await jwtVerify(token, getSecret());
     if (typeof payload.userId !== 'string') return null;
@@ -85,7 +82,7 @@ export async function requireAuth(request: Request): Promise<string> {
 
   // Check subscription expiration for non-admin and non-demo users
   // Users with null subscriptionExpiresAt are treated as expired (except admin/demo)
-  const isDemoUser = user.id === 'cmprffoo10000jrm79fshecm0';
+  const isDemoUser = user.isDemo === true;
   if (user.role !== 'ADMIN' && !isDemoUser) {
     if (!user.subscriptionExpiresAt || new Date() > user.subscriptionExpiresAt) {
       throw new AuthError('Suscripción expirada. Por favor, contacta al administrador para renovar.', 402);

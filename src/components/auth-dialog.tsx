@@ -99,8 +99,10 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
   const handleDemo = async () => {
     setDemoLoading(true);
     try {
-      // Instant bypass: just set the store state (already done by default, but for safety)
-      authStore.loginDemo();
+      await authStore.login(
+        process.env.NEXT_PUBLIC_DEMO_EMAIL || 'demo@mayenailsart.com',
+        process.env.NEXT_PUBLIC_DEMO_PASSWORD || ''
+      );
       onSuccess();
       onOpenChange(false);
     } catch (err: any) {

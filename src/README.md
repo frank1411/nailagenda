@@ -230,12 +230,12 @@ bun run db:migrate:prod
 
 ## Credenciales Demo
 
-El botón **"Ver Demo"** en la landing page crea automáticamente todos los datos de ejemplo. También puedes usar estas credenciales directamente:
+El botón **"Ver Demo"** en la landing page abre el diálogo de login. Las credenciales del usuario demo se configuran mediante variables de entorno (`DEMO_EMAIL` y `DEMO_PASSWORD`). También puedes acceder al usuario demo desde la base de datos directamente.
 
 | Campo | Valor |
 |-------|-------|
 | Email | `demo@mayenailsart.com` |
-| Password | `password123` |
+| Password | Configurado en `DEMO_PASSWORD` |
 
 ### Datos incluidos en el demo
 
@@ -321,7 +321,7 @@ Login o registro de usuario.
 
 ```json
 // Login
-{ "action": "login", "email": "demo@mayenailsart.com", "password": "password123" }
+{ "action": "login", "email": "demo@mayenailsart.com", "password": "<DEMO_PASSWORD>" }
 
 // Registro
 { "action": "register", "email": "nuevo@email.com", "name": "Nombre", "password": "123456", "salonName": "Mi Salón" }
@@ -401,7 +401,7 @@ Crear datos demo. Protegido por token en producción.
 Landing Page
   ├── "Comenzar"     → Auth Dialog (tab Register)
   ├── "Iniciar Sesión" → Auth Dialog (tab Login)
-  └── "Ver Demo"     → loginDemo() → seed API + login automático
+  └── "Ver Demo"     → authStore.login(DEMO_EMAIL, DEMO_PASSWORD) → API login normal
                                     ↓
                               App Shell
   ┌─────────────────────────────────────────────┐
@@ -420,7 +420,7 @@ Landing Page
 
 ### Estado Global (Zustand)
 
-- **useAuthStore**: `user`, `token`, `loading`, `initialized`, `init()`, `login()`, `loginDemo()`, `register()`, `logout()`
+- **useAuthStore**: `user`, `token`, `loading`, `initialized`, `init()`, `login()`, `register()`, `logout()`
 - **useAppStore**: `currentView`, `selectedClientId`, `sidebarOpen`
 
 ### Seguridad

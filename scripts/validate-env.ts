@@ -9,6 +9,8 @@
 const REQUIRED_VARS = [
   "DATABASE_URL",
   "AUTH_SECRET",
+  "DEMO_EMAIL",
+  "DEMO_PASSWORD",
 ] as const;
 
 const errors: string[] = [];

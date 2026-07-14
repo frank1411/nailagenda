@@ -15,6 +15,7 @@ model User {
   password              String
   role                  String    @default("OWNER") // OWNER, STAFF, ADMIN
   isActive              Boolean   @default(true)
+  isDemo                Boolean   @default(false)
   subscriptionExpiresAt DateTime? // Date when access expires
   phone                 String?
   salonName             String    @default("Mi Peluquería")

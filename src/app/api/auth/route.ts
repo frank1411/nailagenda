@@ -2,28 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { hashPassword, verifyPassword, createToken, requireAuth, AuthError } from '@/lib/auth';
 import { registerSchema, loginSchema } from '@/lib/validations';
-import { DEMO_USER_ID } from '@/lib/fallbacks';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { action } = body;
-
-    if (action === 'login' && body.email === 'demo@mayenailsart.com') {
-      return NextResponse.json({
-        data: {
-          user: {
-            id: DEMO_USER_ID,
-            email: 'demo@mayenailsart.com',
-            name: 'Maye García',
-            salonName: 'CrmNailsAgency Studio',
-            role: 'OWNER',
-          },
-          token: 'demo-token-123',
-        },
-      });
-    }
-// ... rest of the file
 
     if (action === 'register') {
       const parsed = registerSchema.safeParse(body);
@@ -66,11 +49,6 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const userId = await requireAuth(request);
-    if (userId === DEMO_USER_ID) {
-      return NextResponse.json({
-        data: { id: DEMO_USER_ID, email: 'demo@mayenailsart.com', name: 'Maye García', role: 'OWNER', salonName: 'CrmNailsAgency Studio', salonAddress: 'Calle Principal 123, Caracas', image: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-      });
-    }
     const user = await db.user.findUnique({ where: { id: userId } });
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
     return NextResponse.json({ data: user });

@@ -13,7 +13,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if demo user already exists
-    const existingUser = await db.user.findUnique({ where: { email: 'demo@mayenailsart.com' } });
+    const demoEmail = process.env.DEMO_EMAIL || 'demo@mayenailsart.com';
+    const demoPassword = process.env.DEMO_PASSWORD || 'password123';
+    const existingUser = await db.user.findUnique({ where: { email: demoEmail } });
     if (existingUser) {
       return NextResponse.json({
         data: {
@@ -23,17 +25,17 @@ export async function POST(request: NextRequest) {
       });
     }
 
-
     // Create demo user
-    const hashedPassword = await hashPassword('password123');
+    const hashedPassword = await hashPassword(demoPassword);
     const user = await db.user.create({
       data: {
-        email: 'demo@mayenailsart.com',
+        email: demoEmail,
         name: 'Maye García',
         password: hashedPassword,
         salonName: 'CrmNailsAgency Studio',
         salonAddress: 'Calle Principal 123, Caracas',
         role: 'OWNER',
+        isDemo: true,
       },
     });
 

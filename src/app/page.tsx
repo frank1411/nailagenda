@@ -267,7 +267,7 @@ function AppShell() {
 }
 
 export default function Home() {
-  const { user, initialized, init, loginDemo } = useAuthStore();
+  const { user, initialized, init } = useAuthStore();
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [onboardingOpen, setOnboardingOpen] = useState(false);
@@ -309,7 +309,10 @@ export default function Home() {
             setAuthMode('register');
             setAuthOpen(true);
           }}
-          onViewDemo={loginDemo}
+          onViewDemo={() => {
+            setAuthMode('login');
+            setAuthOpen(true);
+          }}
         />
         <AuthDialog
           open={authOpen}
@@ -322,7 +325,7 @@ export default function Home() {
   }
 
   // Subscription check
-  if (user.role !== 'ADMIN' && user.email !== 'demo@mayenailsart.com' && user.subscriptionExpiresAt) {
+  if (user.role !== 'ADMIN' && !user.isDemo && user.subscriptionExpiresAt) {
     const expirationDate = new Date(user.subscriptionExpiresAt);
     if (new Date() > expirationDate) {
       return <SubscriptionExpiredView />;
