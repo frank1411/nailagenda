@@ -16,45 +16,40 @@ interface User {
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   loading: boolean;
   initialized: boolean;
 
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, name: string, password: string, salonName?: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  token: null,
   loading: false,
   initialized: false,
- 
+
   init: async () => {
     set({ loading: true });
     try {
-      const token = localStorage.getItem('glam-token');
-      if (token) {
-        const user = await api.getMe();
-        set({ user, token, initialized: true, loading: false });
-      } else {
-        set({ initialized: true, loading: false });
-      }
-    } catch (error) {
-      localStorage.removeItem('glam-token');
-      set({ user: null, token: null, initialized: true, loading: false });
+      // The httpOnly cookie is sent automatically by the browser.
+      // If there's no cookie, getMe() will fail with 401 and we land in catch.
+      const user = await api.getMe();
+      set({ user, initialized: true, loading: false });
+    } catch {
+      set({ user: null, initialized: true, loading: false });
     }
   },
- 
+
   login: async (email, password) => {
     set({ loading: true });
     try {
       const data = await api.login(email, password);
-      localStorage.setItem('glam-token', data.token);
-      set({ user: data.user, token: data.token, loading: false });
+      // The httpOnly cookie is set by the server response.
+      // We only need the user object; the token is irrelevant on the client now.
+      set({ user: data.user, loading: false });
     } catch (error) {
       set({ loading: false });
       throw error;
@@ -65,17 +60,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true });
     try {
       const data = await api.register(email, name, password, salonName);
-      localStorage.setItem('glam-token', data.token);
-      set({ user: data.user, token: data.token, loading: false });
+      set({ user: data.user, loading: false });
     } catch (error) {
       set({ loading: false });
       throw error;
     }
   },
 
-  logout: () => {
-    localStorage.removeItem('glam-token');
-    set({ user: null, token: null });
+  logout: async () => {
+    try {
+      await api.post('/auth', { action: 'logout' });
+    } catch {
+      // Even if the logout request fails, clear local state
+    }
+    set({ user: null });
   },
 
   updateUser: (data) => {

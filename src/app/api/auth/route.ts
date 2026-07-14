@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { hashPassword, verifyPassword, createToken, requireAuth, AuthError } from '@/lib/auth';
+import { hashPassword, verifyPassword, createToken, requireAuth, AuthError, setTokenCookie, clearTokenCookie } from '@/lib/auth';
 import { registerSchema, loginSchema } from '@/lib/validations';
 
 export async function POST(request: NextRequest) {
@@ -27,7 +27,9 @@ export async function POST(request: NextRequest) {
         } 
       });
       const token = await createToken(user.id);
-      return NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role, isDemo: user.isDemo }, token }, }, { status: 201 });
+      const response = NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role, isDemo: user.isDemo }, token }, }, { status: 201 });
+      setTokenCookie(response, token);
+      return response;
     }
 
     if (action === 'login') {
@@ -37,7 +39,15 @@ export async function POST(request: NextRequest) {
       const user = await db.user.findUnique({ where: { email } });
       if (!user || !(await verifyPassword(password, user.password))) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
       const token = await createToken(user.id);
-      return NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role, isDemo: user.isDemo }, token } });
+      const response = NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role, isDemo: user.isDemo }, token } });
+      setTokenCookie(response, token);
+      return response;
+    }
+
+    if (action === 'logout') {
+      const response = NextResponse.json({ data: { message: 'Logged out' } });
+      clearTokenCookie(response);
+      return response;
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

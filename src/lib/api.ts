@@ -1,24 +1,15 @@
 const API_BASE = '/api';
 
 class ApiClient {
-  private getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('glam-token');
-  }
-
   private headers(): HeadersInit {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-    const token = this.getToken();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    return headers;
+    return { 'Content-Type': 'application/json' };
   }
 
   async get(path: string): Promise<any> {
-    const res = await fetch(`${API_BASE}${path}`, { headers: this.headers() });
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: this.headers(),
+      credentials: 'include',
+    });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Request failed');
     return data.data;
@@ -28,12 +19,13 @@ class ApiClient {
     const res = await fetch(`${API_BASE}${path}`, {
       method: 'POST',
       headers: this.headers(),
+      credentials: 'include',
       body: JSON.stringify(body),
     });
 
     const contentType = res.headers.get('content-type');
-    const data = (contentType && contentType.includes('application/json')) 
-      ? await res.json() 
+    const data = (contentType && contentType.includes('application/json'))
+      ? await res.json()
       : { error: `Server returned non-JSON response (${res.status})` };
 
     if (!res.ok) throw new Error(data.error || `Request failed with status ${res.status}`);
@@ -44,6 +36,7 @@ class ApiClient {
     const res = await fetch(`${API_BASE}${path}`, {
       method: 'PUT',
       headers: this.headers(),
+      credentials: 'include',
       body: JSON.stringify(body),
     });
     const data = await res.json();
@@ -55,6 +48,7 @@ class ApiClient {
     const res = await fetch(`${API_BASE}${path}`, {
       method: 'PATCH',
       headers: this.headers(),
+      credentials: 'include',
       body: JSON.stringify(body),
     });
     const data = await res.json();
@@ -66,6 +60,7 @@ class ApiClient {
     const res = await fetch(`${API_BASE}${path}`, {
       method: 'DELETE',
       headers: this.headers(),
+      credentials: 'include',
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Request failed');
