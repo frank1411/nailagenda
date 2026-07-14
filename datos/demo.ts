@@ -15,7 +15,7 @@ import bcrypt from 'bcryptjs'
 
 const BCRYPT_ROUNDS = 12
 const DEMO_EMAIL = process.env.DEMO_EMAIL || 'demo@mayenailsart.com'
-const DEMO_PASSWORD = process.env.DEMO_PASSWORD
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD as string
 
 if (!DEMO_PASSWORD) {
     console.error('❌ DEMO_PASSWORD environment variable is required')
