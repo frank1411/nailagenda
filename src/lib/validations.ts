@@ -5,7 +5,14 @@ export const registerSchema = z.object({
   action: z.literal('register'),
   email: z.string().email('Email inválido'),
   name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres').max(100),
-  password: z.string().min(6, 'Contraseña debe tener al menos 6 caracteres').max(128),
+  password: z
+    .string()
+    .min(8, 'Contraseña debe tener al menos 8 caracteres')
+    .max(128)
+    .regex(/[a-z]/, 'Contraseña debe incluir al menos una letra minúscula')
+    .regex(/[A-Z]/, 'Contraseña debe incluir al menos una letra mayúscula')
+    .regex(/[0-9]/, 'Contraseña debe incluir al menos un número')
+    .regex(/[^a-zA-Z0-9]/, 'Contraseña debe incluir al menos un carácter especial'),
   salonName: z.string().max(100).optional(),
 });
 
