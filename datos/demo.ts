@@ -7,14 +7,20 @@
 // Or via Prisma:
 //   DATABASE_URL="postgresql://..." npx prisma db seed
 //
-// Demo credentials:
-//   Email: demo@mayenailsart.com
-//   Password: password123
+// Demo email is configured via DEMO_EMAIL env var.
+// Demo password must be set via DEMO_PASSWORD env var.
 
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const BCRYPT_ROUNDS = 12
+const DEMO_EMAIL = process.env.DEMO_EMAIL || 'demo@mayenailsart.com'
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD
+
+if (!DEMO_PASSWORD) {
+    console.error('❌ DEMO_PASSWORD environment variable is required')
+    process.exit(1)
+}
 
 async function main() {
     const prisma = new PrismaClient({
@@ -31,7 +37,7 @@ async function main() {
 
         // Check if demo user already exists
         const existingUser = await prisma.user.findUnique({
-            where: { email: 'demo@mayenailsart.com' },
+            where: { email: DEMO_EMAIL },
         })
 
         if (existingUser) {
@@ -53,10 +59,10 @@ async function main() {
         // 1. CREATE DEMO USER
         // ========================================
         console.log('👤 Creating demo user...')
-        const hashedPassword = await bcrypt.hash('password123', BCRYPT_ROUNDS)
+        const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, BCRYPT_ROUNDS)
         const user = await prisma.user.create({
             data: {
-                email: 'demo@mayenailsart.com',
+                email: DEMO_EMAIL,
                 name: 'Maye García',
                 password: hashedPassword,
                 salonName: 'CrmNailsAgency Studio',
@@ -335,8 +341,8 @@ async function main() {
         console.log(`   📊 Logs:           ${logs.length}`)
         console.log('')
         console.log('🔑 Demo Credentials:')
-        console.log('   Email:    demo@mayenailsart.com')
-        console.log('   Password: password123')
+        console.log('   Email:    ' + DEMO_EMAIL)
+        console.log('   Password: (set via DEMO_PASSWORD env var)')
         console.log('')
         console.log('📊 Client Status Distribution:')
         console.log(`   NEW:       ${clientsData.filter(c => c.status === 'NEW').length}`)
