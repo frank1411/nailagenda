@@ -160,8 +160,8 @@ Crear un archivo `.env` en la raíz del proyecto:
 # Base de datos SQLite (por defecto)
 DATABASE_URL="file:./db/custom.db"
 
-# Secreto para JWT (opcional en dev, tiene fallback)
-AUTH_SECRET="mayenailsart-dev-secret-change-in-production"
+# Secreto para JWT (requerido — generar con openssl rand -base64 32)
+AUTH_SECRET="tu-secreto-jwt-generado"
 
 # Secreto para el endpoint de seed (opcional en dev)
 SEED_SECRET="mayenailsart-seed-2024"

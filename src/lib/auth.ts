@@ -5,10 +5,17 @@ import { db } from '@/lib/db';
 const BCRYPT_ROUNDS = 12;
 const TOKEN_EXPIRY = '7d';
 
-// Stable secret for JWT signing - in production, AUTH_SECRET env var should be set
-// This fallback ensures the app doesn't crash if AUTH_SECRET is missing
+// AUTH_SECRET is required. The app will not start without it.
+// Generate with: openssl rand -base64 32
 function getSecret(): Uint8Array {
-  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'mayenailsart-default-secret-change-in-production-2024';
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error(
+      'AUTH_SECRET environment variable is required but not set.\n' +
+      'Generate one with: openssl rand -base64 32\n' +
+      'Add it to your .env file or production environment.'
+    );
+  }
   return new TextEncoder().encode(secret);
 }
 
