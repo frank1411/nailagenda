@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         } 
       });
       const token = await createToken(user.id);
-      return NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role }, token }, }, { status: 201 });
+      return NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role, isDemo: user.isDemo }, token }, }, { status: 201 });
     }
 
     if (action === 'login') {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       const user = await db.user.findUnique({ where: { email } });
       if (!user || !(await verifyPassword(password, user.password))) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
       const token = await createToken(user.id);
-      return NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role }, token } });
+      return NextResponse.json({ data: { user: { id: user.id, email: user.email, name: user.name, salonName: user.salonName, role: user.role, isDemo: user.isDemo }, token } });
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

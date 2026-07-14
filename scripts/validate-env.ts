@@ -6,18 +6,28 @@
  * Add to package.json "prestart" or Docker entrypoint.
  */
 
-const REQUIRED_VARS = [
+const FATAL_VARS = [
   "DATABASE_URL",
   "AUTH_SECRET",
+] as const;
+
+const WARNING_VARS = [
   "DEMO_EMAIL",
   "DEMO_PASSWORD",
 ] as const;
 
 const errors: string[] = [];
+const warnings: string[] = [];
 
-for (const varName of REQUIRED_VARS) {
+for (const varName of FATAL_VARS) {
   if (!process.env[varName]) {
     errors.push(`❌ ${varName} is required but not set`);
+  }
+}
+
+for (const varName of WARNING_VARS) {
+  if (!process.env[varName]) {
+    warnings.push(`⚠️  ${varName} is not set — demo login will not work`);
   }
 }
 
@@ -58,6 +68,14 @@ if (process.env.DATABASE_URL) {
       `⚠️  DATABASE_URL has unexpected format: ${dbUrl.substring(0, 50)}...`
     );
   }
+}
+
+if (warnings.length > 0) {
+  console.warn("\n⚠️  Environment warnings:\n");
+  for (const w of warnings) {
+    console.warn(`  ${w}`);
+  }
+  console.warn("");
 }
 
 if (errors.length > 0) {
