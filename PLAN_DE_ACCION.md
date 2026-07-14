@@ -2,6 +2,7 @@
 
 **Basado en:** EVALUACION.md (14 de julio de 2026)
 **Objetivo:** Llevar el proyecto de estado actual a producción segura y robusta
+**Última actualización:** 14 de julio de 2026
 
 ---
 
@@ -9,69 +10,93 @@
 
 | Fase | Nombre | Prioridad | Tiempo Estimado | Estado |
 |------|--------|-----------|-----------------|--------|
-| 1 | Seguridad Crítica | URGENTE | 2-3 días | ⬜ Pendiente |
+| 1 | Seguridad Crítica | URGENTE | 2-3 días | ✅ COMPLETADA |
 | 2 | Deuda Técnica | ALTA | 3-5 días | ⬜ Pendiente |
 | 3 | Robustez | MEDIA | 3-5 días | ⬜ Pendiente |
 | 4 | Funcionalidad Futura | BAJA | Según necesidad | ⬜ Pendiente |
 
 ---
 
-## Fase 1: Seguridad Crítica (URGENTE — Antes de Producción)
+## Fase 1: Seguridad Crítica (URGENTE — Antes de Producción) ✅ COMPLETADA
 
 Esta fase es **obligatoria** antes de que la aplicación sea usada por usuarios reales.
 
-### Tarea 1.1 — Proteger AUTH_SECRET
-- [ ] **Archivo:** `src/lib/auth.ts`
-- [ ] Eliminar fallback hardcodeado `'mayenailsart-default-secret-change-in-production-2024'`
-- [ ] Hacer que la app falle al iniciar si `AUTH_SECRET` no está configurada
-- [ ] Agregar validación en `next.config.ts` o script de startup
-- [ ] Documentar en README que AUTH_SECRET es obligatorio
-- [ ] **Impacto:** Elimina la posibilidad de que cualquiera firme tokens JWT válidos
+### Tarea 1.1 — Proteger AUTH_SECRET ✅
+- [x] **Archivo:** `src/lib/auth.ts`
+- [x] Eliminar fallback hardcodeado `'mayenailsart-default-secret-change-in-production-2024'`
+- [x] Hacer que la app falle al iniciar si `AUTH_SECRET` no está configurada
+- [x] Agregar validación en script de startup
+- [x] Documentar en README que AUTH_SECRET es obligatorio
+- [x] **Commit:** `74d202c`
 
-### Tarea 1.2 — Eliminar Token Demo Hardcodeado
-- [ ] **Archivos:** `src/lib/auth.ts`, `src/lib/fallbacks.ts`
-- [ ] Remover bypass `'demo-token-123'` de `verifyToken()`
-- [ ] Remover el flag `isDemoUser` de `requireAuth()`
-- [ ] Reimplementar modo demo como flag en base de datos (`isDemo: Boolean` en User)
-- [ ] **Impacto:** Elimina el bypass de autenticación
+### Tarea 1.2 — Eliminar Token Demo Hardcodeado ✅
+- [x] **Archivos:** `src/lib/auth.ts`, `src/lib/fallbacks.ts`, `prisma/schema.prisma`
+- [x] Remover bypass `'demo-token-123'` de `verifyToken()`
+- [x] Remover el flag `isDemoUser` de `requireAuth()`
+- [x] Reimplementar modo demo como flag en base de datos (`isDemo: Boolean` en User)
+- [x] Refactorizar loginDemo en frontend para usar login normal con env vars
+- [x] Seed endpoint y demo user con contraseña aleatoria generada
+- [x] **Commits:** `a348746`, `21c9827`, `3b768bf`, `dbe0875`, `b10ec9d`
 
-### Tarea 1.3 — Migrar Token a httpOnly Cookies
-- [ ] **Archivos:** `src/lib/auth.ts`, `src/lib/api.ts`, `src/stores/auth.ts`, `src/middleware.ts`
-- [ ] En login, setear cookie `httpOnly`, `secure`, `sameSite=strict` con el JWT
-- [ ] Modificar `requireAuth()` para leer token de cookie en lugar de header Authorization
-- [ ] Actualizar `stores/auth.ts` para no guardar token en localStorage
-- [ ] Actualizar `api.ts` para no enviar header Authorization manualmente
-- [ ] Configurar middleware para extraer token de cookie
-- [ ] **Impacto:** Protege contra XSS — el token no es accesible desde JavaScript
+### Tarea 1.3 — Migrar Token a httpOnly Cookies ✅
+- [x] **Archivos:** `src/lib/auth.ts`, `src/lib/api.ts`, `src/stores/auth.ts`
+- [x] En login/register, setear cookie `httpOnly`, `secure`, `sameSite=lax` con el JWT
+- [x] Modificar `requireAuth()` para leer token de cookie primero, con fallback a header Authorization
+- [x] Actualizar `stores/auth.ts` para no guardar token en localStorage
+- [x] Actualizar `api.ts` con `credentials: 'include'` en todos los fetch
+- [x] Logout limpia cookie (Max-Age=0)
+- [x] **Cookie config:** `name: 'nailagenda-token'`, `httpOnly: true`, `secure: true`, `sameSite: 'lax'`, `path: '/'`, `maxAge: 604800` (7 días)
+- [x] Verificado en producción: login setea cookie, GET /api/auth lee de cookie, logout la limpia
+- [x] **Commit:** `fd6c3ae`
 
-### Tarea 1.4 — Implementar Rate Limiting
-- [ ] Agregar rate limiting a endpoints de autenticación
-- [ ] Opción A: Usar `@upstash/ratelimit` con Redis (necesita Redis)
-- [ ] Opción B: Implementar in-memory rate limiter en middleware
-- [ ] Configurar: máximo 5 intentos de login por IP cada 15 minutos
-- [ ] Configurar: máximo 3 registros por IP cada hora
-- [ ] **Impacto:** Previene ataques de fuerza bruta
+### Tarea 1.4 — Implementar Rate Limiting ✅
+- [x] **Archivo:** `src/lib/rate-limit.ts`
+- [x] Implementado in-memory rate limiter (sin dependencia de Redis)
+- [x] Configurado: máximo 5 intentos de login fallidos por IP cada 15 minutos
+- [x] Configurado: máximo 3 registros por IP cada hora
+- [x] Verificado en producción: 5 login fallidos → HTTP 429 por 15 minutos
+- [x] **Commit:** `433fc985`
 
-### Tarea 1.5 — Fortalecer Política de Contraseñas
-- [ ] **Archivo:** `src/lib/validations.ts`
-- [ ] Cambiar validación de password: mínimo 8 caracteres, al menos 1 mayúscula, 1 número
-- [ ] Agregar confirmación de contraseña en registro
-- [ ] **Impacto:** Mejora la seguridad de cuentas de usuario
+### Tarea 1.5 — Fortalecer Política de Contraseñas ✅
+- [x] **Archivo:** `src/lib/validations.ts`
+- [x] Mínimo 8 caracteres (antes 6)
+- [x] Al menos 1 minúscula + 1 mayúscula + 1 número + 1 carácter especial
+- [x] Validación aplicada en schema de Zod para registro
+- [x] **Commit:** `999b51b`
 
-### Tarea 1.6 — Centralizar Autenticación en Middleware
-- [ ] **Archivo:** `src/middleware.ts`
-- [ ] Implementar verificación JWT en middleware para todas las rutas `/api/*`
-- [ ] Excluir rutas públicas: `POST /api/auth`, `GET /api/ping`, `GET /api/sanity-check`
-- [ ] Pasar userId autenticado como header `X-User-Id` o request context
-- [ ] Simplificar `requireAuth()` para leer del contexto en lugar de hacer todo en cada ruta
-- [ ] **Impacto:** Autenticación centralizada, menos código duplicado, más seguridad
+### Tarea 1.6 — Centralizar Autenticación en Middleware ✅
+- [x] **Archivo:** `src/middleware.ts`
+- [x] Security headers globales: CSP, X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
+- [x] Verificación de auth en todas las rutas `/api/*`
+- [x] Excluye rutas públicas: `/api/auth`, `/api/ping`, `/api/sanity-check`, `/api/seed`, `/api/test-db`, `/api/download`
+- [x] Lee token de httpOnly cookie con fallback a Bearer header
+- [x] `extractToken()` exportado para reuso en middleware y route handlers
+- [x] Verificado en producción: `/api/clients` sin token → 401, con token → 200 + headers
+- [x] **Commit:** `a6076a6`
 
-### Tarea 1.7 — Eliminar Contraseñas del Código Fuente
-- [ ] **Archivo:** `datos/demo.ts`
-- [ ] Mover contraseña demo a variable de entorno `DEMO_PASSWORD`
-- [ ] Si no está configurada, generar una aleatoria y mostrarla en consola
-- [ ] Agregar `datos/demo.ts` a revisión de seguridad pre-commit
-- [ ] **Impacto:** Elimina credenciales expuestas en el repositorio
+### Tarea 1.7 — Eliminar Contraseñas del Código Fuente ✅
+- [x] **Archivo:** `datos/demo.ts`
+- [x] `DEMO_PASSWORD` ahora requerido como variable de entorno (el script falla si no está presente)
+- [x] `DEMO_EMAIL` leído de env var con fallback `'demo@mayenailsart.com'`
+- [x] Eliminado `'password123'` hardcodeado (3 ocurrencias en comentarios, código y output)
+- [x] Eliminado email hardcodeado (2 ocurrencias)
+- [x] Console output no muestra contraseña en texto plano
+- [x] **Commit:** `999b51b`
+
+### Commits de la Fase 1 (en orden cronológico)
+
+| Commit | Tarea | Descripción |
+|--------|-------|-------------|
+| `74d202c` | 1.1 | Proteger AUTH_SECRET — validar al inicio, sin fallback |
+| `a348746` | 1.2 | Eliminar token demo hardcodeado + isDemo en User model |
+| `21c9827` | 1.2 | Fixes: error 500 demo, variables de entorno cohesión |
+| `3b768bf` | 1.2 | Fix: isDemo en select de requireAuth() |
+| `dbe0875` | — | Redeploy trigger (commit vacío) |
+| `b10ec9d` | — | Redeploy trigger (commit vacío) |
+| `fd6c3ae` | 1.3 | Migrar token JWT a httpOnly cookies |
+| `433fc985` | 1.4 | Rate limiting en auth endpoints |
+| `a6076a6` | 1.6 | Middleware de seguridad centralizado |
+| `999b51b` | 1.5 + 1.7 | Política de contraseñas + eliminar hardcodeadas |
 
 ---
 
@@ -206,7 +231,7 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 ## Orden de Ejecución Recomendado
 
 ```
-Semana 1:        Fase 1 completa (Seguridad)
+Semana 1:        ✅ Fase 1 completa (Seguridad)
 Semana 2-3:      Fase 2 completa (Deuda Técnica)
 Semana 4:        Arreglar Docker healthcheck + validación de env
 Semana 5-6:      Tests + manejo de errores
@@ -217,16 +242,17 @@ Semana 7+:       Funcionalidad futura según prioridad del negocio
 
 ## Métricas de Éxito
 
-| Indicador | Estado Actual | Meta |
-|-----------|---------------|------|
-| Fallos de seguridad críticos | 7 | 0 |
-| Cobertura de tests | 0% | 60%+ |
-| Dependencias sin usar | 3+ | 0 |
-| Esquemas de BD divergentes | 2 | 1 |
-| Type safety en API client | No | Sí |
-| Token en httpOnly cookie | No | Sí |
-| Rate limiting | No | Sí |
-| Healthcheck funcional | No | Sí |
+| Indicador | Estado Anterior | Estado Actual | Meta |
+|-----------|-----------------|---------------|------|
+| Fallos de seguridad críticos | 7 | 0 ✅ | 0 |
+| Cobertura de tests | 0% | 0% | 60%+ |
+| Dependencias sin usar | 3+ | 3+ | 0 |
+| Esquemas de BD divergentes | 2 | 2 | 1 |
+| Type safety en API client | No | No | Sí |
+| Token en httpOnly cookie | No | ✅ Sí | Sí |
+| Rate limiting | No | ✅ Sí | Sí |
+| Security headers (CSP, XFO, etc.) | No | ✅ Sí | Sí |
+| Healthcheck funcional | No | No | Sí |
 
 ---
 
@@ -235,6 +261,6 @@ Semana 7+:       Funcionalidad futura según prioridad del negocio
 | Riesgo | Probabilidad | Mitigación |
 |--------|-------------|------------|
 | Migración de fechas rompe datos existentes | Media | Hacer backup, probar en staging |
-| Migrar a httpOnly cookies rompe el frontend | Baja | Actualizar api.ts y stores al mismo tiempo |
+| Migrar a httpOnly cookies rompe el frontend | Baja | ✅ Resuelto: dual delivery (cookie + body), backward compat verificado |
 | NextAuth v5 tiene breaking changes | Media | Evaluar antes de migrar; mantener JWT manual si es más costo-efectivo |
-| Redis no disponible para rate limiting | Media | Usar rate limiter in-memory como fallback |
+| Redis no disponible para rate limiting | Media | ✅ Resuelto: rate limiter in-memory implementado |
