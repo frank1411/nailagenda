@@ -158,6 +158,15 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [ ] En desarrollo, mantener fallbacks para trabajar sin BD
 - [ ] **Impacto:** Evita mostrar datos ficticios como reales en producción
 
+### Tarea 2.8 — Optimizar Rendimiento de Queries ✅
+- [x] **Archivos:** `src/app/api/dashboard/route.ts`, `src/app/api/clients/route.ts`
+- [x] **Dashboard:** 7 queries secuenciales → 1 `Promise.all` (ejecución paralela)
+- [x] **Dashboard:** Agregar `Cache-Control: public, s-maxage=60, stale-while-revalidate=30`
+- [x] **GET /api/clients:** Reemplazar `include: { appointments: { include: { service: true } } }` por `_count` agregado + `take: 1` para última cita
+- [x] Verificado: `_count({ where: { status: 'COMPLETED' } })` calculado por PostgreSQL en lugar de cargar todas las citas y filtrar en JS
+- [x] **Commit:** `5495be4`
+- [x] **Impacto:** ~7x menos round-trips en dashboard, O(1) en lugar de O(n) en lista de clientes
+
 ---
 
 ## Fase 3: Robustez y Calidad (Prioridad MEDIA)
