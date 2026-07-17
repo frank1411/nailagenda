@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
         name,
         description: description || null,
         type,
-        config: config ? JSON.stringify(config) : JSON.stringify({}),
+        config: (config ?? {}) as object,
         active,
         userId,
       },

@@ -25,15 +25,16 @@ export async function PUT(
     }
     const { name, description, type, config, active } = parsed.data;
 
+    const updateData: Record<string, unknown> = {};
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (type !== undefined) updateData.type = type;
+    if (config !== undefined) updateData.config = config as object;
+    if (active !== undefined) updateData.active = active;
+
     const automation = await db.automationRule.update({
       where: { id },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(type !== undefined && { type }),
-        ...(config !== undefined && { config: JSON.stringify(config) }),
-        ...(active !== undefined && { active }),
-      },
+      data: updateData,
     });
 
     return NextResponse.json({ data: automation });

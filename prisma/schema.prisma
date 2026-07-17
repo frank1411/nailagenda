@@ -111,7 +111,7 @@ model AutomationRule {
   description String?
   type        String   // REMINDER, REACTIVATION, LOYALTY, SMART_CONTACT
   active      Boolean  @default(true)
-  config      String   // JSON string with rule configuration
+  config      Json     // Rule configuration (JSON object)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      String

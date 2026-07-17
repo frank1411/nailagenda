@@ -69,11 +69,13 @@ export const createNoteSchema = z.object({
 });
 
 // Automation schemas
+export const automationConfigSchema = z.any().optional();
+
 export const createAutomationSchema = z.object({
   name: z.string().min(1, 'Nombre requerido').max(100),
   description: z.string().max(500).nullable().optional(),
   type: z.enum(['REMINDER', 'REACTIVATION', 'LOYALTY', 'SMART_CONTACT']),
-  config: z.string().max(2000),
+  config: automationConfigSchema,
   active: z.boolean().default(true),
 });
 

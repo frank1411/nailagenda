@@ -147,7 +147,7 @@ interface AutomationRule {
   description: string | null;
   type: AutomationType;
   active: boolean;
-  config: string;
+  config: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
   _count?: { logs: number };
@@ -186,12 +186,8 @@ interface SmartContactSuggestion {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseConfig(configStr: string): Record<string, string | number> {
-  try {
-    return JSON.parse(configStr);
-  } catch {
-    return {};
-  }
+function parseConfig(config: Record<string, unknown>): Record<string, string | number> {
+  return config as Record<string, string | number>;
 }
 
 function formatDate(dateStr: string): string {
@@ -376,7 +372,7 @@ export default function AutomationPanel() {
             const daysSince = daysMatch ? parseInt(daysMatch[1]) : 0;
 
             const config = parseConfig(
-              automations.find((a) => a.id === result.ruleId)?.config || '{}'
+              automations.find((a) => a.id === result.ruleId)?.config || {}
             );
             const contactWindow = (config.contactWindowDays as number) || 7;
 
@@ -462,7 +458,7 @@ export default function AutomationPanel() {
       if (editingAutomation) {
         // Optimistic Update
         setAutomations((prev) =>
-          prev.map((a) => (a.id === editingAutomation.id ? { ...a, ...payload, config: JSON.stringify(formConfig) } : a))
+          prev.map((a) => (a.id === editingAutomation.id ? { ...a, ...payload, config: formConfig } : a))
         );
         await api.updateAutomation(editingAutomation.id, payload);
         toast.success('Automatización actualizada correctamente');
@@ -471,7 +467,7 @@ export default function AutomationPanel() {
         const tempId = `temp-${Date.now()}`;
         const newAutomation: AutomationRule = {
           ...payload,
-          config: JSON.stringify(formConfig),
+          config: formConfig,
           id: tempId,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
