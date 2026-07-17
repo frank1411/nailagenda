@@ -224,13 +224,16 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 ||- [x] **Commit:** `ae9ecb1`
 ||- [x] **Impacto:** Navegación instantánea entre vistas, datos cacheados, menos requests
 
-### Tarea 3.8 — Server Components para Layout y Auth
-|- [ ] Mover verificación de auth del cliente al servidor (middleware + layout)
-|- [ ] Convertir `page.tsx` parcialmente a Server Component
-|- [ ] Extraer `AppShell` y `SidebarContent` como Client Components aislados
-|- [ ] Pasar datos de usuario como props (no fetch extra desde el cliente)
-|- [ ] **Impacto:** Menos JS en el cliente, renderizado inicial más rápido
-|- [ ] **Prioridad:** MEDIA — buen complemento a las tareas 3.6 y 3.7
+### Tarea 3.8 — Server Components para Layout y Auth ✅
+||- [x] Crear `getServerUser()` — lee cookie httpOnly, verifica JWT, retorna user desde DB
+||- [x] Crear `AuthProvider` (Client Component) — hidrata store Zustand con user del servidor
+||- [x] Convertir `layout.tsx` a Server Component async que llama `getServerUser()` y provee `<AuthProvider>`
+||- [x] Simplificar `page.tsx` — elimina `InitialLoader` y dependencia de `initialized`
+||- [x] Usuarios autenticados: AppShell inmediato sin loading spinner
+||- [x] Usuarios no autenticados: LandingPage inmediato sin loading spinner
+||- [x] `init()` mantenido como safety net (Authorization header edge case)
+||- [x] **Commit:** `dda5cd4`
+||- [x] **Impacto:** Usuario autenticado ve la app en el primer paint, menos JS en cliente
 
 ---
 
