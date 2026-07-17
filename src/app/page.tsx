@@ -66,31 +66,17 @@ function AppShellSkeleton() {
   );
 }
 
-// ── Loader mientras auth se inicializa ──
-function InitialLoader() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#B76E79] to-[#9a5b64] flex items-center justify-center animate-pulse">
-          <Sparkles className="w-6 h-6 text-white" />
-        </div>
-        <div className="flex gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#B76E79] animate-bounce" style={{ animationDelay: '0ms' }} />
-          <div className="w-2 h-2 rounded-full bg-[#B76E79] animate-bounce" style={{ animationDelay: '150ms' }} />
-          <div className="w-2 h-2 rounded-full bg-[#B76E79] animate-bounce" style={{ animationDelay: '300ms' }} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Home ──
 export default function Home() {
-  const { user, initialized, init } = useAuthStore();
+  const { user, init } = useAuthStore();
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [onboardingOpen, setOnboardingOpen] = useState(false);
 
+  // Safety net: re-check on the client in case the server missed a session
+  // (e.g., Authorization-header fallback). AuthProvider already set
+  // initialized=true, so this won't cause a loading flash — the LandingPage
+  // or AppShell renders immediately.
   useEffect(() => {
     init();
   }, [init]);
@@ -102,8 +88,6 @@ export default function Home() {
       return () => clearTimeout(timer);
     }
   }, [user]);
-
-  if (!initialized) return <InitialLoader />;
 
   if (!user) {
     return (
