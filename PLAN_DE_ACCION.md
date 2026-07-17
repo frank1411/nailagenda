@@ -112,15 +112,9 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [ ] Eliminar `schema.production.prisma`
 - [ ] **Impacto:** Una sola fuente de verdad para el esquema de BD
 
-### Tarea 2.2 — Migrar Fechas a Tipos Nativos
-- [ ] **Archivo:** `schema.prisma` (modelo Appointment)
-- [ ] Cambiar `date String` → `date DateTime`
-- [ ] Cambiar `startTime String` → `startTime DateTime`
-- [ ] Cambiar `endTime String` → `endTime DateTime`
-- [ ] Escribir migración de datos para convertir strings existentes
-- [ ] Actualizar todas las API routes que leen/escriben estos campos
-- [ ] Actualizar componentes que muestran fechas
-- [ ] **Impacto:** Permite usar funciones de BD para filtros, mejor manejo de timezone
+### Tarea 2.2 — Migrar Fechas a Tipos Nativos ❌ DESCARTADA
+- [x] **Decisión:** No se hacen cálculos con fechas, el formato string es funcional
+- [x] Si en el futuro se necesitan filtros nativos de BD, se abordará como tarea independiente
 
 ### Tarea 2.3 — Migrar `config` a JSON Nativo
 - [ ] **Archivo:** `schema.prisma` (modelo AutomationRule)
@@ -130,13 +124,14 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [ ] Ejecutar migración de BD
 - [ ] **Impacto:** Type safety en configuraciones, queries más eficientes
 
-### Tarea 2.4 — Eliminar Dependencias Muertas
-- [ ] Investigar uso de `z-ai-web-dev-sdk` en el código → si no se usa, eliminar
-- [ ] Decidir: usar `next-auth` (migrar auth a NextAuth v5) o eliminarlo
-- [ ] Decidir: configurar `next-intl` o eliminarlo
-- [ ] `bun remove z-ai-web-dev-sdk` (si no se usa)
-- [ ] Verificar otros paquetes no utilizados con `bun pm ls`
-- [ ] **Impacto:** Reduce superficie de ataque, instalación más rápida
+### Tarea 2.4 — Eliminar Dependencias Muertas ✅
+- [x] Investigar `z-ai-web-dev-sdk` → **sin imports** en todo el código
+- [x] `next-auth` → el proyecto usa JWT manual con `jose`, **0 imports**
+- [x] `next-intl` → **0 imports**, nunca se configuró
+- [x] Eliminadas las 3: `npm uninstall z-ai-web-dev-sdk next-auth next-intl`
+- [x] Verificado: build exitoso en Vercel, app responde OK
+- [x] **Commit:** `4018d00`
+- [x] **Impacto:** Reduce superficie de ataque, instalación más rápida
 
 ### Tarea 2.5 — Tipar el API Client
 - [ ] **Archivo:** `src/lib/api.ts`
