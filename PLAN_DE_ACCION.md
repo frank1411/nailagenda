@@ -193,12 +193,15 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [ ] Actualizar docker-compose.yml para usar este endpoint
 - [ ] **Impacto:** Monitoreo correcto del estado del contenedor
 
-### Tarea 3.4 — Validación de Variables de Entorno al Inicio
-- [ ] Crear script `scripts/validate-env.ts`
-- [ ] Validar que las variables requeridas estén configuradas: `DATABASE_URL`, `AUTH_SECRET`
-- [ ] Validar formato de `DATABASE_URL`
-- [ ] Agregar al script `prestart` o al entrypoint de Docker
-- [ ] **Impacto:** La app falla rápido con mensaje claro si falta configuración
+### Tarea 3.4 — Validación de Variables de Entorno al Inicio ✅
+||- [x] Script `scripts/validate-env.ts` (ya existía del plan inicial)
+||- [x] Valida `DATABASE_URL` y `AUTH_SECRET` como fatales
+||- [x] Valida formato de `DATABASE_URL` (postgresql://, postgres://, file:, mysql://)
+||- [x] Valida longitud mínima (32 chars) y patrones débiles de `AUTH_SECRET`
+||- [x] `DEMO_EMAIL` y `DEMO_PASSWORD` como warnings
+||- [x] Ya referenciado en `start` y ahora también en `dev`
+||- [x] **Commit:** `6700790`
+||- [x] **Impacto:** La app falla rápido con mensaje claro si falta configuración
 
 ### Tarea 3.5 — Agregar CSRF Protection ✅
 ||- [x] Crear `src/lib/csrf.ts` con `validateCSRF()`
