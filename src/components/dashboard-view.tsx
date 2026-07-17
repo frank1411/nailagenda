@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -30,6 +30,7 @@ import {
   Scissors,
   AlertCircle,
 } from 'lucide-react';
+import { useDashboard, invalidate } from '@/lib/use-data';
 import { api } from '@/lib/api';
 import {
   Card,
@@ -413,34 +414,21 @@ function BottomSkeleton() {
 // ---------------------------------------------------------------------------
 
 export default function DashboardView({ onSelectClient }: DashboardViewProps) {
-  // -- State --
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // -- SWR Data --
+  const { data, error, isLoading, mutate } = useDashboard();
 
   // Tablero: local state for client items (supports DnD reordering & moves)
   const [tableroClients, setTableroClients] = useState<ClientItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const initialLoaded = useRef(false);
 
-  // -- Fetch data --
-  const fetchDashboard = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await api.getDashboard();
-      setData(result);
-      setTableroClients(result.clientsByStatusList || []);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al cargar el dashboard';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+  // Sync tableroClients from SWR data (first load only keeps them in sync)
   useEffect(() => {
-    fetchDashboard();
-  }, [fetchDashboard]);
+    if (data) {
+      initialLoaded.current = true;
+      setTableroClients(data.clientsByStatusList || []);
+    }
+  }, [data]);
 
   // -- DnD sensors --
   const sensors = useSensors(
@@ -535,6 +523,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
       // Client has already been moved locally; persist the new status
       try {
         await api.updateClient(activeId, { status: client.status });
+        await invalidate('dashboard');
       } catch {
         // Revert on error
         setTableroClients((prev) =>
@@ -558,7 +547,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
   const todayAptsCount = data?.todayAppointments?.length ?? 0;
 
   // -- Render: Loading --
-  if (loading) {
+  if (isLoading && !initialLoaded.current) {
     return (
       <div className="space-y-6 p-4 md:p-6">
         <StatsSkeleton />
@@ -576,7 +565,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
         <p className="text-lg font-medium text-foreground mb-2">Error al cargar</p>
         <p className="text-sm text-muted-foreground mb-4">{error}</p>
         <button
-          onClick={fetchDashboard}
+          onClick={() => mutate()}
           className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
           style={{ backgroundColor: ROSE_GOLD }}
         >

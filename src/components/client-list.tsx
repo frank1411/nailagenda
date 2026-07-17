@@ -12,6 +12,7 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
+import { useClients, invalidate } from '@/lib/use-data';
 import { api } from '@/lib/api';
 import {
   Card,
@@ -446,9 +447,6 @@ function ClientCardSkeleton() {
 // ---------------------------------------------------------------------------
 
 export default function ClientList({ onSelectClient, selectedClientId }: ClientListProps) {
-  const [clients, setClients] = useState<ClientListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterTab>('ALL');
   const [newClientOpen, setNewClientOpen] = useState(false);
@@ -467,42 +465,14 @@ export default function ClientList({ onSelectClient, selectedClientId }: ClientL
     };
   }, [search]);
 
-  // Fetch clients
-  const fetchClients = useCallback(async (silent = false) => {
-    try {
-      if (!silent) setLoading(true);
-      setError(null);
-      const params: { status?: string; search?: string } = {};
-      if (activeFilter !== 'ALL') params.status = activeFilter;
-      if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
-      const data = await api.getClients(params);
-      setClients(data || []);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al cargar clientes';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeFilter, debouncedSearch]);
+  // SWR: filtered clients list
+  const fetchParams: { status?: string; search?: string } = {};
+  if (activeFilter !== 'ALL') fetchParams.status = activeFilter;
+  if (debouncedSearch.trim()) fetchParams.search = debouncedSearch.trim();
+  const { data: clients = [], error, isLoading, mutate } = useClients(fetchParams);
 
-  useEffect(() => {
-    fetchClients();
-  }, [fetchClients]);
-
-  // Compute status counts from all clients (without filter)
-  const [allClients, setAllClients] = useState<ClientListItem[]>([]);
-
-  useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const data = await api.getClients({});
-        setAllClients(data || []);
-      } catch {
-        // silently fail for counts
-      }
-    };
-    fetchAll();
-  }, [activeFilter, debouncedSearch, newClientOpen]);
+  // SWR: all clients for status counts (deduplicated by SWR)
+  const { data: allClients = [] } = useClients({});
 
   const statusCounts = {
     ALL: allClients.length,
@@ -595,7 +565,7 @@ export default function ClientList({ onSelectClient, selectedClientId }: ClientL
 
       {/* Client List */}
       <div className="flex-1 min-h-0">
-        {loading ? (
+        {isLoading ? (
           <ScrollArea className="h-full">
             <div className="p-4 sm:p-6 space-y-3">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -611,7 +581,7 @@ export default function ClientList({ onSelectClient, selectedClientId }: ClientL
             <Button
                variant="outline"
                size="sm"
-               onClick={() => fetchClients()}
+               onClick={() => mutate()}
              >
                Reintentar
 
@@ -662,7 +632,7 @@ export default function ClientList({ onSelectClient, selectedClientId }: ClientL
       <NewClientDialog
         open={newClientOpen}
         onOpenChange={setNewClientOpen}
-        onCreated={() => fetchClients(true)}
+        onCreated={() => invalidate('clients')}
       />
     </div>
   );
