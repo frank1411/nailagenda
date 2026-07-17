@@ -214,13 +214,15 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 ||- [x] **Commit:** `3d5eefb`
 ||- [x] **Impacto:** Bundle inicial ~10-15% más pequeño al eliminar dependencia de onboarding-tour del chunk principal
 
-### Tarea 3.7 — Cache de Datos con SWR/React Query 🚀
-|- [ ] Integrar SWR (liviano) o @tanstack/react-query en los stores/vistas
-|- [ ] Reemplazar `useEffect + fetch` directo con hooks de cache
-|- [ ] Configurar revalidación en segundo plano (stale-while-revalidate)
-|- [ ] Cache persistente: los datos no se refetchan al navegar entre vistas
-|- [ ] **Impacto:** Navegación instantánea entre vistas, menos requests
-|- [ ] **Prioridad:** ALTA — mejora la experiencia diaria
+### Tarea 3.7 — Cache de Datos con SWR/React Query 🚀 ✅
+||- [x] Instalar y configurar `swr` ^2.x
+||- [x] Crear hooks centralizados: `useDashboard`, `useClients`, `useClient`, `useServices`, `useAppointments`, `useAutomations`
+||- [x] Refactorizar `DashboardView` — eliminar `useState+useEffect+fetch` manual, usar `useDashboard()` con SWR
+||- [x] Refactorizar `ClientList` — eliminar doble fetch, usar `useClients()` con y sin filtros
+||- [x] Configurar `dedupingInterval: 5s`, `keepPreviousData: true`, `revalidateOnFocus: false`
+||- [x] `mutate()` en reintento de error, `invalidate()` tras crear cliente y DnD
+||- [x] **Commit:** `ae9ecb1`
+||- [x] **Impacto:** Navegación instantánea entre vistas, datos cacheados, menos requests
 
 ### Tarea 3.8 — Server Components para Layout y Auth
 |- [ ] Mover verificación de auth del cliente al servidor (middleware + layout)
