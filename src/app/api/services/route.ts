@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: FALLBACKS.services });
     }
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Services');
   }
 }
@@ -53,7 +52,6 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ data: service }, { status: 201 });
-  } catch (error) {
   } catch (error) {
     return handleApiError(error, 'Services');
   }

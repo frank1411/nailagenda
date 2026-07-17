@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: FALLBACKS.automations });
     }
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Automations');
   }
 }
@@ -56,7 +55,6 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ data: automation }, { status: 201 });
-  } catch (error) {
   } catch (error) {
     return handleApiError(error, 'Automations');
   }

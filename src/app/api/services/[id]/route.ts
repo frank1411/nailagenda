@@ -40,7 +40,6 @@ export async function PUT(
 
     return NextResponse.json({ data: service });
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Service');
   }
 }
@@ -66,7 +65,6 @@ export async function DELETE(
     });
 
     return NextResponse.json({ data: { message: 'Service deactivated' } });
-  } catch (error) {
   } catch (error) {
     return handleApiError(error, 'Service');
   }

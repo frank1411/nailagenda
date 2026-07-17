@@ -40,7 +40,6 @@ export async function PUT(
 
     return NextResponse.json({ data: automation });
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Automation');
   }
 }
@@ -62,7 +61,6 @@ export async function DELETE(
     await db.automationRule.delete({ where: { id } });
 
     return NextResponse.json({ data: { message: 'Automation deleted' } });
-  } catch (error) {
   } catch (error) {
     return handleApiError(error, 'Automation');
   }

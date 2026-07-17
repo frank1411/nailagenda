@@ -84,7 +84,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: FALLBACKS.clients });
     }
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Clients');
   }
 }
@@ -116,7 +115,6 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ data: client }, { status: 201 });
-  } catch (error) {
   } catch (error) {
     return handleApiError(error, 'Clients');
   }

@@ -249,7 +249,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Automations run');
   }
 }

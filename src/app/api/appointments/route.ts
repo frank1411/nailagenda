@@ -55,7 +55,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: FALLBACKS.appointments });
     }
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Appointments');
   }
 }
@@ -131,7 +130,6 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ data: appointment }, { status: 201 });
-  } catch (error) {
   } catch (error) {
     return handleApiError(error, 'Appointments');
   }

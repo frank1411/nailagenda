@@ -25,7 +25,6 @@ export async function GET(
 
     return NextResponse.json({ data: notes });
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Client notes');
   }
 }
@@ -61,7 +60,6 @@ export async function POST(
     });
 
     return NextResponse.json({ data: note }, { status: 201 });
-  } catch (error) {
   } catch (error) {
     return handleApiError(error, 'Client notes');
   }

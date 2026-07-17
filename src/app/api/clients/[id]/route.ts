@@ -30,7 +30,6 @@ export async function GET(
 
     return NextResponse.json({ data: client });
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Client');
   }
 }
@@ -73,7 +72,6 @@ export async function PUT(
 
     return NextResponse.json({ data: client });
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Client');
   }
 }
@@ -95,7 +93,6 @@ export async function DELETE(
     await db.client.delete({ where: { id } });
 
     return NextResponse.json({ data: { message: 'Client deleted' } });
-  } catch (error) {
   } catch (error) {
     return handleApiError(error, 'Client');
   }

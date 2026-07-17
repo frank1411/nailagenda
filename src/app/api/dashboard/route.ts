@@ -131,7 +131,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: FALLBACKS.dashboard });
     }
   } catch (error) {
-  } catch (error) {
     return handleApiError(error, 'Dashboard');
   }
 }
