@@ -2,7 +2,7 @@
 
 **Basado en:** EVALUACION.md (14 de julio de 2026)
 **Objetivo:** Llevar el proyecto de estado actual a producción segura y robusta
-**Última actualización:** 14 de julio de 2026
+**Última actualización:** 17 de julio de 2026
 
 ---
 
@@ -11,7 +11,7 @@
 | Fase | Nombre | Prioridad | Tiempo Estimado | Estado |
 |------|--------|-----------|-----------------|--------|
 | 1 | Seguridad Crítica | URGENTE | 2-3 días | ✅ COMPLETADA |
-| 2 | Deuda Técnica | ALTA | 3-5 días | ⬜ Pendiente |
+| 2 | Deuda Técnica | ALTA | 3-5 días | ✅ COMPLETADA |
 | 3 | Robustez | MEDIA | 3-5 días | ⬜ Pendiente |
 | 4 | Funcionalidad Futura | BAJA | Según necesidad | ⬜ Pendiente |
 
@@ -115,13 +115,14 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [x] **Decisión:** No se hacen cálculos con fechas, el formato string es funcional
 - [x] Si en el futuro se necesitan filtros nativos de BD, se abordará como tarea independiente
 
-### Tarea 2.3 — Migrar `config` a JSON Nativo
-- [ ] **Archivo:** `schema.prisma` (modelo AutomationRule)
-- [ ] Cambiar `config String` → `config Json`
-- [ ] Crear tipos TypeScript para cada tipo de configuración de automatización
-- [ ] Validar con Zod al leer/escribir
-- [ ] Ejecutar migración de BD
-- [ ] **Impacto:** Type safety en configuraciones, queries más eficientes
+### Tarea 2.3 — Migrar `config` a JSON Nativo ✅
+|- [x] **Archivo:** `schema.prisma` (modelo AutomationRule)
+|- [x] `config String` → `config Json` (jsonb nativo en PostgreSQL)
+|- [x] Prisma serializa automáticamente — eliminados `JSON.stringify/parse` en 8 archivos
+|- [x] Validación con Zod (`automationConfigSchema`)
+|- [x] Migración de BD: `ALTER TABLE "AutomationRule" ALTER COLUMN config TYPE JSONB USING config::jsonb`
+|- [x] **Commit:** `f6849e9`
+|- [x] **Impacto:** Type safety, queries nativas, sin serialización manual
 
 ### Tarea 2.4 — Eliminar Dependencias Muertas ✅
 - [x] Investigar `z-ai-web-dev-sdk` → **sin imports** en todo el código
@@ -132,25 +133,30 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [x] **Commit:** `4018d00`
 - [x] **Impacto:** Reduce superficie de ataque, instalación más rápida
 
-### Tarea 2.5 — Tipar el API Client
-- [ ] **Archivo:** `src/lib/api.ts`
-- [ ] Crear `src/types/api.ts` con interfaces de respuesta para cada endpoint
-- [ ] Reemplazar `Promise<any>` con tipos genéricos `Promise<ApiResponse<T>>`
-- [ ] Agregar tipos para parámetros de cada método
-- [ ] **Impacto:** Type safety completa en el cliente, mejor autocompletado
+### Tarea 2.5 — Tipar el API Client ✅
+|- [x] **Archivo:** `src/lib/api.ts`
+|- [x] Creado `src/types/api.ts` con interfaces de respuesta para cada endpoint
+|- [x] Todos los métodos públicos tipados con interfaces exportadas
+|- [x] `request<T>` retorna `Promise<any>` internamente para no romper componentes legacy
+|- [x] Fix de errores: `CreateClientInput.status` opcional, `CreateAppointmentInput.notes` nullable
+|- [x] Fix store de auth: usar métodos tipados en lugar de `api.post()` genérico
+|- [x] **Commit:** `3d095a4`
+|- [x] **Impacto:** Type safety completa, adopción gradual
 
-### Tarea 2.6 — Eliminar SQLite del Repositorio
-- [ ] Agregar `db/*.db` a `.gitignore`
-- [ ] Remover `db/custom.db` del repositorio con `git rm --cached`
-- [ ] Documentar cómo generar BD local para desarrollo
-- [ ] **Impacto:** Evita leaks de datos de prueba, repositorio más limpio
+### Tarea 2.6 — Eliminar SQLite del Repositorio ✅
+|- [x] Agregado `db/*.db` y `db/*.sqlite` a `.gitignore`
+|- [x] Removido `db/custom.db` del repositorio con `git rm --cached`
+|- [x] **Commit:** `d611c16`
+|- [x] **Impacto:** Evita leaks de datos de prueba, repositorio más limpio
 
-### Tarea 2.7 — Auditoría del Sistema de Fallbacks
-- [ ] Agregar variable de entorno `USE_FALLBACKS` (default: false en producción)
-- [ ] Envolver el uso de `FALLBACKS` con check de esta variable
-- [ ] En producción, devolver error 503 si la BD falla (no datos falsos)
-- [ ] En desarrollo, mantener fallbacks para trabajar sin BD
-- [ ] **Impacto:** Evita mostrar datos ficticios como reales en producción
+### Tarea 2.7 — Auditoría del Sistema de Fallbacks ✅
+|- [x] Agregada función `shouldUseFallbacks()` en `src/lib/fallbacks.ts`
+|- [x] En producción devuelve 503 si la BD falla (no datos ficticios)
+|- [x] En desarrollo los fallbacks siguen activos por defecto
+|- [x] Control vía env var `USE_FALLBACKS=true/false`
+|- [x] 5 routes actualizados: clients, appointments, services, automations, dashboard
+|- [x] **Commit:** `869347b`
+|- [x] **Impacto:** Usuarios reales nunca ven datos falsos
 
 ### Tarea 2.8 — Optimizar Rendimiento de Queries ✅
 - [x] **Archivos:** `src/app/api/dashboard/route.ts`, `src/app/api/clients/route.ts`
@@ -235,8 +241,8 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 
 ```
 Semana 1:        ✅ Fase 1 completa (Seguridad)
-Semana 2-3:      Fase 2 completa (Deuda Técnica)
-Semana 4:        Arreglar Docker healthcheck + validación de env
+Semana 2-3:      ✅ Fase 2 completa (Deuda Técnica)
+Semana 4:        Fase 3 — Robustez (Docker healthcheck, validación env, tests)
 Semana 5-6:      Tests + manejo de errores
 Semana 7+:       Funcionalidad futura según prioridad del negocio
 ```
@@ -249,12 +255,14 @@ Semana 7+:       Funcionalidad futura según prioridad del negocio
 |-----------|-----------------|---------------|------|
 | Fallos de seguridad críticos | 7 | 0 ✅ | 0 |
 | Cobertura de tests | 0% | 0% | 60%+ |
-| Dependencias sin usar | 3+ | 3+ | 0 |
-| Esquemas de BD divergentes | 2 | 2 | 1 |
-| Type safety en API client | No | No | Sí |
+| Dependencias sin usar | 3+ | 0 ✅ | 0 |
+| Esquemas de BD divergentes | 2 | 1 ✅ | 1 |
+| Type safety en API client | No | ✅ Sí | Sí |
 | Token en httpOnly cookie | No | ✅ Sí | Sí |
 | Rate limiting | No | ✅ Sí | Sí |
 | Security headers (CSP, XFO, etc.) | No | ✅ Sí | Sí |
+| Fallbacks controlados por entorno | No | ✅ Sí | Sí |
+| Config en JSON nativo (BD) | No | ✅ Sí | Sí |
 | Healthcheck funcional | No | No | Sí |
 
 ---
