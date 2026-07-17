@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { extractToken } from '@/lib/auth';
+import { validateCSRF } from '@/lib/csrf';
 
 /**
  * Security middleware — runs on every matched request.
@@ -80,6 +81,17 @@ export async function middleware(request: NextRequest) {
     response.headers.set(key, value);
   }
   response.headers.set('Content-Security-Policy', CSP);
+
+  // ── CSRF: validate Origin/Referer for mutation methods ──
+  if (pathname.startsWith('/api/')) {
+    const csrfError = validateCSRF(request);
+    if (csrfError) {
+      return NextResponse.json(
+        { error: csrfError },
+        { status: 403 },
+      );
+    }
+  }
 
   // ── Auth check for protected API routes ──
   if (pathname.startsWith('/api/') && !isPublicRoute(pathname)) {
