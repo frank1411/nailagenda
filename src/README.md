@@ -60,8 +60,7 @@ CRM especializado para estudios de nail art. Gestiona clientes, citas, servicios
 ```
 mayenailsart/
 ├── prisma/
-│   ├── schema.prisma              # Schema activo (SQLite para dev)
-│   ├── schema.production.prisma   # Schema PostgreSQL para Vercel
+│   ├── schema.prisma              # Schema activo (PostgreSQL vía Supabase)
 │   ├── schema.sqlite.prisma       # Backup del schema SQLite
 │   ├── seed.ts                    # Script de seed standalone
 │   └── db/custom.db               # Base de datos SQLite local
@@ -281,7 +280,7 @@ El archivo `scripts/vercel-build.sh` ejecuta automáticamente:
 
 ```
 1. Detecta si DATABASE_URL es PostgreSQL
-2. Reemplaza schema.prisma con schema.production.prisma (provider: postgresql)
+2. Ejecuta prisma generate y prisma db push
 3. Ejecuta prisma generate (genera cliente PostgreSQL)
 4. Ejecuta prisma db push (crea/actualiza tablas en PostgreSQL)
 5. Ejecuta next build

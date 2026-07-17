@@ -105,12 +105,11 @@ Esta fase es **obligatoria** antes de que la aplicación sea usada por usuarios 
 Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 
 ### Tarea 2.1 — Unificar Esquemas Prisma
-- [ ] Comparar `schema.prisma` y `schema.production.prisma`
-- [ ] Consolidar en un solo `schema.prisma`
-- [ ] Si algunos campos son solo para dev (ej: SQLite), usar conditional datasource
-- [ ] Ejecutar migración para sincronizar BD
-- [ ] Eliminar `schema.production.prisma`
-- [ ] **Impacto:** Una sola fuente de verdad para el esquema de BD
+- [x] Comparar `schema.prisma` y `schema.production.prisma`
+- [x] Consolidar en un solo `schema.prisma`
+- [x] BD de producción ya tiene todos los campos (isActive, isDemo, subscriptionExpiresAt)
+- [x] Eliminar `schema.production.prisma` (obsoleto, causaba confusión)
+- [x] **Impacto:** Un solo source of truth para el esquema
 
 ### Tarea 2.2 — Migrar Fechas a Tipos Nativos ❌ DESCARTADA
 - [x] **Decisión:** No se hacen cálculos con fechas, el formato string es funcional
