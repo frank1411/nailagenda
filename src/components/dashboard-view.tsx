@@ -426,7 +426,7 @@ export default function DashboardView({ onSelectClient }: DashboardViewProps) {
   useEffect(() => {
     if (data) {
       initialLoaded.current = true;
-      setTableroClients(data.clientsByStatusList || []);
+      setTableroClients(data.clientsByStatusList as unknown as ClientItem[]);
     }
   }, [data]);
 
