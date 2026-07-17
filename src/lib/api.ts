@@ -1,3 +1,27 @@
+import type {
+  ApiResponse,
+  AuthResponse,
+  AuthUser,
+  LoginInput,
+  RegisterInput,
+  ClientListItem,
+  ClientWithDetails,
+  CreateClientInput,
+  UpdateClientInput,
+  Service,
+  CreateServiceInput,
+  UpdateServiceInput,
+  AppointmentWithDetails,
+  CreateAppointmentInput,
+  ClientNote,
+  CreateNoteInput,
+  DashboardData,
+  AutomationRule,
+  CreateAutomationInput,
+  AdminUser,
+  DeleteResponse,
+} from '@/types/api';
+
 const API_BASE = '/api';
 
 class ApiClient {
@@ -5,117 +29,106 @@ class ApiClient {
     return { 'Content-Type': 'application/json' };
   }
 
-  async get(path: string): Promise<any> {
+  // El método interno request retorna any para no romper componentes
+  // que tienen sus propias definiciones de tipos locales.
+  // Los tipos exportados en @/types/api están disponibles para
+  // quienes quieran tipar sus componentes.
+  private async request(path: string, options?: RequestInit): Promise<any> {
     const res = await fetch(`${API_BASE}${path}`, {
       headers: this.headers(),
       credentials: 'include',
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Request failed');
-    return data.data;
-  }
-
-  async post(path: string, body: any): Promise<any> {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method: 'POST',
-      headers: this.headers(),
-      credentials: 'include',
-      body: JSON.stringify(body),
+      ...options,
     });
 
     const contentType = res.headers.get('content-type');
-    const data = (contentType && contentType.includes('application/json'))
-      ? await res.json()
-      : { error: `Server returned non-JSON response (${res.status})` };
+    const data =
+      contentType && contentType.includes('application/json')
+        ? await res.json()
+        : { error: `Server returned non-JSON response (${res.status})` };
 
     if (!res.ok) throw new Error(data.error || `Request failed with status ${res.status}`);
     return data.data;
   }
 
-  async put(path: string, body: any): Promise<any> {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method: 'PUT',
-      headers: this.headers(),
-      credentials: 'include',
-      body: JSON.stringify(body),
+  // ── Auth ──
+  async login(input: LoginInput) {
+    return this.request('/auth', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'login', ...input }),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Request failed');
-    return data.data;
   }
 
-  async patch(path: string, body: any): Promise<any> {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method: 'PATCH',
-      headers: this.headers(),
-      credentials: 'include',
-      body: JSON.stringify(body),
+  async register(input: RegisterInput) {
+    return this.request('/auth', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'register', ...input }),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Request failed');
-    return data.data;
-  }
-
-  async delete(path: string): Promise<any> {
-    const res = await fetch(`${API_BASE}${path}`, {
-      method: 'DELETE',
-      headers: this.headers(),
-      credentials: 'include',
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Request failed');
-    return data.data;
-  }
-
-  // Auth
-  async register(email: string, name: string, password: string, salonName?: string) {
-    return this.post('/auth', { action: 'register', email, name, password, salonName });
-  }
-
-  async login(email: string, password: string) {
-    return this.post('/auth', { action: 'login', email, password });
   }
 
   async getMe() {
-    return this.get('/auth');
+    return this.request('/auth');
   }
 
-  // Clients
+  async logout() {
+    return this.request('/auth', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'logout' }),
+    });
+  }
+
+  // ── Clients ──
   async getClients(params?: { status?: string; search?: string }) {
     const query = new URLSearchParams();
     if (params?.status) query.set('status', params.status);
     if (params?.search) query.set('search', params.search);
     const qs = query.toString();
-    return this.get(`/clients${qs ? `?${qs}` : ''}`);
+    return this.request(`/clients${qs ? `?${qs}` : ''}`);
   }
 
   async getClient(id: string) {
-    return this.get(`/clients/${id}`);
+    return this.request(`/clients/${id}`);
   }
 
-  async createClient(data: any) {
-    return this.post('/clients', data);
+  async createClient(data: CreateClientInput) {
+    return this.request('/clients', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
-  async updateClient(id: string, data: any) {
-    return this.put(`/clients/${id}`, data);
+  async updateClient(id: string, data: UpdateClientInput) {
+    return this.request(`/clients/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   async deleteClient(id: string) {
-    return this.delete(`/clients/${id}`);
+    return this.request(`/clients/${id}`, {
+      method: 'DELETE',
+    });
   }
 
-  // Client Notes
+  // ── Client Notes ──
   async getClientNotes(clientId: string) {
-    return this.get(`/clients/${clientId}/notes`);
+    return this.request(`/clients/${clientId}/notes`);
   }
 
-  async addClientNote(clientId: string, content: string, type: string) {
-    return this.post(`/clients/${clientId}/notes`, { content, type });
+  async addClientNote(clientId: string, data: CreateNoteInput) {
+    return this.request(`/clients/${clientId}/notes`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
-  // Appointments
-  async getAppointments(params?: { date?: string; startDate?: string; endDate?: string; clientId?: string; status?: string }) {
+  // ── Appointments ──
+  async getAppointments(params?: {
+    date?: string;
+    startDate?: string;
+    endDate?: string;
+    clientId?: string;
+    status?: string;
+  }) {
     const query = new URLSearchParams();
     if (params?.date) query.set('date', params.date);
     if (params?.startDate) query.set('startDate', params.startDate);
@@ -123,80 +136,116 @@ class ApiClient {
     if (params?.clientId) query.set('clientId', params.clientId);
     if (params?.status) query.set('status', params.status);
     const qs = query.toString();
-    return this.get(`/appointments${qs ? `?${qs}` : ''}`);
+    return this.request(`/appointments${qs ? `?${qs}` : ''}`);
   }
 
-  async createAppointment(data: any) {
-    return this.post('/appointments', data);
+  async createAppointment(data: CreateAppointmentInput) {
+    return this.request('/appointments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
-  async updateAppointment(id: string, data: any) {
-    return this.put(`/appointments/${id}`, data);
+  async updateAppointment(id: string, data: Partial<CreateAppointmentInput>) {
+    return this.request(`/appointments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   async deleteAppointment(id: string) {
-    return this.delete(`/appointments/${id}`);
+    return this.request(`/appointments/${id}`, {
+      method: 'DELETE',
+    });
   }
 
-  // Services
+  // ── Services ──
   async getServices() {
-    return this.get('/services');
+    return this.request('/services');
   }
 
-  async createService(data: any) {
-    return this.post('/services', data);
+  async createService(data: CreateServiceInput) {
+    return this.request('/services', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
-  async updateService(id: string, data: any) {
-    return this.put(`/services/${id}`, data);
+  async updateService(id: string, data: UpdateServiceInput) {
+    return this.request(`/services/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   async deleteService(id: string) {
-    return this.delete(`/services/${id}`);
+    return this.request(`/services/${id}`, {
+      method: 'DELETE',
+    });
   }
 
-  // Automations
+  // ── Automations ──
   async getAutomations() {
-    return this.get('/automations');
+    return this.request('/automations');
   }
 
-  async createAutomation(data: any) {
-    return this.post('/automations', data);
+  async createAutomation(data: CreateAutomationInput) {
+    return this.request('/automations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
-  async updateAutomation(id: string, data: any) {
-    return this.put(`/automations/${id}`, data);
+  async updateAutomation(id: string, data: Partial<CreateAutomationInput>) {
+    return this.request(`/automations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   async deleteAutomation(id: string) {
-    return this.delete(`/automations/${id}`);
+    return this.request(`/automations/${id}`, {
+      method: 'DELETE',
+    });
   }
 
   async runAutomations() {
-    return this.post('/automations/run', {});
+    return this.request('/automations/run', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
   }
 
-  // Dashboard
+  // ── Dashboard ──
   async getDashboard() {
-    return this.get('/dashboard');
+    return this.request('/dashboard');
   }
 
-  // Seed
+  // ── Seed ──
   async seedDatabase() {
-    return this.post('/seed', {});
+    return this.request('/seed', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
   }
 
-  // Admin
+  // ── Admin ──
   async getAdminUsers() {
-    return this.get('/admin/users');
+    return this.request('/admin/users');
   }
 
   async updateUserStatus(id: string, isActive: boolean) {
-    return this.patch(`/admin/users/${id}`, { isActive });
+    return this.request(`/admin/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isActive }),
+    });
   }
- 
+
   async extendUserSubscription(id: string) {
-    return this.patch(`/admin/users/${id}`, { extendSubscription: true });
+    return this.request(`/admin/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ extendSubscription: true }),
+    });
   }
 }
 

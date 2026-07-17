@@ -6,15 +6,17 @@
 .env.local
 
 # Build artifacts / generated
+.next/
 tsconfig.tsbuildinfo
+*.tsbuildinfo
 next-env.d.ts
 
-# Common ignores (adjust as needed)
+# Dependencies
 node_modules/
+
+# OS files
 .DS_Store
 
 # Local SQLite dev databases (migrated to PostgreSQL in production)
 db/*.db
 db/*.sqlite
-
-

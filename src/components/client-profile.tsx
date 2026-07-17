@@ -488,7 +488,7 @@ function NewAppointmentDialog({
         date,
         startTime,
         endTime: computedEndTime,
-        notes: notes.trim() || null,
+        notes: (notes.trim() || null) ?? undefined,
       });
       resetForm();
       onOpenChange(false);
@@ -755,7 +755,7 @@ export default function ClientProfile({ clientId, onBack }: ClientProfileProps) 
     try {
       setAddingNote(true);
       setNoteError(null);
-      await api.addClientNote(clientId, noteContent.trim(), noteType);
+      await api.addClientNote(clientId, { content: noteContent.trim(), type: noteType });
       toast.success('Nota agregada exitosamente');
       setNoteContent('');
       setNoteType('NOTE');

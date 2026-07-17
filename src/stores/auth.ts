@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   login: async (email, password) => {
     set({ loading: true });
     try {
-      const data = await api.login(email, password);
+      const data = await api.login({ email, password });
       // The httpOnly cookie is set by the server response.
       // We only need the user object; the token is irrelevant on the client now.
       set({ user: data.user, loading: false });
@@ -59,7 +59,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (email, name, password, salonName) => {
     set({ loading: true });
     try {
-      const data = await api.register(email, name, password, salonName);
+      const data = await api.register({ email, name, password, salonName });
       set({ user: data.user, loading: false });
     } catch (error) {
       set({ loading: false });
@@ -69,7 +69,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
-      await api.post('/auth', { action: 'logout' });
+      await api.logout();
     } catch {
       // Even if the logout request fails, clear local state
     }
