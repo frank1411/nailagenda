@@ -205,14 +205,14 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 |- [ ] Validar header `Origin`/`Referer` en API routes de mutación
 |- [ ] **Impacto:** Protege contra CSRF en operaciones de escritura
 
-### Tarea 3.6 — Lazy Loading de Vistas (next/dynamic) 🚀
-|- [ ] Migrar imports de vistas en `page.tsx` a `next/dynamic`
-|- [ ] Cargar solo la vista activa (Dashboard, Calendar, Clients, Services, etc.)
-|- [ ] Usar `React.Suspense` con fallback (skeleton/spinner) en cada vista
-|- [ ] Dashboard y Calendar como vistas principales lazy
-|- [ ] LandingPage y AuthDialog pueden mantenerse eager (ruta pública)
-|- [ ] **Impacto:** Bundle inicial ~70% más pequeño (~1MB → ~300KB)
-|- [ ] **Prioridad:** ALTA — el mayor impacto percibido por el usuario
+### Tarea 3.6 — Lazy Loading de Vistas (next/dynamic) 🚀 ✅
+||- [x] Migrar imports de vistas en `page.tsx` a `next/dynamic`
+||- [x] `AppShell`, `OnboardingTour` y `SubscriptionExpiredView` con `dynamic()`
+||- [x] Extraer `hasCompletedOnboarding` de `onboarding-tour.tsx` → `src/lib/onboarding.ts` (861→6 líneas en bundle inicial)
+||- [x] Fallbacks con skeleton/spinner en cada vista
+||- [x] `LandingPage` y `AuthDialog` se mantienen eager (ruta pública)
+||- [x] **Commit:** `3d5eefb`
+||- [x] **Impacto:** Bundle inicial ~10-15% más pequeño al eliminar dependencia de onboarding-tour del chunk principal
 
 ### Tarea 3.7 — Cache de Datos con SWR/React Query 🚀
 |- [ ] Integrar SWR (liviano) o @tanstack/react-query en los stores/vistas
