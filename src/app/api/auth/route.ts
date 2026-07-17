@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { hashPassword, verifyPassword, createToken, requireAuth, AuthError, setTokenCookie, clearTokenCookie } from '@/lib/auth';
+import { hashPassword, verifyPassword, createToken, requireAuth, setTokenCookie, clearTokenCookie } from '@/lib/auth';
 import { registerSchema, loginSchema } from '@/lib/validations';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
+import { handleApiError } from '@/lib/api-error-handler';
 
 // ── Rate limit configs ──
 // Login: 5 attempts per IP per minute (prevents brute force)
@@ -107,7 +108,7 @@ export async function GET(request: NextRequest) {
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
     return NextResponse.json({ data: user });
   } catch (error) {
-    if (error instanceof AuthError) return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Auth');
   }
 }

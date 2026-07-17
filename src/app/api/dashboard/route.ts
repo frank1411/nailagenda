@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAuth, AuthError } from '@/lib/auth';
+import { requireAuth } from '@/lib/auth';
 import { FALLBACKS, DEMO_USER_ID, shouldUseFallbacks } from '@/lib/fallbacks';
+import { handleApiError } from '@/lib/api-error-handler';
 
 export async function GET(request: NextRequest) {
   try {
@@ -130,10 +131,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: FALLBACKS.dashboard });
     }
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Dashboard error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Dashboard');
   }
 }

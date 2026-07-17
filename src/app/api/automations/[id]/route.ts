@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAuth, AuthError } from '@/lib/auth';
+import { requireAuth } from '@/lib/auth';
 import { updateAutomationSchema } from '@/lib/validations';
+import { handleApiError } from '@/lib/api-error-handler';
 
 export async function PUT(
   request: NextRequest,
@@ -39,11 +40,8 @@ export async function PUT(
 
     return NextResponse.json({ data: automation });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Automation update error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Automation');
   }
 }
 
@@ -65,10 +63,7 @@ export async function DELETE(
 
     return NextResponse.json({ data: { message: 'Automation deleted' } });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Automation delete error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Automation');
   }
 }

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAuth, AuthError } from '@/lib/auth';
+import { requireAuth } from '@/lib/auth';
 import { updateAppointmentSchema } from '@/lib/validations';
+import { handleApiError } from '@/lib/api-error-handler';
 
 function timesOverlap(
   start1: string,
@@ -78,11 +79,7 @@ export async function PUT(
 
     return NextResponse.json({ data: appointment });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Appointment update error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleApiError(error, 'Appointment update');
   }
 }
 
@@ -104,10 +101,6 @@ export async function DELETE(
 
     return NextResponse.json({ data: { message: 'Appointment deleted' } });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Appointment delete error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleApiError(error, 'Appointment delete');
   }
 }

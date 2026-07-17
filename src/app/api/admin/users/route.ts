@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAdmin, AuthError } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
+import { handleApiError } from '@/lib/api-error-handler';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,10 +22,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data: users });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Admin users list error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleApiError(error, 'Admin users list');
   }
 }

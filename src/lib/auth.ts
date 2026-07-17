@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { db } from '@/lib/db';
+import { AppError } from '@/lib/errors';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
@@ -159,11 +160,9 @@ export async function requireAdmin(request: Request): Promise<string> {
   return userId;
 }
 
-export class AuthError extends Error {
-  statusCode: number;
+export class AuthError extends AppError {
   constructor(message: string, statusCode: number) {
-    super(message);
-    this.statusCode = statusCode;
+    super(message, statusCode);
     this.name = 'AuthError';
   }
 }

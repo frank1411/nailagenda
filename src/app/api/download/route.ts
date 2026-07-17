@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { handleApiError } from '@/lib/api-error-handler';
 
 const FILES: Record<string, { fileName: string; type: string }> = {
   pptx: {
@@ -42,7 +43,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Download error:', error);
-    return NextResponse.json({ error: 'Archivo no encontrado o error al procesar la descarga' }, { status: 404 });
+    return handleApiError(error, 'Download');
   }
 }

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAuth, AuthError } from '@/lib/auth';
+import { requireAuth } from '@/lib/auth';
 import { createNoteSchema } from '@/lib/validations';
+import { handleApiError } from '@/lib/api-error-handler';
 
 export async function GET(
   request: NextRequest,
@@ -24,11 +25,8 @@ export async function GET(
 
     return NextResponse.json({ data: notes });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Client notes list error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Client notes');
   }
 }
 
@@ -64,10 +62,7 @@ export async function POST(
 
     return NextResponse.json({ data: note }, { status: 201 });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Client note create error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Client notes');
   }
 }

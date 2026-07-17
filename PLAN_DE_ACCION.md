@@ -181,12 +181,13 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 ||- [ ] Ejecutar Playwright (requiere app corriendo o CI)
 ||- [ ] **Impacto:** 42 tests pasando, previene regresiones, documenta comportamiento esperado
 
-### Tarea 3.2 — Mejorar Manejo de Errores
-- [ ] Crear `src/lib/errors.ts` con jerarquía de errores (AppError, NotFoundError, etc.)
-- [ ] Estandarizar formato de respuesta de error: `{ error: { code, message, details? } }`
-- [ ] Agregar logging estructurado (pino o similar)
-- [ ] Considerar integración con Sentry para monitoreo
-- [ ] **Impacto:** Debugging más fácil, mejor experiencia para el usuario
+### Tarea 3.2 — Mejorar Manejo de Errores ✅
+||- [x] Crear `src/lib/errors.ts` con jerarquía de errores (AppError, NotFoundError, etc.)
+||- [x] Estandarizar formato de respuesta de error: `{ error: { code, message, details? } }`
+||- [x] Agregar logging estructurado (timestamp, nivel, contexto)
+||- [x] Refactorizar 16 rutas API para usar `handleApiError()` centralizado
+||- [x] Tests: `errors.test.ts` (14 tests) + `api-error-handler.test.ts` (8 tests)
+||- [x] **Impacto:** Código repetitivo eliminado, errores consistentes, logging centralizado
 
 ### Tarea 3.3 — Arreglar Docker Healthcheck
 - [ ] Crear endpoint `GET /api/health` público (sin auth)

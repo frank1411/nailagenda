@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAdmin, AuthError } from '@/lib/auth';
+import { requireAdmin } from '@/lib/auth';
+import { handleApiError } from '@/lib/api-error-handler';
 
 export async function PATCH(
   request: NextRequest,
@@ -18,7 +19,7 @@ export async function PATCH(
       const currentExpiration = user.subscriptionExpiresAt || new Date();
       const newExpiration = new Date(Math.max(currentExpiration.getTime(), Date.now()));
       newExpiration.setDate(newExpiration.getDate() + 30);
- 
+
       const updatedUser = await db.user.update({
         where: { id },
         data: { subscriptionExpiresAt: newExpiration },
@@ -26,23 +27,19 @@ export async function PATCH(
       });
       return NextResponse.json({ data: updatedUser });
     }
- 
+
     if (typeof body.isActive !== 'boolean') {
       return NextResponse.json({ error: 'El campo isActive debe ser un booleano' }, { status: 400 });
     }
- 
+
     const user = await db.user.update({
       where: { id },
       data: { isActive: body.isActive },
       select: { id: true, email: true, isActive: true },
     });
- 
+
     return NextResponse.json({ data: user });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Admin user update error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return handleApiError(error, 'Admin user update');
   }
 }

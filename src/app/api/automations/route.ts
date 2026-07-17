@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAuth, AuthError } from '@/lib/auth';
+import { requireAuth } from '@/lib/auth';
 import { createAutomationSchema } from '@/lib/validations';
 import { FALLBACKS, shouldUseFallbacks } from '@/lib/fallbacks';
+import { handleApiError } from '@/lib/api-error-handler';
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,11 +27,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: FALLBACKS.automations });
     }
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Automations list error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Automations');
   }
 }
 
@@ -59,10 +57,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: automation }, { status: 201 });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Automation create error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Automations');
   }
 }

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireAuth, AuthError } from '@/lib/auth';
+import { requireAuth } from '@/lib/auth';
 import { createClientSchema } from '@/lib/validations';
 import { FALLBACKS, shouldUseFallbacks } from '@/lib/fallbacks';
+import { handleApiError } from '@/lib/api-error-handler';
 
 export async function GET(request: NextRequest) {
   try {
@@ -83,11 +84,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: FALLBACKS.clients });
     }
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Clients list error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Clients');
   }
 }
 
@@ -119,10 +117,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: client }, { status: 201 });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    console.error('Client create error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error) {
+    return handleApiError(error, 'Clients');
   }
 }
