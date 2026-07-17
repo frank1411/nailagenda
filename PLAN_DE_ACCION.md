@@ -12,7 +12,7 @@
 |------|--------|-----------|-----------------|--------|
 | 1 | Seguridad Crítica | URGENTE | 2-3 días | ✅ COMPLETADA |
 | 2 | Deuda Técnica | ALTA | 3-5 días | ✅ COMPLETADA |
-| 3 | Robustez | MEDIA | 3-5 días | ⬜ Pendiente |
+| 3 | Rendimiento & Robustez | MEDIA | 4-6 días | ⬜ Pendiente |
 | 4 | Funcionalidad Futura | BAJA | Según necesidad | ⬜ Pendiente |
 
 ---
@@ -169,7 +169,7 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 
 ---
 
-## Fase 3: Robustez y Calidad (Prioridad MEDIA)
+## Fase 3: Rendimiento & Robustez (Prioridad MEDIA)
 
 ### Tarea 3.1 — Agregar Tests
 - [ ] Configurar framework: Vitest para unitarios, Playwright para e2e
@@ -201,9 +201,34 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [ ] **Impacto:** La app falla rápido con mensaje claro si falta configuración
 
 ### Tarea 3.5 — Agregar CSRF Protection
-- [ ] Implementar token CSRF en formularios de mutación
-- [ ] Validar header `Origin`/`Referer` en API routes de mutación
-- [ ] **Impacto:** Protege contra CSRF en operaciones de escritura
+|- [ ] Implementar token CSRF en formularios de mutación
+|- [ ] Validar header `Origin`/`Referer` en API routes de mutación
+|- [ ] **Impacto:** Protege contra CSRF en operaciones de escritura
+
+### Tarea 3.6 — Lazy Loading de Vistas (next/dynamic) 🚀
+|- [ ] Migrar imports de vistas en `page.tsx` a `next/dynamic`
+|- [ ] Cargar solo la vista activa (Dashboard, Calendar, Clients, Services, etc.)
+|- [ ] Usar `React.Suspense` con fallback (skeleton/spinner) en cada vista
+|- [ ] Dashboard y Calendar como vistas principales lazy
+|- [ ] LandingPage y AuthDialog pueden mantenerse eager (ruta pública)
+|- [ ] **Impacto:** Bundle inicial ~70% más pequeño (~1MB → ~300KB)
+|- [ ] **Prioridad:** ALTA — el mayor impacto percibido por el usuario
+
+### Tarea 3.7 — Cache de Datos con SWR/React Query 🚀
+|- [ ] Integrar SWR (liviano) o @tanstack/react-query en los stores/vistas
+|- [ ] Reemplazar `useEffect + fetch` directo con hooks de cache
+|- [ ] Configurar revalidación en segundo plano (stale-while-revalidate)
+|- [ ] Cache persistente: los datos no se refetchan al navegar entre vistas
+|- [ ] **Impacto:** Navegación instantánea entre vistas, menos requests
+|- [ ] **Prioridad:** ALTA — mejora la experiencia diaria
+
+### Tarea 3.8 — Server Components para Layout y Auth
+|- [ ] Mover verificación de auth del cliente al servidor (middleware + layout)
+|- [ ] Convertir `page.tsx` parcialmente a Server Component
+|- [ ] Extraer `AppShell` y `SidebarContent` como Client Components aislados
+|- [ ] Pasar datos de usuario como props (no fetch extra desde el cliente)
+|- [ ] **Impacto:** Menos JS en el cliente, renderizado inicial más rápido
+|- [ ] **Prioridad:** MEDIA — buen complemento a las tareas 3.6 y 3.7
 
 ---
 
@@ -242,7 +267,7 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 ```
 Semana 1:        ✅ Fase 1 completa (Seguridad)
 Semana 2-3:      ✅ Fase 2 completa (Deuda Técnica)
-Semana 4:        Fase 3 — Robustez (Docker healthcheck, validación env, tests)
+Semana 4-5:      Fase 3 — Rendimiento (lazy loading, cache, server components)
 Semana 5-6:      Tests + manejo de errores
 Semana 7+:       Funcionalidad futura según prioridad del negocio
 ```
