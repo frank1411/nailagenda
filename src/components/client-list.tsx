@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useClients, invalidate } from '@/lib/use-data';
 import { api } from '@/lib/api';
+import type { ClientListItem } from '@/types/api';
 import {
   Card,
   CardContent,
@@ -46,27 +47,6 @@ import { toast } from 'sonner';
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-interface ClientListItem {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  phone: string | null;
-  status: string;
-  notes: string | null;
-  preferredStylist: string | null;
-  birthday: string | null;
-  createdAt: string;
-  updatedAt: string;
-  totalVisits: number;
-  lastAppointment: {
-    id: string;
-    date: string;
-    startTime: string;
-    service: { name: string; price: number };
-  } | null;
-}
 
 interface ClientListProps {
   onSelectClient: (clientId: string) => void;
