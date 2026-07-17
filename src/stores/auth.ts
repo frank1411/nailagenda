@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { api } from '@/lib/api';
+import { mutate as globalMutate } from 'swr';
 
 interface User {
   id: string;
@@ -44,6 +45,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   login: async (email, password) => {
+    // Limpiar SWR cache del usuario anterior
+    await globalMutate(() => true, undefined, { revalidate: false });
+
     set({ loading: true });
     try {
       const data = await api.login({ email, password });
@@ -57,6 +61,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   register: async (email, name, password, salonName) => {
+    // Limpiar SWR cache del usuario anterior (por si venia de otro login)
+    await globalMutate(() => true, undefined, { revalidate: false });
+
     set({ loading: true });
     try {
       const data = await api.register({ email, name, password, salonName });
@@ -73,6 +80,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch {
       // Even if the logout request fails, clear local state
     }
+    // Limpiar todo el cache SWR — datos del usuario anterior
+    await globalMutate(() => true, undefined, { revalidate: false });
+    // Resetear el store de UI a valores iniciales
+    useAppStore.setState({
+      currentView: 'dashboard',
+      selectedClientId: null,
+      sidebarOpen: true,
+    });
     set({ user: null });
   },
 
