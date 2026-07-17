@@ -6,8 +6,12 @@ import { Sparkles } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth';
 import LandingPage from '@/components/landing-page';
 import AuthDialog from '@/components/auth-dialog';
-import SubscriptionExpiredView from '@/components/subscription-expired-view';
-import { hasCompletedOnboarding } from '@/components/onboarding-tour';
+import { hasCompletedOnboarding } from '@/lib/onboarding';
+
+const SubscriptionExpiredView = dynamic(
+  () => import('@/components/subscription-expired-view'),
+  { loading: () => <SubscriptionSkeleton /> }
+);
 
 // ── Lazy-loaded ──
 const AppShell = dynamic(
@@ -18,6 +22,19 @@ const OnboardingTour = dynamic(
   () => import('@/components/onboarding-tour'),
   { loading: () => null }
 );
+
+// ── Fallback para SubscriptionExpiredView ──
+function SubscriptionSkeleton() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#B76E79] to-[#9a5b64] flex items-center justify-center animate-pulse">
+          <Sparkles className="w-6 h-6 text-white" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ── Fallback mientras carga AppShell ──
 function AppShellSkeleton() {

@@ -61,7 +61,7 @@ const OnboardingTour = dynamic(
   () => import('@/components/onboarding-tour'),
   { loading: () => null }
 );
-import { hasCompletedOnboarding } from '@/components/onboarding-tour';
+import { hasCompletedOnboarding } from '@/lib/onboarding';
 
 // ── Navigation ──
 const navItems = [
