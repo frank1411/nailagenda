@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000 2>&1 | tee dev.log",
+    "dev": "npx tsx scripts/validate-env.ts && next dev -p 3000 2>&1 | tee dev.log",
     "build": "npx prisma generate && next build",
     "start": "npx tsx scripts/validate-env.ts && NODE_ENV=production node .next/standalone/server.js",
     "lint": "eslint .",
