@@ -40,6 +40,10 @@
     "node_modules",
     "examples",
     "glamcrm-presentation",
-    "skills"
+    "skills",
+    "**/__tests__/**",
+    "e2e/**",
+    "vitest.config.*",
+    "playwright.config.*"
   ]
 }

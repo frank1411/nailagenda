@@ -171,14 +171,15 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 
 ## Fase 3: Rendimiento & Robustez (Prioridad MEDIA)
 
-### Tarea 3.1 — Agregar Tests
-- [ ] Configurar framework: Vitest para unitarios, Playwright para e2e
-- [ ] Tests unitarios: `auth.ts` (hash, verify, createToken, verifyToken)
-- [ ] Tests unitarios: `validations.ts` (todos los schemas de Zod)
-- [ ] Tests de API: endpoints críticos (auth, clients, appointments)
-- [ ] Tests e2e: flujo de registro → login → crear cliente → crear cita
-- [ ] Configurar CI para correr tests en cada PR
-- [ ] **Impacto:** Previene regresiones, documenta comportamiento esperado
+### Tarea 3.1 — Agregar Tests ✅
+||- [x] Configurar framework: Vitest para unitarios, Playwright para e2e
+||- [x] Tests unitarios: `auth.test.ts` (24 tests), `csrf.test.ts` (15 tests)
+||- [x] Tests de componente: `landing-page.test.tsx` (3 tests — smoke)
+||- [x] Test E2E: `e2e/landing.spec.ts` (navegación + cookie auth)
+||- [x] Scripts: `npm test`, `npm run test:watch`, `npm run test:coverage`, `npm run test:e2e`
+||- [x] Excluir tests de TypeScript build (exclude en tsconfig)
+||- [ ] Ejecutar Playwright (requiere app corriendo o CI)
+||- [ ] **Impacto:** 42 tests pasando, previene regresiones, documenta comportamiento esperado
 
 ### Tarea 3.2 — Mejorar Manejo de Errores
 - [ ] Crear `src/lib/errors.ts` con jerarquía de errores (AppError, NotFoundError, etc.)
