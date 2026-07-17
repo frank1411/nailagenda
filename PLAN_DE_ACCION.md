@@ -200,10 +200,14 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [ ] Agregar al script `prestart` o al entrypoint de Docker
 - [ ] **Impacto:** La app falla rápido con mensaje claro si falta configuración
 
-### Tarea 3.5 — Agregar CSRF Protection
-|- [ ] Implementar token CSRF en formularios de mutación
-|- [ ] Validar header `Origin`/`Referer` en API routes de mutación
-|- [ ] **Impacto:** Protege contra CSRF en operaciones de escritura
+### Tarea 3.5 — Agregar CSRF Protection ✅
+||- [x] Crear `src/lib/csrf.ts` con `validateCSRF()`
+||- [x] Valida header `Origin` (o `Referer` como fallback) en todo request mutante a `/api/*`
+||- [x] `/api/auth` exento (login/register cross-origin)
+||- [x] Rechaza con 403 si Origin no coincide o falta en request mutante
+||- [x] Integrado en middleware existente (antes del auth check)
+||- [x] **Commit:** `a6040d2`
+||- [x] **Protección:** Previene ataques CSRF en operaciones de escritura
 
 ### Tarea 3.6 — Lazy Loading de Vistas (next/dynamic) 🚀 ✅
 ||- [x] Migrar imports de vistas en `page.tsx` a `next/dynamic`
