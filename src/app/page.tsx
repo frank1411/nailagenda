@@ -68,8 +68,9 @@ function AppShellSkeleton() {
 
 // ── Home ──
 export default function Home() {
-  const { user, init } = useAuthStore();
+  const { user, init, login: authLogin } = useAuthStore();
   const [authOpen, setAuthOpen] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [onboardingOpen, setOnboardingOpen] = useState(false);
 
@@ -89,6 +90,20 @@ export default function Home() {
     }
   }, [user]);
 
+  const handleViewDemo = async () => {
+    setDemoLoading(true);
+    try {
+      await authLogin(
+        process.env.NEXT_PUBLIC_DEMO_EMAIL || 'demo@mayenailsart.com',
+        process.env.NEXT_PUBLIC_DEMO_PASSWORD || ''
+      );
+    } catch (err: any) {
+      console.error('Demo login failed:', err);
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   if (!user) {
     return (
       <>
@@ -98,8 +113,7 @@ export default function Home() {
             setAuthOpen(true);
           }}
           onViewDemo={() => {
-            setAuthMode('login');
-            setAuthOpen(true);
+            handleViewDemo();
           }}
         />
         <AuthDialog
@@ -108,6 +122,16 @@ export default function Home() {
           defaultMode={authMode}
           onSuccess={() => setAuthOpen(false)}
         />
+        {demoLoading && (
+          <div className="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#B76E79] flex items-center justify-center animate-pulse">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <p className="text-sm font-medium text-[#2D2D2D]">Preparando demo...</p>
+            </div>
+          </div>
+        )}
       </>
     );
   }

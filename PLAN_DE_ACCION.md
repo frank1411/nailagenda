@@ -178,8 +178,8 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 ||- [x] Test E2E: `e2e/landing.spec.ts` (navegación + cookie auth)
 ||- [x] Scripts: `npm test`, `npm run test:watch`, `npm run test:coverage`, `npm run test:e2e`
 ||- [x] Excluir tests de TypeScript build (exclude en tsconfig)
-||- [ ] Ejecutar Playwright (requiere app corriendo o CI)
-||- [ ] **Impacto:** 42 tests pasando, previene regresiones, documenta comportamiento esperado
+|||- [x] Saltado: E2E (app en Vercel, sin entorno local)
+|||- [x] **Impacto:** 64 tests unitarios pasando, riesgo bajo
 
 ### Tarea 3.2 — Mejorar Manejo de Errores ✅
 ||- [x] Crear `src/lib/errors.ts` con jerarquía de errores (AppError, NotFoundError, etc.)
