@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth, AuthError } from '@/lib/auth';
 import { createClientSchema } from '@/lib/validations';
-import { FALLBACKS } from '@/lib/fallbacks';
+import { FALLBACKS, shouldUseFallbacks } from '@/lib/fallbacks';
 
 export async function GET(request: NextRequest) {
   try {
@@ -76,7 +76,10 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({ data: clientsWithStats });
     } catch (dbError) {
-      console.error('DB Error in clients GET, using fallbacks:', dbError);
+      console.error('DB Error in clients GET:', dbError);
+      if (!shouldUseFallbacks()) {
+        return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
+      }
       return NextResponse.json({ data: FALLBACKS.clients });
     }
   } catch (error) {

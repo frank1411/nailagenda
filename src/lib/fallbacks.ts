@@ -1,4 +1,23 @@
+// ── Fallback Data ──
+// Datos ficticios para desarrollo cuando no hay BD
+
 export const DEMO_USER_ID = 'cmprffoo10000jrm79fshecm0';
+
+/**
+ * Retorna true si se deben usar fallbacks (datos ficticios).
+ * En producción: solo si USE_FALLBACKS=true está explicitamente activado.
+ * En desarrollo: por defecto true, a menos que USE_FALLBACKS=false.
+ */
+export function shouldUseFallbacks(): boolean {
+  const env = process.env.NODE_ENV || 'development';
+  const useFallbacks = process.env.USE_FALLBACKS;
+
+  if (env === 'production') {
+    return useFallbacks === 'true' || useFallbacks === '1';
+  }
+  // Desarrollo: fallbacks activos por defecto
+  return useFallbacks !== 'false' && useFallbacks !== '0';
+}
 
 export const FALLBACKS = {
   clients: [

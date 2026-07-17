@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth, AuthError } from '@/lib/auth';
-import { FALLBACKS, DEMO_USER_ID } from '@/lib/fallbacks';
+import { FALLBACKS, DEMO_USER_ID, shouldUseFallbacks } from '@/lib/fallbacks';
 
 export async function GET(request: NextRequest) {
   try {
@@ -123,7 +123,10 @@ export async function GET(request: NextRequest) {
 
       return response;
     } catch (dbError) {
-      console.error('DB Error in dashboard GET, using fallbacks:', dbError);
+      console.error('DB Error in dashboard GET:', dbError);
+      if (!shouldUseFallbacks()) {
+        return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
+      }
       return NextResponse.json({ data: FALLBACKS.dashboard });
     }
   } catch (error) {
