@@ -264,18 +264,19 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 ### Tarea 4.3 — Integraciones Externas
 
 #### 4.3.1 — Google Calendar Sync Bidireccional 🚧 EN PROGRESO
-- [ ] **Requisito previo:** Crear proyecto en Google Cloud Console, activar Calendar API, crear OAuth Client ID + Secret
-- [ ] **Schema:** Agregar modelo `GoogleCalendarToken` en Prisma (token encriptado, refresh token, email conectado)
-- [ ] **Librería:** `src/lib/google-calendar.ts` — cliente Google Calendar API (refresh, CRUD eventos)
-- [ ] **API — Auth:** `GET /api/integrations/google/auth` — inicia OAuth, redirige a Google
-- [ ] **API — Callback:** `GET /api/integrations/google/callback` — recibe code, canjea por tokens, guarda en BD
-- [ ] **API — Estado:** `GET /api/integrations/google/status` — muestra conexión activa o no
+- [x] **Requisito previo:** Proyecto Google Cloud, Calendar API activada, OAuth Client ID + Secret, pantalla de consentimiento ✅
+- [x] **Schema:** Modelo `GoogleCalendarToken` en Prisma + migración aplicada en Supabase
+- [x] **Librería:** `src/lib/google-calendar.ts` — OAuth2, refresh automático, CRUD eventos (create/update/delete)
+- [x] **API — Auth:** `GET /api/integrations/google/auth` — retorna URL de OAuth
+- [x] **API — Callback:** `GET /api/integrations/google/callback` — canjea code por tokens, upsert en BD (público)
+- [x] **API — Estado:** `GET /api/integrations/google/status` — conexión activa o no
+- [x] **API — Disconnect:** `POST /api/integrations/google/disconnect`
+- [x] **Frontend:** Sección "Integraciones" en settings-panel.tsx
+- [x] **Manejo de tokens:** Refresh automático al expirar, sin exponer credenciales en código
+- [x] **Commit:** `b4ea7db`
 - [ ] **API — Sync:** `POST /api/integrations/google/sync` — sync manual
-- [ ] **Frontend:** Sección "Integraciones" en settings-panel.tsx (conectar/desconectar Google Calendar)
 - [ ] **Sync automático:** Al crear/editar/cancelar cita → evento Google Calendar se actualiza
 - [ ] **Pull periódico:** Consultar cambios recientes en Google Calendar y reflejar en Nailagenda
-- [ ] **Manejo de errores:** Token expirado → refresh automático. Rate limit → backoff. Desconexión → datos no huérfanos
-- [ ] **Impacto:** Las citas de Nailagenda aparecen automáticamente en Google Calendar del dueño y viceversa
 
 #### 4.3.2 — WhatsApp Business API (Futuro)
 - [ ] Pendiente
