@@ -28,6 +28,21 @@ model User {
   services      Service[]
   appointments  Appointment[]
   automations   AutomationRule[]
+  googleCalendarToken GoogleCalendarToken?
+}
+
+model GoogleCalendarToken {
+  id            String   @id @default(cuid())
+  accessToken   String   // Encriptado
+  refreshToken  String   // Encriptado
+  email         String   // Email de Google conectado
+  expiresAt     DateTime // Cuándo expira el access token
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Client {

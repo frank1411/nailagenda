@@ -503,6 +503,47 @@ export default function SettingsPanel() {
             </CardContent>
           </Card>
 
+          {/* =================== INTEGRATIONS SECTION =================== */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-base" style={{ color: CHARCOAL }}>
+                <Calendar className="h-4 w-4" style={{ color: ROSE_GOLD }} />
+                Integraciones
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Conecta Nailagenda con otros servicios
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg border p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <Calendar className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm" style={{ color: CHARCOAL }}>
+                      Google Calendar
+                    </h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Sincroniza tus citas de Nailagenda con Google Calendar.
+                      Las citas se reflejarán automáticamente en ambos sentidos.
+                    </p>
+                  </div>
+                </div>
+                <div id="google-calendar-status" className="text-xs text-muted-foreground">
+                  Cargando estado de conexión...
+                </div>
+                <Button
+                  id="btn-google-connect"
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  style={{ borderColor: ROSE_GOLD, color: ROSE_GOLD }}
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Conectar Google Calendar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* =================== DANGER ZONE =================== */}
           <Card className="border-red-200 dark:border-red-900/50">
             <CardHeader className="pb-4">

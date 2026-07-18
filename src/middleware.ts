@@ -48,9 +48,10 @@ const CSP = [
  * Everything else under /api/ is protected by default.
  */
 const PUBLIC_API_ROUTES = new Set([
-  '/api/auth',         // login, register, logout
-  '/api/ping',         // health check
-  '/api/sanity-check', // internal check
+  '/api/auth',                              // login, register, logout
+  '/api/ping',                              // health check
+  '/api/sanity-check',                      // internal check
+  '/api/integrations/google/callback',      // Google OAuth redirect
 ]);
 
 // Routes that should NOT be protected even if under /api/ (they handle their own auth)
