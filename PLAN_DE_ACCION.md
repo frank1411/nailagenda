@@ -274,8 +274,9 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [x] **Frontend:** Sección "Integraciones" en settings-panel.tsx
 - [x] **Manejo de tokens:** Refresh automático al expirar, sin exponer credenciales en código
 - [x] **Commit:** `b4ea7db`
-- [ ] **API — Sync:** `POST /api/integrations/google/sync` — sync manual
-- [ ] **Sync automático:** Al crear/editar/cancelar cita → evento Google Calendar se actualiza
+- [x] **API — Sync:** `POST /api/integrations/google/sync` — sync manual de citas activas
+- [x] **Sync automático:** Al crear/editar/cancelar cita → evento Google Calendar se actualiza
+- [x] **Commit:** `ea7e05f`
 - [ ] **Pull periódico:** Consultar cambios recientes en Google Calendar y reflejar en Nailagenda
 
 #### 4.3.2 — WhatsApp Business API (Futuro)
