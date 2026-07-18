@@ -251,11 +251,14 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 - [x] **Decisión:** No es necesaria para el negocio actual.
 - [ ] **Impacto:** N/A
 
-### Tarea 4.2 — Exportación de Datos
-- [ ] Exportar clientes a CSV/Excel
-- [ ] Exportar citas filtradas por fecha
-- [ ] Exportar dashboard como PDF
-- [ ] Backup automático programado
+### Tarea 4.2 — Exportación de Datos 📋 DISEÑADA — Pendiente implementación
+- [x] **Diseño:** 3 exportes definidos (Clientes CSV, Citas CSV con filtro fechas, Dashboard resumen)
+- [x] **Formato:** CSV universal (compatible Excel/Google Sheets). Dashboard también como PDF.
+- [x] **UX:** Botón "Exportar" en cada vista + filtro de fechas en Dashboard
+- [ ] Implementar endpoint GET /api/export/clients?format=csv
+- [ ] Implementar endpoint GET /api/export/appointments?format=csv&from=&to=
+- [ ] Implementar endpoint GET /api/export/dashboard?format=csv
+- [ ] Agregar botones de exportación en las vistas del frontend
 - [ ] **Impacto:** Portabilidad de datos, cumplimiento de GDPR
 
 ### Tarea 4.3 — Integraciones Externas
