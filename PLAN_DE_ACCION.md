@@ -13,7 +13,7 @@
 | 1 | Seguridad Crítica | URGENTE | 2-3 días | ✅ COMPLETADA |
 | 2 | Deuda Técnica | ALTA | 3-5 días | ✅ COMPLETADA |
 | 3 | Rendimiento & Robustez | MEDIA | 4-6 días | ✅ COMPLETADA |
-| 4 | Funcionalidad Futura | BAJA | Según necesidad | ⬜ Pendiente |
+| 4 | Funcionalidad Futura | BAJA | Según necesidad | 🚧 En Progreso |
 
 ---
 
@@ -263,21 +263,21 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 
 ### Tarea 4.3 — Integraciones Externas
 
-#### 4.3.1 — Google Calendar Sync Bidireccional 🚧 EN PROGRESO
-- [x] **Requisito previo:** Proyecto Google Cloud, Calendar API activada, OAuth Client ID + Secret, pantalla de consentimiento ✅
-- [x] **Schema:** Modelo `GoogleCalendarToken` en Prisma + migración aplicada en Supabase
-- [x] **Librería:** `src/lib/google-calendar.ts` — OAuth2, refresh automático, CRUD eventos (create/update/delete)
-- [x] **API — Auth:** `GET /api/integrations/google/auth` — retorna URL de OAuth
-- [x] **API — Callback:** `GET /api/integrations/google/callback` — canjea code por tokens, upsert en BD (público)
-- [x] **API — Estado:** `GET /api/integrations/google/status` — conexión activa o no
-- [x] **API — Disconnect:** `POST /api/integrations/google/disconnect`
-- [x] **Frontend:** Sección "Integraciones" en settings-panel.tsx
-- [x] **Manejo de tokens:** Refresh automático al expirar, sin exponer credenciales en código
-- [x] **Commit:** `b4ea7db`
-- [x] **API — Sync:** `POST /api/integrations/google/sync` — sync manual de citas activas
-- [x] **Sync automático:** Al crear/editar/cancelar cita → evento Google Calendar se actualiza
-- [x] **Commit:** `ea7e05f`
-- [ ] **Pull periódico:** Consultar cambios recientes en Google Calendar y reflejar en Nailagenda
+#### 4.3.1 — Google Calendar Sync Bidireccional ✅ COMPLETADA
+|- [x] **Requisito previo:** Proyecto Google Cloud, Calendar API activada, OAuth Client ID + Secret, pantalla de consentimiento ✅
+|- [x] **Schema:** Modelo `GoogleCalendarToken` en Prisma + migración aplicada en Supabase
+|- [x] **Librería:** `src/lib/google-calendar.ts` — OAuth2, refresh automático, CRUD eventos (create/update/delete)
+|- [x] **API — Auth:** `GET /api/integrations/google/auth` — retorna URL de OAuth
+|- [x] **API — Callback:** `GET /api/integrations/google/callback` — canjea code por tokens, upsert en BD (público)
+|- [x] **API — Estado:** `GET /api/integrations/google/status` — conexión activa o no
+|- [x] **API — Disconnect:** `POST /api/integrations/google/disconnect`
+|- [x] **API — Sync:** `POST /api/integrations/google/sync` — sync manual de citas activas
+|- [x] **Frontend:** Sección "Integraciones" en settings-panel.tsx (conectar/desconectar/sincronizar)
+|- [x] **Manejo de tokens:** Refresh automático al expirar, sin exponer credenciales en código
+|- [x] **Auto-sync:** Al crear/editar/cancelar cita → evento Google Calendar se actualiza
+|- [x] **Commit 1:** `b4ea7db` — infraestructura base
+|- [x] **Commit 2:** `ea7e05f` — sync manual + auto-sync
+|- [x] **Pull periódico:** ❌ DESCARTADO — bajo valor práctico para MVP. Las citas se gestionan desde Nailagenda, no desde Google Calendar. Si se necesita en el futuro, se implementa con Vercel Cron + API de Google Calendar.
 
 #### 4.3.2 — WhatsApp Business API (Futuro)
 - [ ] Pendiente
