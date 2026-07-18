@@ -13,9 +13,15 @@
 | 1 | Seguridad Crítica | URGENTE | 2-3 días | ✅ COMPLETADA |
 | 2 | Deuda Técnica | ALTA | 3-5 días | ✅ COMPLETADA |
 | 3 | Rendimiento & Robustez | MEDIA | 4-6 días | ✅ COMPLETADA |
-| 4 | Funcionalidad Futura | BAJA | Según necesidad | 🚧 En Progreso |
+| 4 | Funcionalidad Futura | BAJA | Según necesidad | 🚧 En Progreso — Automatizaciones (siguiente) |
 
 ---
+
+## Prioridad Actual (nueva)
+
+1. 🥇 **Tarea 4.5 — Módulo de Automatizaciones** (implementar ahora, 2-3 días)
+2. 🥈 **Tarea 4.3.2 — WhatsApp Cloud API** (después de automatizaciones, 4-6 días)
+3. 🥉 Tareas restantes (Personalización, Exportación, Pasarela de Pago)
 
 ## Fase 1: Seguridad Crítica (URGENTE — Antes de Producción) ✅ COMPLETADA
 
@@ -374,6 +380,12 @@ model WhatsAppSession {
 1. Meta envía GET con `hub.mode`, `hub.challenge`, `hub.verify_token`
 2. Nuestro endpoint responde con `hub.challenge` si el token coincide
 3. Meta confirma y empieza a enviar POST con mensajes entrantes
+
+**Decisión sobre canal de notificaciones:**
+- ❌ ~~Email~~ — **DESCARTADO** (dominio + setup + baja apertura en LATAM)
+- ✅ WhatsApp como **único canal** de notificaciones (recordatorios, promociones, cumpleaños, reactivación)
+- El motor de automatizaciones (4.5) se construye desde ya con canal WhatsApp; las acciones se ejecutarán cuando 4.3.2 esté implementada
+
 #### 4.3.3 — Pasarela de Pago (Futuro)
 - [ ] Pendiente
 
@@ -383,6 +395,99 @@ model WhatsAppSession {
 - [ ] Configuración de horario laboral
 - [ ] Gestión de múltiples estilistas con disponibilidad
 - [ ] **Impacto:** Adaptable a cualquier salón de belleza
+
+### Tarea 4.5 — Módulo de Automatizaciones 🚧 EN PROGRESO (PRÓXIMA A IMPLEMENTAR)
+
+**¿Qué es?** Un sistema de reglas que ejecutan acciones automáticas: recordatorios, reactivación de clientes inactivos, felicitaciones de cumpleaños, promociones segmentadas.
+
+**Estado actual del código:** Gran parte de la infraestructura ya está creada pero sin terminar.
+
+**Lo que YA existe (solo falta implementar lógica y UI):**
+
+| Componente | Ubicación | Estado |
+|-----------|-----------|--------|
+| Modelo Prisma `AutomationRule` | `prisma/schema.prisma` | ✅ Creado (id, name, description, type, active, config[Json], userId) |
+| Modelo Prisma `AutomationLog` | `prisma/schema.prisma` | ✅ Creado (id, action, result, ruleId, clientId) |
+| Tipos TypeScript | `src/types/api.ts` | ✅ `AutomationRule`, `CreateAutomationInput`, `AutomationRunResult`, `RunAutomationsResponse`, `AutomationLog` |
+| Cliente API | `src/lib/api.ts` | ✅ `getAutomations()`, `createAutomation()`, `updateAutomation()`, `deleteAutomation()`, `runAutomations()` |
+| Validaciones Zod | `src/lib/validations.ts` | ✅ `createAutomationSchema` (name, description, type enum, config, active) |
+| SWR hook | `src/lib/use-data.ts` | ✅ Hook para obtener automatizaciones |
+| SWR keys | `src/lib/swr-keys.ts` | ✅ `automations` key definida |
+| Navegación | `src/stores/auth.ts` | ✅ Vista `automations` en AppView |
+| Fallbacks demo | `src/lib/fallbacks.ts` | ✅ 2 reglas demo (REMINDER, REACTIVATION) con datos de ejemplo |
+
+**Tipos de automatización (definidos en schema):**
+
+| Tipo | Disparador | Acción futura | Config (JSON) |
+|------|-----------|--------------|----------------|
+| `REMINDER` | Cita próxima (N horas antes) | Enviar recordatorio WhatsApp | `{ hoursBefore, message }` |
+| `REACTIVATION` | Cliente sin visita > N días | Contactar cliente inactivo | `{ daysInactive, message, offer? }` |
+| `LOYALTY` | Cumpleaños / N visitas | Felicitar / ofrecer descuento | `{ type: 'birthday'\|'milestone', visits?, message }` |
+| `SMART_CONTACT` | Programado / manual | Enviar promoción masiva | `{ schedule?, target, message }` |
+
+**Lo que FALTA implementar:**
+
+```
+Paso 1 — Migración BD
+  [ ] Aplicar modelos AutomationRule + AutomationLog a Supabase
+
+Paso 2 — API Routes
+  [ ] GET  /api/automations        — listar reglas del usuario
+  [ ] POST /api/automations        — crear nueva regla
+  [ ] PUT  /api/automations/[id]   — editar regla
+  [ ] DELETE /api/automations/[id] — eliminar regla
+  [ ] POST /api/automations/run    — ejecutar reglas ahora
+
+Paso 3 — Motor de ejecución (src/lib/automation-engine.ts)
+  [ ] Lógica base: leer reglas activas, evaluar condiciones
+  [ ] Para REMINDER: buscar citas próximas (N horas)
+  [ ] Para REACTIVATION: buscar clientes sin visita reciente
+  [ ] Para LOYALTY: buscar cumpleaños próximos / milestones
+  [ ] Para SMART_CONTACT: ejecutar acción sobre segmento
+  [ ] Registrar resultado en AutomationLog
+
+Paso 4 — Frontend (src/components/automation-panel.tsx)
+  [ ] Lista de reglas con toggle activar/desactivar
+  [ ] Crear/editar regla con formulario según tipo
+  [ ] Botón "Ejecutar ahora"
+  [ ] Historial de ejecuciones (logs)
+  [ ] Integrar en navegación y layout principal
+
+Paso 5 — Conectar canal de salida
+  [ ] Las acciones se loguean en BD (funciona desde Paso 3)
+  [ ] Cuando 4.3.2 esté lista: cambiar log → enviar WhatsApp real
+  [ ] Sin WhatsApp: solo registro en AutomationLog (modo "simulación")
+```
+
+**Arquitectura del motor de ejecución:**
+
+```
+POST /api/automations/run
+  ↓
+Leer reglas ACTIVAS del usuario
+  ↓
+Por cada regla:
+  ├── REMINDER       → query: citas en [now, now+hoursBefore]
+  ├── REACTIVATION   → query: clientes con lastVisit > daysInactive
+  ├── LOYALTY        → query: cumpleaños hoy / visitCount == milestone
+  └── SMART_CONTACT  → query: todos los clientes activos / segmento
+  ↓
+Generar acciones (por cliente):
+  ├── action: "SEND_MESSAGE"
+  ├── details: "Recordatorio de cita: María, mañana 10:00"
+  └── channel: "WHATSAPP"  ← preparado para cuando 4.3.2 esté lista
+  ↓
+Registrar en AutomationLog
+  ↓
+Responder con resumen: { rulesProcessed, results[] }
+```
+
+**Esfuerzo estimado:** 2-3 días (la mitad ya está pre-construida)
+
+**Riesgos:**
+- 🟢 Infraestructura base sólida (no se parte nada existente)
+- 🟢 El motor funciona sin WhatsApp (loguea, no envía)
+- 🟢 Cuando 4.3.2 esté lista, solo se cambia el canal de salida
 
 ---
 
