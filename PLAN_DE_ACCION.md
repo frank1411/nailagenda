@@ -279,8 +279,101 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 |- [x] **Commit 2:** `ea7e05f` — sync manual + auto-sync
 |- [x] **Pull periódico:** ❌ DESCARTADO — bajo valor práctico para MVP. Las citas se gestionan desde Nailagenda, no desde Google Calendar. Si se necesita en el futuro, se implementa con Vercel Cron + API de Google Calendar.
 
-#### 4.3.2 — WhatsApp Business API (Futuro)
-- [ ] Pendiente
+#### 4.3.2 — WhatsApp Cloud API 🚧 EN PROGRESO
+
+**Opción recomendada:** WhatsApp Cloud API de Meta (Gratuita hasta 1,000 conversaciones/mes)
+
+**¿Por qué esta y no Twilio?**
+- Meta: gratis hasta 1,000 conversaciones/mes + tarifas muy bajas después
+- Twilio: ~$0.005/msg + costo fijo mensual, se vuelve caro para volumen bajo
+- Meta permite usar el número real de WhatsApp Business (no un sandbox)
+- Para un salón de uñas en LATAM, el tier gratuito de Meta es suficiente
+
+**Requisitos previos (Meta Business Platform):**
+- [ ] Cuenta de Facebook Business (gratis)
+- [ ] Número de teléfono real que no esté registrado en WhatsApp (se usará para WhatsApp Business)
+- [ ] App en Meta Developer Portal con permiso `whatsapp_business_messaging`
+- [ ] Webhook público (HTTPS, verificado por Meta) — Vercel deployment
+- [ ] Token de acceso (permanente) para Graph API
+
+**Arquitectura propuesta:**
+
+```
+WhatsApp User
+    ↓ (envía mensaje)
+Meta Cloud API
+    ↓ (Webhook HTTP POST)
+POST /api/webhooks/whatsapp  ← Next.js Route Handler
+    ↓
+Procesar mensaje (texto, imagen, interactivo)
+    ↓
+Responder por Graph API → Meta → Usuario
+```
+
+**Modelos de datos necesarios:**
+- `WhatsAppMessage` — historial de mensajes (id, remitente, texto, timestamp, tipo)
+- `WhatsAppConversation` — sesión/participante (id, remitente, nombre, última actividad)
+- Relacionar mensajes con `Client` (si el remitente es un cliente conocido)
+
+**Funcionalidades a implementar (por orden):**
+1. [ ] Webhook base — recibir y responder mensajes entrantes
+2. [ ] Vincular número de WhatsApp con cliente existente en BD
+3. [ ] Enviar notificaciones de citas (recordatorio 24h antes, confirmación al agendar)
+4. [ ] Menú interactivo (botones) para confirmar/reprogramar citas
+5. [ ] Respuestas automáticas basadas en plantillas (HSM)
+6. [ ] Historial visible en el perfil del cliente dentro de Nailagenda
+
+**Esfuerzo estimado:** 4-6 días hábiles
+
+**Riesgos:**
+- 🟡 Meta puede denegar la revisión del número si la cuenta es muy nueva
+- 🟡 Webhook requiere HTTPS público (Vercel lo provee) — sin problema aquí
+- 🟡 Los mensajes proactivos (recordatorios) requieren templates aprobados por Meta (24-72h de revisión)
+- 🟢 No requiere OAuth complejo como Google Calendar
+
+**Modelo de datos en Prisma:**
+
+```prisma
+model WhatsAppMessage {
+  id            String   @id @default(cuid())
+  from          String   // número remitente (incluye código país)
+  to            String   // número del salón
+  content       String   // texto del mensaje
+  type          String   // text, image, interactive, template
+  messageId     String   // ID de Meta (wamid.xxx)
+  direction     String   // INBOUND | OUTBOUND
+  status        String   // sent, delivered, read, failed
+  timestamp     DateTime @default(now())
+  clientId      String?
+  client        Client?  @relation(fields: [clientId], references: [id])
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model WhatsAppSession {
+  id            String   @id @default(cuid())
+  from          String   @unique // número remitente
+  clientName    String?  // nombre si lo tenemos
+  lastActivity  DateTime @default(now())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+}
+```
+
+**API Routes necesarias:**
+- `POST /api/webhooks/whatsapp` — webhook de Meta (recibir mensajes, respuesta challenge GET)
+- `GET /api/webhooks/whatsapp` — verificación del webhook por Meta (hub.challenge)
+- `POST /api/whatsapp/send` — enviar mensaje manual desde la UI
+- `GET /api/whatsapp/conversations` — listar conversaciones activas
+- `GET /api/whatsapp/messages/:sessionId` — historial de mensajes
+
+**Flujo de verificación del webhook (Meta):**
+1. Meta envía GET con `hub.mode`, `hub.challenge`, `hub.verify_token`
+2. Nuestro endpoint responde con `hub.challenge` si el token coincide
+3. Meta confirma y empieza a enviar POST con mensajes entrantes
 #### 4.3.3 — Pasarela de Pago (Futuro)
 - [ ] Pendiente
 
