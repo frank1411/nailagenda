@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Settings,
   User,
@@ -79,6 +79,67 @@ export default function SettingsPanel() {
 
   // Onboarding tour state
   const [onboardingOpen, setOnboardingOpen] = useState(false);
+
+  // Google Calendar integration state
+  const [gcConnecting, setGcConnecting] = useState(false);
+  const [gcConnected, setGcConnected] = useState(false);
+  const [gcEmail, setGcEmail] = useState<string | null>(null);
+  const [gcLoading, setGcLoading] = useState(true);
+  const [gcDisconnecting, setGcDisconnecting] = useState(false);
+
+  // Check Google Calendar status on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/integrations/google/status');
+        if (!res.ok) throw new Error('No se pudo verificar estado');
+        const data = await res.json();
+        setGcConnected(data.connected);
+        setGcEmail(data.email);
+      } catch {
+        // Not connected or error — show as disconnected
+        setGcConnected(false);
+        setGcEmail(null);
+      } finally {
+        setGcLoading(false);
+      }
+    })();
+  }, []);
+
+  // Connect Google Calendar
+  const handleGoogleConnect = async () => {
+    setGcConnecting(true);
+    try {
+      const res = await fetch('/api/integrations/google/auth');
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || 'Error al iniciar conexión');
+      }
+      const data = await res.json();
+      // Redirect to Google OAuth
+      window.location.href = data.url;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al conectar';
+      toast.error(msg);
+      setGcConnecting(false);
+    }
+  };
+
+  // Disconnect Google Calendar
+  const handleGoogleDisconnect = async () => {
+    setGcDisconnecting(true);
+    try {
+      const res = await fetch('/api/integrations/google/disconnect', { method: 'POST' });
+      if (!res.ok) throw new Error('Error al desconectar');
+      setGcConnected(false);
+      setGcEmail(null);
+      toast.success('Google Calendar desconectado');
+    } catch {
+      toast.error('Error al desconectar Google Calendar');
+    } finally {
+      setGcDisconnecting(false);
+    }
+  };
 
   // Handle profile save (just updates local store for MVP)
   const handleSaveProfile = async () => {
@@ -528,18 +589,47 @@ export default function SettingsPanel() {
                     </p>
                   </div>
                 </div>
-                <div id="google-calendar-status" className="text-xs text-muted-foreground">
-                  Cargando estado de conexión...
+                <div id="google-calendar-status" className="text-xs">
+                  {gcLoading ? (
+                    <span className="text-muted-foreground">Verificando conexión...</span>
+                  ) : gcConnected ? (
+                    <span className="text-green-600 dark:text-green-400">
+                      Conectado como <strong>{gcEmail}</strong>
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      No conectado — las citas no se sincronizan con Google Calendar
+                    </span>
+                  )}
                 </div>
-                <Button
-                  id="btn-google-connect"
-                  variant="outline"
-                  className="w-full sm:w-auto"
-                  style={{ borderColor: ROSE_GOLD, color: ROSE_GOLD }}
-                >
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Conectar Google Calendar
-                </Button>
+                {gcConnected ? (
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-auto border-red-300 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+                    onClick={handleGoogleDisconnect}
+                    disabled={gcDisconnecting}
+                  >
+                    {gcDisconnecting ? (
+                      <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Desconectando...</>
+                    ) : (
+                      <><Calendar className="h-4 w-4 mr-2" /> Desconectar Google Calendar</>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    style={{ borderColor: ROSE_GOLD, color: ROSE_GOLD }}
+                    onClick={handleGoogleConnect}
+                    disabled={gcConnecting}
+                  >
+                    {gcConnecting ? (
+                      <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Conectando...</>
+                    ) : (
+                      <><Calendar className="h-4 w-4 mr-2" /> Conectar Google Calendar</>
+                    )}
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
