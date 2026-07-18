@@ -2,7 +2,7 @@
 
 **Basado en:** EVALUACION.md (14 de julio de 2026)
 **Objetivo:** Llevar el proyecto de estado actual a producción segura y robusta
-**Última actualización:** 17 de julio de 2026
+**Última actualización:** 18 de julio de 2026
 
 ---
 
@@ -12,7 +12,7 @@
 |------|--------|-----------|-----------------|--------|
 | 1 | Seguridad Crítica | URGENTE | 2-3 días | ✅ COMPLETADA |
 | 2 | Deuda Técnica | ALTA | 3-5 días | ✅ COMPLETADA |
-| 3 | Rendimiento & Robustez | MEDIA | 4-6 días | ⬜ Pendiente |
+| 3 | Rendimiento & Robustez | MEDIA | 4-6 días | ✅ COMPLETADA |
 | 4 | Funcionalidad Futura | BAJA | Según necesidad | ⬜ Pendiente |
 
 ---
@@ -189,11 +189,10 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 ||- [x] Tests: `errors.test.ts` (14 tests) + `api-error-handler.test.ts` (8 tests)
 ||- [x] **Impacto:** Código repetitivo eliminado, errores consistentes, logging centralizado
 
-### Tarea 3.3 — Arreglar Docker Healthcheck
-- [ ] Crear endpoint `GET /api/health` público (sin auth)
-- [ ] Que verifique conexión a BD con `db.$queryRaw` SELECT 1
-- [ ] Actualizar docker-compose.yml para usar este endpoint
-- [ ] **Impacto:** Monitoreo correcto del estado del contenedor
+### Tarea 3.3 — Arreglar Docker Healthcheck ❌ DESCARTADA
+- [x] **Decisión:** Proyecto no usa Docker (Vercel serverless). No tiene valor práctico.
+- [x] Si en el futuro se necesita monitoreo, se hará con servicio externo tipo UptimeRobot.
+- [ ] **Impacto:** N/A
 
 ### Tarea 3.4 — Validación de Variables de Entorno al Inicio ✅
 ||- [x] Script `scripts/validate-env.ts` (ya existía del plan inicial)
@@ -248,11 +247,9 @@ Una vez la seguridad esté resuelta, limpiar la deuda técnica.
 
 ## Fase 4: Funcionalidad Futura (BAJA — Según Necesidad)
 
-### Tarea 4.1 — Internacionalización
-- [ ] Configurar `next-intl` para español e inglés
-- [ ] Extraer todos los strings a archivos de mensajes
-- [ ] Agregar selector de idioma en configuración
-- [ ] **Impacto:** Alcance a mercado internacional
+### Tarea 4.1 — Internacionalización ❌ DESCARTADA
+- [x] **Decisión:** No es necesaria para el negocio actual.
+- [ ] **Impacto:** N/A
 
 ### Tarea 4.2 — Exportación de Datos
 - [ ] Exportar clientes a CSV/Excel
