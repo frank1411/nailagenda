@@ -4,6 +4,43 @@ import { requireAuth } from '@/lib/auth';
 import { updateAppointmentSchema } from '@/lib/validations';
 import { handleApiError } from '@/lib/api-error-handler';
 
+function fireSyncUpdate(userId: string, appointment: {
+  id: string; date: string; startTime: string; endTime: string;
+  status: string; notes: string | null; googleEventId: string | null;
+  client: { firstName: string; lastName: string };
+  service: { name: string };
+}) {
+  import('@/lib/google-calendar-sync').then(mod =>
+    mod.syncAppointmentUpdated(userId, appointment.googleEventId, {
+      id: appointment.id,
+      date: appointment.date,
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+      status: appointment.status,
+      notes: appointment.notes,
+      clientName: `${appointment.client.firstName} ${appointment.client.lastName}`,
+      serviceName: appointment.service.name,
+      userName: '',
+    }).then(newEventId => {
+      if (newEventId && newEventId !== appointment.googleEventId) {
+        import('@/lib/db').then(({ db }) =>
+          db.appointment.update({
+            where: { id: appointment.id },
+            data: { googleEventId: newEventId },
+          })
+        );
+      }
+    })
+  ).catch(() => {});
+}
+
+function fireSyncDelete(userId: string, googleEventId: string | null) {
+  if (!googleEventId) return;
+  import('@/lib/google-calendar-sync').then(mod =>
+    mod.syncAppointmentDeleted(userId, googleEventId)
+  ).catch(() => {});
+}
+
 function timesOverlap(
   start1: string,
   end1: string,
@@ -77,6 +114,12 @@ export async function PUT(
       },
     });
 
+    // Auto-sync a Google Calendar (fire-and-forget)
+    fireSyncUpdate(userId, {
+      ...appointment,
+      googleEventId: existing.googleEventId,
+    });
+
     return NextResponse.json({ data: appointment });
   } catch (error) {
     return handleApiError(error, 'Appointment update');
@@ -98,6 +141,9 @@ export async function DELETE(
     }
 
     await db.appointment.delete({ where: { id } });
+
+    // Auto-sync eliminar evento de Google Calendar
+    fireSyncDelete(userId, existing.googleEventId);
 
     return NextResponse.json({ data: { message: 'Appointment deleted' } });
   } catch (error) {

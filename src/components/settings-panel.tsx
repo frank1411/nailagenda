@@ -86,6 +86,7 @@ export default function SettingsPanel() {
   const [gcEmail, setGcEmail] = useState<string | null>(null);
   const [gcLoading, setGcLoading] = useState(true);
   const [gcDisconnecting, setGcDisconnecting] = useState(false);
+  const [gcSyncing, setGcSyncing] = useState(false);
 
   // Check Google Calendar status on mount
   useEffect(() => {
@@ -138,6 +139,25 @@ export default function SettingsPanel() {
       toast.error('Error al desconectar Google Calendar');
     } finally {
       setGcDisconnecting(false);
+    }
+  };
+
+  // Sync Google Calendar manually
+  const handleGoogleSync = async () => {
+    setGcSyncing(true);
+    try {
+      const res = await fetch('/api/integrations/google/sync', { method: 'POST' });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || 'Error al sincronizar');
+      }
+      const data = await res.json();
+      toast.success(`Sincronizado: ${data.synced} citas creadas en Google Calendar${data.errors > 0 ? `, ${data.errors} errores` : ''}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al sincronizar';
+      toast.error(msg);
+    } finally {
+      setGcSyncing(false);
     }
   };
 
@@ -603,18 +623,31 @@ export default function SettingsPanel() {
                   )}
                 </div>
                 {gcConnected ? (
-                  <Button
-                    variant="outline"
-                    className="w-full sm:w-auto border-red-300 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
-                    onClick={handleGoogleDisconnect}
-                    disabled={gcDisconnecting}
-                  >
-                    {gcDisconnecting ? (
-                      <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Desconectando...</>
-                    ) : (
-                      <><Calendar className="h-4 w-4 mr-2" /> Desconectar Google Calendar</>
-                    )}
-                  </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      className="border-red-300 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+                      onClick={handleGoogleDisconnect}
+                      disabled={gcDisconnecting}
+                    >
+                      {gcDisconnecting ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Desconectando...</>
+                      ) : (
+                        <><Calendar className="h-4 w-4 mr-2" /> Desconectar</>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleGoogleSync}
+                      disabled={gcSyncing}
+                    >
+                      {gcSyncing ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sincronizando...</>
+                      ) : (
+                        <><Calendar className="h-4 w-4 mr-2" /> Sincronizar ahora</>
+                      )}
+                    </Button>
+                  </div>
                 ) : (
                   <Button
                     variant="outline"

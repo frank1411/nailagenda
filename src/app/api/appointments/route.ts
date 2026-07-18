@@ -5,6 +5,37 @@ import { createAppointmentSchema } from '@/lib/validations';
 import { FALLBACKS, shouldUseFallbacks } from '@/lib/fallbacks';
 import { handleApiError } from '@/lib/api-error-handler';
 
+function fireSyncCreate(userId: string, appointment: {
+  id: string; date: string; startTime: string; endTime: string;
+  status: string; notes: string | null;
+  client: { firstName: string; lastName: string };
+  service: { name: string };
+}) {
+  // Fire-and-forget — no bloquea la respuesta
+  import('@/lib/google-calendar-sync').then(mod =>
+    mod.syncAppointmentCreated(userId, {
+      id: appointment.id,
+      date: appointment.date,
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+      status: appointment.status,
+      notes: appointment.notes,
+      clientName: `${appointment.client.firstName} ${appointment.client.lastName}`,
+      serviceName: appointment.service.name,
+      userName: '',
+    }).then(googleEventId => {
+      if (googleEventId) {
+        import('@/lib/db').then(({ db }) =>
+          db.appointment.update({
+            where: { id: appointment.id },
+            data: { googleEventId },
+          })
+        );
+      }
+    })
+  ).catch(() => {});
+}
+
 export async function GET(request: NextRequest) {
   try {
     const userId = await requireAuth(request);
@@ -128,6 +159,9 @@ export async function POST(request: NextRequest) {
         service: true,
       },
     });
+
+    // Auto-sync a Google Calendar (fire-and-forget)
+    fireSyncCreate(userId, appointment);
 
     return NextResponse.json({ data: appointment }, { status: 201 });
   } catch (error) {

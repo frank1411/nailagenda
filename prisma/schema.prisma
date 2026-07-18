@@ -95,6 +95,7 @@ model Appointment {
   endTime     String   // HH:mm format
   status      String   @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
   notes       String?
+  googleEventId String? // Google Calendar event ID (for sync)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   clientId    String
