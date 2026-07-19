@@ -247,11 +247,17 @@ export async function POST(request: NextRequest) {
             const optimalContactDay = Math.max(1, avgDaysBetween - effectiveOffset);
 
             if (daysSinceLastVisit >= optimalContactDay) {
+              // Calcular fecha óptima de contacto
+              const optimalDate = new Date(lastVisitDate);
+              optimalDate.setDate(optimalDate.getDate() + optimalContactDay);
+              const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+              const fechaOptima = `${optimalDate.getDate()} ${meses[optimalDate.getMonth()]} ${optimalDate.getFullYear()}`;
+
               ruleResult.actions.push({
                 clientId: client.id,
                 clientName,
                 action: 'SMART_CONTACT',
-                details: `Frecuencia de visita: cada ${avgDaysBetween} días. Última visita: hace ${daysSinceLastVisit} días. Momento óptimo para contactar.`,
+                details: `Frecuencia de visita: cada ${avgDaysBetween} días. Última visita: hace ${daysSinceLastVisit} días. Contactar antes: ${fechaOptima}.`,
               });
 
               await db.automationLog.create({
