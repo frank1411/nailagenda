@@ -134,7 +134,7 @@ const DEFAULT_CONFIGS: Record<AutomationType, Record<string, string | number>> =
   REMINDER: { hoursBefore: 24, messageTemplate: 'Hola {nombre}, te recordamos tu cita de {servicio} el {fecha} a las {hora}. ¡Te esperamos!' },
   REACTIVATION: { daysInactiveThreshold: 30, messageTemplate: 'Hola {nombre}, hace tiempo que no te vemos en {salon}. ¡Te echamos de menos! Ven pronto y llévate un descuento especial.' },
   LOYALTY: { minimumVisits: 5, rewardDescription: 'Descuento del 15% en tu próxima visita como cliente frecuente' },
-  SMART_CONTACT: { analysisPeriodDays: 90, contactWindowDays: 7 },
+  SMART_CONTACT: { analysisPeriodDays: 90, contactWindowDays: 7, antiSpamCooldownDays: 7 },
 };
 
 // ---------------------------------------------------------------------------

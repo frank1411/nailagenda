@@ -182,7 +182,26 @@ export async function POST(request: NextRequest) {
         }
 
         case 'SMART_CONTACT': {
-          // Analyze each client's visit frequency and suggest optimal contact time
+          // Leer configuración de la regla (con valores por defecto)
+          const scCfg = (rule.config || {}) as Record<string, number>;
+          const contactWindowDays = scCfg.contactWindowDays ?? 7;        // días antes del promedio para contactar
+          const antiSpamCooldown = scCfg.antiSpamCooldownDays ?? 7;     // días mínimos entre contactos al mismo cliente
+
+          // ── Anti-spam: obtener clientes contactados recientemente ──
+          const cooldownDate = new Date(today);
+          cooldownDate.setDate(cooldownDate.getDate() - antiSpamCooldown);
+
+          const recentLogs = await db.automationLog.findMany({
+            where: {
+              ruleId: rule.id,
+              action: 'SMART_CONTACT',
+              createdAt: { gte: cooldownDate },
+            },
+            select: { clientId: true },
+          });
+          const recentlyContacted = new Set(recentLogs.map((l) => l.clientId));
+
+          // ── Analizar frecuencia de visitas por cliente ──
           const allClients = await db.client.findMany({
             where: {
               userId,
@@ -199,10 +218,15 @@ export async function POST(request: NextRequest) {
           for (const client of allClients) {
             if (client.appointments.length < 2) continue;
 
+            // ── Saltar si ya fue contactado recientemente (anti-spam) ──
+            if (recentlyContacted.has(client.id)) continue;
+
             const clientName = `${client.firstName} ${client.lastName}`;
 
-            // Calculate average days between visits
-            const dates = client.appointments.map((a) => new Date(a.date)).sort((a, b) => b.getTime() - a.getTime());
+            // ── Calcular frecuencia media entre visitas ──
+            const dates = client.appointments
+              .map((a) => new Date(a.date))
+              .sort((a, b) => b.getTime() - a.getTime());
             let totalDays = 0;
             for (let i = 0; i < dates.length - 1; i++) {
               const diff = (dates[i].getTime() - dates[i + 1].getTime()) / (1000 * 60 * 60 * 24);
@@ -210,12 +234,18 @@ export async function POST(request: NextRequest) {
             }
             const avgDaysBetween = Math.round(totalDays / (dates.length - 1));
 
-            // Calculate days since last visit
+            // ── Días desde la última visita ──
             const lastVisitDate = dates[0];
-            const daysSinceLastVisit = Math.round((today.getTime() - lastVisitDate.getTime()) / (1000 * 60 * 60 * 24));
+            const daysSinceLastVisit = Math.round(
+              (today.getTime() - lastVisitDate.getTime()) / (1000 * 60 * 60 * 24)
+            );
 
-            // If approaching the average interval, suggest contact
-            const optimalContactDay = Math.max(1, avgDaysBetween - 3);
+            // ── Umbral de contacto proporcional ──
+            // Offset = 15% del promedio (proporcional), con máximo contactWindowDays
+            const pctOffset = Math.max(1, Math.round(avgDaysBetween * 0.15));
+            const effectiveOffset = Math.min(pctOffset, contactWindowDays);
+            const optimalContactDay = Math.max(1, avgDaysBetween - effectiveOffset);
+
             if (daysSinceLastVisit >= optimalContactDay) {
               ruleResult.actions.push({
                 clientId: client.id,
