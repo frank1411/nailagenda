@@ -60,7 +60,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import {
   Collapsible,
@@ -366,8 +365,8 @@ export default function AutomationPanel() {
         if (result.ruleType === 'SMART_CONTACT') {
           for (const action of result.actions) {
             // Parse details to extract metrics
-            const avgMatch = action.details.match(/every (\d+) days/);
-            const daysMatch = action.details.match(/(\d+) days ago/);
+            const avgMatch = action.details.match(/cada (\d+) días/);
+            const daysMatch = action.details.match(/hace (\d+) días/);
             const avgDays = avgMatch ? parseInt(avgMatch[1]) : 0;
             const daysSince = daysMatch ? parseInt(daysMatch[1]) : 0;
 
@@ -756,7 +755,7 @@ export default function AutomationPanel() {
         </div>
       )}
 
-      {/* ===================== RUN RESULTS PANEL ===================== */}
+      {/* ===================== RUN RESULTS + SMART CONTACT SUGGESTIONS ===================== */}
       {runData && (
         <Card>
           <CardHeader className="pb-3">
@@ -814,88 +813,87 @@ export default function AutomationPanel() {
             <Separator />
 
             {/* Detailed Results by Type */}
-            <ScrollArea className="max-h-[500px]">
-              <div className="space-y-3 pr-1">
-                {runData.results
-                  .filter((r) => r.actions.length > 0)
-                  .map((result) => {
-                    const typeConf = TYPE_CONFIG[result.ruleType as AutomationType];
-                    const IconComp = typeConf?.icon || MessageSquare;
-                    const isOpen = openSections[result.ruleId] !== false;
+            <div className="space-y-3">
+              {runData.results
+                .filter((r) => r.actions.length > 0)
+                .map((result) => {
+                  const typeConf = TYPE_CONFIG[result.ruleType as AutomationType];
+                  const IconComp = typeConf?.icon || MessageSquare;
+                  const isOpen = openSections[result.ruleId] !== false;
 
-                    return (
-                      <Collapsible
-                        key={result.ruleId}
-                        open={isOpen}
-                        onOpenChange={() => toggleSection(result.ruleId)}
-                      >
-                        <div className="rounded-xl border">
-                          <CollapsibleTrigger className="w-full">
-                            <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors rounded-t-xl">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className={`h-8 w-8 rounded-lg flex items-center justify-center ${typeConf?.iconBg || 'bg-gray-100'}`}
-                                >
-                                  <IconComp className={`h-4 w-4 ${typeConf?.iconColor || 'text-gray-600'}`} />
-                                </div>
-                                <div className="text-left">
-                                  <p className="font-medium text-sm" style={{ color: CHARCOAL }}>
-                                    {result.ruleName}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {result.actions.length} accion{result.actions.length !== 1 ? 'es' : ''}
-                                  </p>
-                                </div>
+                  return (
+                    <Collapsible
+                      key={result.ruleId}
+                      open={isOpen}
+                      onOpenChange={() => toggleSection(result.ruleId)}
+                    >
+                      <div className="rounded-xl border">
+                        <CollapsibleTrigger className="w-full">
+                          <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors rounded-t-xl">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`h-8 w-8 rounded-lg flex items-center justify-center ${typeConf?.iconBg || 'bg-gray-100'}`}
+                              >
+                                <IconComp className={`h-4 w-4 ${typeConf?.iconColor || 'text-gray-600'}`} />
                               </div>
-                              {isOpen ? (
-                                <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                              ) : (
-                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                              )}
+                              <div className="text-left">
+                                <p className="font-medium text-sm" style={{ color: CHARCOAL }}>
+                                  {result.ruleName}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {result.actions.length} accion{result.actions.length !== 1 ? 'es' : ''}
+                                </p>
+                              </div>
                             </div>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <div className="px-4 pb-4 space-y-2">
-                              {result.actions.map((action, idx) => {
-                                const ActionIcon = getActionIcon(action.action);
-                                const colors = getActionColor(action.action);
-                                return (
+                            {isOpen ? (
+                              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="px-4 pb-4 space-y-2">
+                            {result.actions.map((action, idx) => {
+                              const ActionIcon = getActionIcon(action.action);
+                              const colors = getActionColor(action.action);
+                              return (
+                                <div
+                                  key={idx}
+                                  className="flex items-start gap-3 rounded-lg bg-muted/30 p-3"
+                                >
                                   <div
-                                    key={idx}
-                                    className="flex items-start gap-3 rounded-lg bg-muted/30 p-3"
+                                    className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${colors.bg}`}
                                   >
-                                    <div
-                                      className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${colors.bg}`}
-                                    >
-                                      <ActionIcon className={`h-3.5 w-3.5 ${colors.text}`} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="font-medium text-sm" style={{ color: CHARCOAL }}>
-                                          {action.clientName}
-                                        </span>
-                                        <span
-                                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${colors.bg} ${colors.text}`}
-                                        >
-                                          {getActionLabel(action.action)}
-                                        </span>
-                                      </div>
-                                      <p className="text-xs text-muted-foreground mt-0.5">
-                                        {action.details}
-                                      </p>
-                                    </div>
-                                    <span className="text-[10px] text-muted-foreground shrink-0 whitespace-nowrap">
-                                      {formatDateTime(runData.runAt)}
-                                    </span>
+                                    <ActionIcon className={`h-3.5 w-3.5 ${colors.text}`} />
                                   </div>
-                                );
-                              })}
-                            </div>
-                          </CollapsibleContent>
-                        </div>
-                      </Collapsible>
-                    );
-                  })}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="font-medium text-sm" style={{ color: CHARCOAL }}>
+                                        {action.clientName}
+                                      </span>
+                                      <span
+                                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${colors.bg} ${colors.text}`}
+                                      >
+                                        {getActionLabel(action.action)}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                      {action.details}
+                                    </p>
+                                  </div>
+                                  <span className="text-[10px] text-muted-foreground shrink-0 whitespace-nowrap">
+                                    {formatDateTime(runData.runAt)}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </CollapsibleContent>
+                      </div>
+                    </Collapsible>
+                  );
+                })}
 
                 {runData.results.every((r) => r.actions.length === 0) && (
                   <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
@@ -903,100 +901,92 @@ export default function AutomationPanel() {
                     <p className="text-sm">No se generaron acciones con las reglas activas</p>
                   </div>
                 )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      )}
+            </div>
 
-      {/* ===================== SMART CONTACT SUGGESTIONS ===================== */}
-      {smartSuggestions.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg" style={{ color: CHARCOAL }}>
-              <Brain className="h-5 w-5" style={{ color: ROSE_GOLD }} />
-              Sugerencias de Contacto Inteligente
-            </CardTitle>
-            <CardDescription>
-              Análisis de patrones de visita para cada cliente. El algoritmo sugiere el momento
-              óptimo para contactar.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="max-h-[500px]">
-              <div className="space-y-3 pr-1">
-                {smartSuggestions.map((suggestion) => (
-                  <div
-                    key={suggestion.clientId}
-                    className="rounded-xl border p-4 hover:bg-muted/30 transition-colors"
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Avatar */}
+            {/* ===================== SMART CONTACT SUGGESTIONS (merged inside results) ===================== */}
+            {smartSuggestions.length > 0 && (
+              <>
+                <Separator />
+                <div>
+                  <h3 className="flex items-center gap-2 text-base font-semibold mb-4" style={{ color: CHARCOAL }}>
+                    <Brain className="h-5 w-5" style={{ color: ROSE_GOLD }} />
+                    Sugerencias de Contacto Inteligente
+                  </h3>
+                  <div className="space-y-3">
+                    {smartSuggestions.map((suggestion) => (
                       <div
-                        className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 text-white font-bold text-lg"
-                        style={{ backgroundColor: ROSE_GOLD }}
+                        key={suggestion.clientId}
+                        className="rounded-xl border p-4 hover:bg-muted/30 transition-colors"
                       >
-                        {suggestion.clientName.charAt(0).toUpperCase()}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <h4 className="font-semibold text-sm" style={{ color: CHARCOAL }}>
-                              {suggestion.clientName}
-                            </h4>
-                          </div>
-                          <Button
-                            size="sm"
-                            className="h-8 text-xs text-white border-0 shrink-0 cursor-pointer"
+                        <div className="flex items-start gap-4">
+                          {/* Avatar */}
+                          <div
+                            className="h-12 w-12 rounded-full flex items-center justify-center shrink-0 text-white font-bold text-lg"
                             style={{ backgroundColor: ROSE_GOLD }}
                           >
-                            <Send className="h-3.5 w-3.5" />
-                            Contactar
-                          </Button>
-                        </div>
+                            {suggestion.clientName.charAt(0).toUpperCase()}
+                          </div>
 
-                        {/* Metrics */}
-                        <div className="grid grid-cols-3 gap-3 mt-3">
-                          <div className="text-center rounded-lg bg-muted/50 p-2">
-                            <p className="text-xs text-muted-foreground mb-0.5">Frecuencia</p>
-                            <p className="text-sm font-semibold" style={{ color: CHARCOAL }}>
-                              Cada {suggestion.avgDaysBetween}d
-                            </p>
-                          </div>
-                          <div className="text-center rounded-lg bg-muted/50 p-2">
-                            <p className="text-xs text-muted-foreground mb-0.5">Última visita</p>
-                            <p className="text-sm font-semibold" style={{ color: CHARCOAL }}>
-                              Hace {suggestion.daysSinceLastVisit}d
-                            </p>
-                          </div>
-                          <div className="text-center rounded-lg bg-muted/50 p-2">
-                            <p className="text-xs text-muted-foreground mb-0.5">Contactar antes</p>
-                            <p className="text-sm font-semibold" style={{ color: ROSE_GOLD }}>
-                              {suggestion.suggestedContactDate}
-                            </p>
-                          </div>
-                        </div>
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h4 className="font-semibold text-sm" style={{ color: CHARCOAL }}>
+                                  {suggestion.clientName}
+                                </h4>
+                              </div>
+                              <Button
+                                size="sm"
+                                className="h-8 text-xs text-white border-0 shrink-0 cursor-pointer"
+                                style={{ backgroundColor: ROSE_GOLD }}
+                              >
+                                <Send className="h-3.5 w-3.5" />
+                                Contactar
+                              </Button>
+                            </div>
 
-                        {/* Suggested message */}
-                        <div className="mt-3 rounded-lg border p-3 bg-background">
-                          <div className="flex items-center gap-1.5 mb-1.5">
-                            <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-xs font-medium text-muted-foreground">
-                              Mensaje sugerido
-                            </span>
+                            {/* Metrics */}
+                            <div className="grid grid-cols-3 gap-3 mt-3">
+                              <div className="text-center rounded-lg bg-muted/50 p-2">
+                                <p className="text-xs text-muted-foreground mb-0.5">Frecuencia</p>
+                                <p className="text-sm font-semibold" style={{ color: CHARCOAL }}>
+                                  Cada {suggestion.avgDaysBetween}d
+                                </p>
+                              </div>
+                              <div className="text-center rounded-lg bg-muted/50 p-2">
+                                <p className="text-xs text-muted-foreground mb-0.5">Última visita</p>
+                                <p className="text-sm font-semibold" style={{ color: CHARCOAL }}>
+                                  Hace {suggestion.daysSinceLastVisit}d
+                                </p>
+                              </div>
+                              <div className="text-center rounded-lg bg-muted/50 p-2">
+                                <p className="text-xs text-muted-foreground mb-0.5">Contactar antes</p>
+                                <p className="text-sm font-semibold" style={{ color: ROSE_GOLD }}>
+                                  {suggestion.suggestedContactDate}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Suggested message */}
+                            <div className="mt-3 rounded-lg border p-3 bg-background">
+                              <div className="flex items-center gap-1.5 mb-1.5">
+                                <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span className="text-xs font-medium text-muted-foreground">
+                                  Mensaje sugerido
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                {suggestion.messageTemplate}
+                              </p>
+                            </div>
                           </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {suggestion.messageTemplate}
-                          </p>
                         </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </ScrollArea>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       )}

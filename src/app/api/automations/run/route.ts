@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
       switch (rule.type) {
         case 'REMINDER': {
-          // Find appointments in next 24h that need reminders
+          // Buscar citas en las próximas 24h
           const upcomingAppointments = await db.appointment.findMany({
             where: {
               userId,
@@ -52,14 +52,14 @@ export async function POST(request: NextRequest) {
               clientId: apt.clientId,
               clientName,
               action: 'SEND_REMINDER',
-              details: `Appointment reminder: ${apt.service.name} on ${apt.date} at ${apt.startTime}`,
+              details: `Recordatorio de cita: ${apt.service.name} el ${apt.date} a las ${apt.startTime}`,
             });
 
-            // Log the action
+            // Registrar acción en log
             await db.automationLog.create({
               data: {
                 action: 'SEND_REMINDER',
-                result: `Reminder for ${clientName}: ${apt.service.name} on ${apt.date} at ${apt.startTime}`,
+                result: `Recordatorio para ${clientName}: ${apt.service.name} el ${apt.date} a las ${apt.startTime}`,
                 ruleId: rule.id,
                 clientId: apt.clientId,
               },
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         }
 
         case 'REACTIVATION': {
-          // Find clients inactive for 30+ days
+          // Buscar clientes INACTIVE sin visita en 30+ días
           const thirtyDaysAgo = new Date(today);
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
           const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
@@ -95,13 +95,13 @@ export async function POST(request: NextRequest) {
                 clientId: client.id,
                 clientName,
                 action: 'REACTIVATION_OUTREACH',
-                details: `Inactive since ${lastAppointment.date}. Last visit: ${lastAppointment.date}. Consider reaching out.`,
+                details: `Inactivo desde ${lastAppointment.date}. Última visita: ${lastAppointment.date}. Sugerir reactivación.`,
               });
 
               await db.automationLog.create({
                 data: {
                   action: 'REACTIVATION_OUTREACH',
-                  result: `Reactivation outreach for ${clientName}. Inactive since ${lastAppointment.date}.`,
+                  result: `Reactivación sugerida para ${clientName}. Inactivo desde ${lastAppointment.date}.`,
                   ruleId: rule.id,
                   clientId: client.id,
                 },
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          // Also check RECURRING/NEW clients with no appointments in 30+ days
+          // También verificar clientes RECURRING/NEW sin citas en 30+ días
           const clientsWithNoRecentApts = await db.client.findMany({
             where: {
               userId,
@@ -128,13 +128,13 @@ export async function POST(request: NextRequest) {
               clientId: client.id,
               clientName,
               action: 'REACTIVATION_OUTREACH',
-              details: `No appointments in 30+ days. Consider reaching out.`,
+              details: `Sin citas en los últimos 30 días. Sugerir reactivación.`,
             });
 
             await db.automationLog.create({
               data: {
                 action: 'REACTIVATION_OUTREACH',
-                result: `Reactivation outreach for ${clientName}. No recent appointments.`,
+                result: `Reactivación sugerida para ${clientName}. Sin citas recientes.`,
                 ruleId: rule.id,
                 clientId: client.id,
               },
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
         }
 
         case 'LOYALTY': {
-          // Find recurring clients eligible for loyalty rewards (5+ completed appointments)
+          // Buscar clientes RECURRING elegibles para premios de fidelidad (5+ visitas completadas, múltiplos de 5)
           const recurringClients = await db.client.findMany({
             where: {
               userId,
@@ -165,13 +165,13 @@ export async function POST(request: NextRequest) {
                 clientId: client.id,
                 clientName,
                 action: 'LOYALTY_REWARD',
-                details: `Completed ${completedCount} visits! Eligible for loyalty reward.`,
+                details: `¡${completedCount} visitas completadas! Cliente elegible para premio de fidelidad.`,
               });
 
               await db.automationLog.create({
                 data: {
                   action: 'LOYALTY_REWARD',
-                  result: `Loyalty reward for ${clientName}. ${completedCount} completed visits.`,
+                  result: `Premio de fidelidad para ${clientName}. ${completedCount} visitas completadas.`,
                   ruleId: rule.id,
                   clientId: client.id,
                 },
@@ -251,13 +251,13 @@ export async function POST(request: NextRequest) {
                 clientId: client.id,
                 clientName,
                 action: 'SMART_CONTACT',
-                details: `Visit frequency: every ${avgDaysBetween} days. Last visit: ${daysSinceLastVisit} days ago. Optimal time to reach out!`,
+                details: `Frecuencia de visita: cada ${avgDaysBetween} días. Última visita: hace ${daysSinceLastVisit} días. Momento óptimo para contactar.`,
               });
 
               await db.automationLog.create({
                 data: {
                   action: 'SMART_CONTACT',
-                  result: `Smart contact for ${clientName}. Avg ${avgDaysBetween} days between visits, ${daysSinceLastVisit} days since last visit.`,
+                  result: `Contacto inteligente para ${clientName}. Promedio ${avgDaysBetween} días entre visitas, ${daysSinceLastVisit} días desde la última visita.`,
                   ruleId: rule.id,
                   clientId: client.id,
                 },
