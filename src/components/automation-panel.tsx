@@ -133,7 +133,7 @@ const DEFAULT_CONFIGS: Record<AutomationType, Record<string, string | number>> =
   REMINDER: { hoursBefore: 24, messageTemplate: 'Hola {nombre}, te recordamos tu cita de {servicio} el {fecha} a las {hora}. ¡Te esperamos!' },
   REACTIVATION: { daysInactiveThreshold: 30, messageTemplate: 'Hola {nombre}, hace tiempo que no te vemos en {salon}. ¡Te echamos de menos! Ven pronto y llévate un descuento especial.' },
   LOYALTY: { minimumVisits: 5, rewardDescription: 'Descuento del 15% en tu próxima visita como cliente frecuente' },
-  SMART_CONTACT: { analysisPeriodDays: 90, contactWindowDays: 7, antiSpamCooldownDays: 7 },
+  SMART_CONTACT: { analysisPeriodDays: 90, contactWindowDays: 7, antiSpamCooldownDays: 7, messageTemplate: 'Hola {nombre}, hace {dias} días que no nos visitas. ¿Te gustaría reservar una cita? ¡Te esperamos!' },
 };
 
 // ---------------------------------------------------------------------------
@@ -374,6 +374,7 @@ export default function AutomationPanel() {
               automations.find((a) => a.id === result.ruleId)?.config || {}
             );
             const contactWindow = (config.contactWindowDays as number) || 7;
+            const templateStr = (config.messageTemplate as string) || 'Hola {nombre}, hace {dias} días que no nos visitas. ¿Te gustaría reservar una cita? ¡Te esperamos!';
 
             const suggestedDate = new Date();
             suggestedDate.setDate(suggestedDate.getDate() + contactWindow);
@@ -384,7 +385,9 @@ export default function AutomationPanel() {
               avgDaysBetween: avgDays,
               daysSinceLastVisit: daysSince,
               suggestedContactDate: formatDate(suggestedDate.toISOString()),
-              messageTemplate: `Hola ${action.clientName}, hace ${daysSince} días que no te visitamos. ¿Te gustaría reservar una cita? ¡Tenemos novedades que te encantarán!`,
+              messageTemplate: templateStr
+                .replace('{nombre}', action.clientName)
+                .replace('{dias}', String(daysSince)),
             });
           }
         }
@@ -1236,6 +1239,44 @@ export default function AutomationPanel() {
                     />
                     <p className="text-xs text-muted-foreground">
                       Días antes del patrón estimado para sugerir el contacto
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cfg-cooldown">Anti-spam (días entre contactos)</Label>
+                    <Input
+                      id="cfg-cooldown"
+                      type="number"
+                      min={1}
+                      max={60}
+                      value={String(formConfig.antiSpamCooldownDays ?? 7)}
+                      onChange={(e) =>
+                        setFormConfig((prev) => ({
+                          ...prev,
+                          antiSpamCooldownDays: parseInt(e.target.value) || 7,
+                        }))
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Días mínimos que deben pasar antes de contactar al mismo cliente otra vez
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cfg-sc-msg">Plantilla de mensaje</Label>
+                    <Textarea
+                      id="cfg-sc-msg"
+                      value={String(formConfig.messageTemplate ?? '')}
+                      onChange={(e) =>
+                        setFormConfig((prev) => ({
+                          ...prev,
+                          messageTemplate: e.target.value,
+                        }))
+                      }
+                      placeholder="Hola {nombre}, hace {dias} días que no nos visitas..."
+                      rows={3}
+                      className="resize-none"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Variables: {'{nombre}'}, {'{dias}'}
                     </p>
                   </div>
                 </>
