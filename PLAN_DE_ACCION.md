@@ -80,6 +80,17 @@ Completadas. Ver PLAN_DE_ACCION.md en historial para detalle de tareas 1.1 a 3.8
 
 ## Tareas Restantes (Baja Prioridad)
 
+### Presentación Comercial 📊 Pendiente
+- [ ] Crear archivos `public/CrmNailsAgency-Presentacion.pptx` y `public/CrmNailsAgency-Presentacion.pdf`
+- [ ] Actualizar contenido de las 10 diapositivas con funcionalidades actuales (5 tipos de reglas, STATUS_FLOW, Google Calendar, botón Ejecutar individual)
+- [ ] Verificar que el endpoint `/api/download` sirva los archivos correctamente
+
+### Tour Guiado 🎯 Pendiente
+- [ ] Actualizar slide de Automatizaciones: mencionar 5 tipos (REMINDER, REACTIVATION, LOYALTY, SMART_CONTACT, STATUS_FLOW)
+- [ ] Agregar slide de Google Calendar Sync
+- [ ] Agregar mención a ejecución individual por tarjeta
+- [ ] Mantener coherencia con el panel actual de automatizaciones
+
 ### Exportación de Datos (4.2) 📋 Diseñada
 - [ ] `GET /api/export/clients?format=csv`
 - [ ] `GET /api/export/appointments?format=csv&from=&to=`
