@@ -240,5 +240,17 @@ export const FALLBACKS = {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
+    {
+      id: 'auto-3',
+      name: 'Agradecimiento post-cita',
+      description: 'Agradece a los clientes 2h después de completar su cita',
+      type: 'REMINDER',
+      active: true,
+      config: { hoursAfter: 2, messageTemplate: 'Gracias {nombre} por tu visita. ¡Te esperamos pronto!' },
+      userId: DEMO_USER_ID,
+      _count: { logs: 8 },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
   ],
 };

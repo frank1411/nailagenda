@@ -21,11 +21,6 @@ export async function POST(request: NextRequest) {
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
 
-    // Calculate tomorrow
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
     for (const rule of automations) {
       const ruleResult = {
         ruleId: rule.id,
@@ -36,34 +31,88 @@ export async function POST(request: NextRequest) {
 
       switch (rule.type) {
         case 'REMINDER': {
-          // Buscar citas en las próximas 24h
-          const upcomingAppointments = await db.appointment.findMany({
-            where: {
-              userId,
-              date: { gte: todayStr, lte: tomorrowStr },
-              status: { in: ['PENDING', 'CONFIRMED'] },
-            },
-            include: { client: true, service: true },
-          });
+          // ── Leer configuración de la regla ──
+          const rConfig = (rule.config || {}) as Record<string, unknown>;
+          const hoursBefore = rConfig.hoursBefore as number | undefined;
+          const hoursAfter = rConfig.hoursAfter as number | undefined;
+          const messageTemplate =
+            (rConfig.messageTemplate as string) ||
+            'Hola {nombre}, te recordamos tu cita de {servicio} el {fecha} a las {hora}. ¡Te esperamos!';
 
-          for (const apt of upcomingAppointments) {
-            const clientName = `${apt.client.firstName} ${apt.client.lastName}`;
-            ruleResult.actions.push({
-              clientId: apt.clientId,
-              clientName,
-              action: 'SEND_REMINDER',
-              details: `Recordatorio de cita: ${apt.service.name} el ${apt.date} a las ${apt.startTime}`,
-            });
+          const now = new Date();
+          const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
-            // Registrar acción en log
-            await db.automationLog.create({
-              data: {
-                action: 'SEND_REMINDER',
-                result: `Recordatorio para ${clientName}: ${apt.service.name} el ${apt.date} a las ${apt.startTime}`,
+          // Determinar modos: before (pre-cita), after (post-cita)
+          type WMode = { mode: 'before' | 'after'; hours: number };
+          const modes: WMode[] = [];
+          if (hoursBefore && hoursBefore > 0) modes.push({ mode: 'before', hours: hoursBefore });
+          if (hoursAfter && hoursAfter > 0) modes.push({ mode: 'after', hours: hoursAfter });
+          if (modes.length === 0) modes.push({ mode: 'before', hours: 24 }); // default
+
+          for (const { mode, hours } of modes) {
+            const isBefore = mode === 'before';
+            const windowMs = hours * 60 * 60 * 1000;
+            const startWindow = isBefore ? now : new Date(now.getTime() - windowMs);
+            const endWindow = isBefore ? new Date(now.getTime() + windowMs) : now;
+            const actionName = isBefore ? 'SEND_REMINDER' : 'THANK_YOU';
+            const startDateStr = startWindow.toISOString().split('T')[0];
+            const endDateStr = endWindow.toISOString().split('T')[0];
+
+            // ── Anti-spam: ya procesados en las últimas 24h ──
+            const recentLogs = await db.automationLog.findMany({
+              where: {
                 ruleId: rule.id,
-                clientId: apt.clientId,
+                action: actionName,
+                createdAt: { gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) },
               },
+              select: { clientId: true },
             });
+            const recentlyProcessed = new Set(recentLogs.map((l) => l.clientId));
+
+            const statuses: ('PENDING' | 'CONFIRMED' | 'COMPLETED')[] = isBefore
+              ? ['PENDING', 'CONFIRMED']
+              : ['COMPLETED'];
+
+            const appointments = await db.appointment.findMany({
+              where: {
+                userId,
+                date: { gte: startDateStr, lte: endDateStr },
+                status: { in: statuses },
+              },
+              include: { client: true, service: true },
+            });
+
+            for (const apt of appointments) {
+              const aptDateTime = new Date(`${apt.date}T${apt.startTime}:00`);
+              if (aptDateTime < startWindow || aptDateTime > endWindow) continue;
+              if (recentlyProcessed.has(apt.clientId)) continue;
+
+              const clientName = `${apt.client.firstName} ${apt.client.lastName}`;
+              const [y, m, d] = apt.date.split('-');
+              const fechaLegible = `${parseInt(d)} ${meses[parseInt(m) - 1]} ${y}`;
+
+              const mensaje = messageTemplate
+                .replace(/{nombre}/g, clientName)
+                .replace(/{servicio}/g, apt.service.name)
+                .replace(/{fecha}/g, fechaLegible)
+                .replace(/{hora}/g, apt.startTime);
+
+              ruleResult.actions.push({
+                clientId: apt.clientId,
+                clientName,
+                action: actionName,
+                details: mensaje,
+              });
+
+              await db.automationLog.create({
+                data: {
+                  action: actionName,
+                  result: mensaje,
+                  ruleId: rule.id,
+                  clientId: apt.clientId,
+                },
+              });
+            }
           }
           break;
         }

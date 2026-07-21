@@ -21,6 +21,7 @@ import {
   Send,
   Calendar,
   Mail,
+  Heart,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import {
@@ -130,7 +131,7 @@ const TYPE_CONFIG: Record<
 };
 
 const DEFAULT_CONFIGS: Record<AutomationType, Record<string, string | number>> = {
-  REMINDER: { hoursBefore: 24, messageTemplate: 'Hola {nombre}, te recordamos tu cita de {servicio} el {fecha} a las {hora}. ¡Te esperamos!' },
+  REMINDER: { hoursBefore: 24, hoursAfter: 0, messageTemplate: 'Hola {nombre}, te recordamos tu cita de {servicio} el {fecha} a las {hora}. ¡Te esperamos!' },
   REACTIVATION: { daysInactiveThreshold: 30, messageTemplate: 'Hola {nombre}, hace tiempo que no te vemos en {salon}. ¡Te echamos de menos! Ven pronto y llévate un descuento especial.' },
   LOYALTY: { minimumVisits: 5, rewardDescription: 'Descuento del 15% en tu próxima visita como cliente frecuente' },
   SMART_CONTACT: { analysisPeriodDays: 90, contactWindowDays: 7, antiSpamCooldownDays: 7, messageTemplate: 'Hola {nombre}, hace {dias} días que no nos visitas. ¿Te gustaría reservar una cita? ¡Te esperamos!' },
@@ -212,6 +213,8 @@ function getActionIcon(action: string) {
   switch (action) {
     case 'SEND_REMINDER':
       return Bell;
+    case 'THANK_YOU':
+      return Heart;
     case 'REACTIVATION_OUTREACH':
       return RefreshCw;
     case 'LOYALTY_REWARD':
@@ -227,6 +230,8 @@ function getActionLabel(action: string): string {
   switch (action) {
     case 'SEND_REMINDER':
       return 'Recordatorio enviado';
+    case 'THANK_YOU':
+      return 'Agradecimiento enviado';
     case 'REACTIVATION_OUTREACH':
       return 'Reactivación sugerida';
     case 'LOYALTY_REWARD':
@@ -242,6 +247,8 @@ function getActionColor(action: string): { bg: string; text: string } {
   switch (action) {
     case 'SEND_REMINDER':
       return { bg: 'bg-amber-100 dark:bg-amber-900/40', text: 'text-amber-700 dark:text-amber-300' };
+    case 'THANK_YOU':
+      return { bg: 'bg-pink-100 dark:bg-pink-900/40', text: 'text-pink-700 dark:text-pink-300' };
     case 'REACTIVATION_OUTREACH':
       return { bg: 'bg-red-100 dark:bg-red-900/40', text: 'text-red-700 dark:text-red-300' };
     case 'LOYALTY_REWARD':
@@ -528,6 +535,10 @@ export default function AutomationPanel() {
           (sum, r) => sum + r.actions.filter((a) => a.action === 'SEND_REMINDER').length,
           0
         ),
+        thanksSent: runData.results.reduce(
+          (sum, r) => sum + r.actions.filter((a) => a.action === 'THANK_YOU').length,
+          0
+        ),
         reactivationsSuggested: runData.results.reduce(
           (sum, r) => sum + r.actions.filter((a) => a.action === 'REACTIVATION_OUTREACH').length,
           0
@@ -699,6 +710,11 @@ export default function AutomationPanel() {
                             <span className="font-medium">Horas antes:</span> {String(parsedConfig.hoursBefore)}h
                           </p>
                         )}
+                        {automation.type === 'REMINDER' && parsedConfig.hoursAfter && Number(parsedConfig.hoursAfter) > 0 && (
+                          <p>
+                            <span className="font-medium">Agradecimiento post:</span> {String(parsedConfig.hoursAfter)}h
+                          </p>
+                        )}
                         {automation.type === 'REACTIVATION' && parsedConfig.daysInactiveThreshold && (
                           <p>
                             <span className="font-medium">Días inactivo:</span> {String(parsedConfig.daysInactiveThreshold)}d
@@ -773,7 +789,7 @@ export default function AutomationPanel() {
           <CardContent className="space-y-6">
             {/* Summary Stats */}
             {runStats && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <div className="rounded-xl border p-4 text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1">
                     <Bell className="h-4 w-4 text-amber-600" />
@@ -782,6 +798,15 @@ export default function AutomationPanel() {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">Recordatorios</p>
+                </div>
+                <div className="rounded-xl border p-4 text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <Heart className="h-4 w-4 text-pink-600" />
+                    <span className="text-2xl font-bold" style={{ color: CHARCOAL }}>
+                      {runStats.thanksSent}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Agradecimientos</p>
                 </div>
                 <div className="rounded-xl border p-4 text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1">
@@ -1094,6 +1119,25 @@ export default function AutomationPanel() {
                     />
                     <p className="text-xs text-muted-foreground">
                       Se enviará el recordatorio esta cantidad de horas antes de la cita
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cfg-hours-after">Horas después de la cita</Label>
+                    <Input
+                      id="cfg-hours-after"
+                      type="number"
+                      min={0}
+                      max={168}
+                      value={String(formConfig.hoursAfter ?? 0)}
+                      onChange={(e) =>
+                        setFormConfig((prev) => ({
+                          ...prev,
+                          hoursAfter: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Enviar agradecimiento {{'{'}}N horas{{'}'}} después de una cita completada (0 = desactivado)
                     </p>
                   </div>
                   <div className="space-y-2">

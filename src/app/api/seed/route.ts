@@ -211,6 +211,14 @@ export async function POST(request: NextRequest) {
         userId: user.id,
       },
       {
+        name: 'Agradecimiento post-cita',
+        description: 'Agradece a los clientes 2 horas después de su cita',
+        type: 'REMINDER',
+        config: { hoursAfter: 2, messageTemplate: 'Gracias {nombre} por tu visita de {servicio}. ¡Te esperamos pronto!' },
+        active: true,
+        userId: user.id,
+      },
+      {
         name: 'Reactivación Clientes Inactivos',
         description: 'Contacta a clientes que no han visitado en 30+ días',
         type: 'REACTIVATION',
