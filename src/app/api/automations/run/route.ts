@@ -118,72 +118,69 @@ export async function POST(request: NextRequest) {
         }
 
         case 'REACTIVATION': {
-          // Buscar clientes INACTIVE sin visita en 30+ días
-          const thirtyDaysAgo = new Date(today);
-          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-          const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+          const reactCfg = (rule.config || {}) as Record<string, number | string>;
+          const inactiveDays = Number(reactCfg.daysInactiveThreshold) || 30;
+          const msgTemplate = String(reactCfg.messageTemplate || 'Hola {nombre}, hace tiempo que no te vemos en {salon}. ¡Te echamos de menos!');
 
-          const inactiveClients = await db.client.findMany({
+          const sinceDate = new Date(today);
+          sinceDate.setDate(sinceDate.getDate() - inactiveDays);
+          const sinceDateStr = sinceDate.toISOString().split('T')[0];
+
+          // ── Anti-spam: obtener clientes contactados recientemente ──
+          const recentLogs = await db.automationLog.findMany({
+            where: {
+              ruleId: rule.id,
+              action: 'REACTIVATION_OUTREACH',
+              createdAt: { gte: sinceDate },
+            },
+            select: { clientId: true },
+          });
+          const recentClientIds = new Set(recentLogs.map((l) => l.clientId));
+
+          // ── Clientes sin visitas completadas en N+ días ──
+          const staleClients = await db.client.findMany({
             where: {
               userId,
-              status: 'INACTIVE',
+              status: { in: ['NEW', 'RECURRING', 'INACTIVE'] },
+              appointments: {
+                none: {
+                  status: 'COMPLETED',
+                  date: { gte: sinceDateStr },
+                },
+              },
             },
             include: {
               appointments: {
+                where: { status: 'COMPLETED' },
                 orderBy: { date: 'desc' },
                 take: 1,
+                select: { date: true },
               },
             },
           });
 
-          for (const client of inactiveClients) {
-            const lastAppointment = client.appointments[0];
-            if (lastAppointment && lastAppointment.date <= thirtyDaysAgoStr) {
-              const clientName = `${client.firstName} ${client.lastName}`;
-              ruleResult.actions.push({
-                clientId: client.id,
-                clientName,
-                action: 'REACTIVATION_OUTREACH',
-                details: `Inactivo desde ${lastAppointment.date}. Última visita: ${lastAppointment.date}. Sugerir reactivación.`,
-              });
+          for (const client of staleClients) {
+            // Anti-spam
+            if (recentClientIds.has(client.id)) continue;
 
-              await db.automationLog.create({
-                data: {
-                  action: 'REACTIVATION_OUTREACH',
-                  result: `Reactivación sugerida para ${clientName}. Inactivo desde ${lastAppointment.date}.`,
-                  ruleId: rule.id,
-                  clientId: client.id,
-                },
-              });
-            }
-          }
-
-          // También verificar clientes RECURRING/NEW sin citas en 30+ días
-          const clientsWithNoRecentApts = await db.client.findMany({
-            where: {
-              userId,
-              status: { in: ['RECURRING', 'NEW'] },
-              appointments: {
-                none: {
-                  date: { gte: thirtyDaysAgoStr },
-                },
-              },
-            },
-          });
-
-          for (const client of clientsWithNoRecentApts) {
+            const lastAppt = client.appointments[0];
+            const lastDate = lastAppt?.date ?? 'ninguna';
             const clientName = `${client.firstName} ${client.lastName}`;
+            const message = msgTemplate
+              .replace(/\{nombre\}/g, client.firstName)
+              .replace(/\{salon\}/g, 'MayeNailsArt Studio');
+
             ruleResult.actions.push({
               clientId: client.id,
               clientName,
               action: 'REACTIVATION_OUTREACH',
-              details: `Sin citas en los últimos 30 días. Sugerir reactivación.`,
+              details: message,
             });
 
             await db.automationLog.create({
               data: {
                 action: 'REACTIVATION_OUTREACH',
-                result: `Reactivación sugerida para ${clientName}. Sin citas recientes.`,
+                result: `Reactivación sugerida para ${clientName}. Última cita completada: ${lastDate}.`,
                 ruleId: rule.id,
                 clientId: client.id,
               },
