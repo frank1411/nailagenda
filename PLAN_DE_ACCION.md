@@ -1,27 +1,120 @@
-# Plan de Acción — NailAgenda / CrmNailsAgency
+# Plan de Acción — NailAgenda
 
-**Basado en:** EVALUACION.md (14 de julio de 2026)
-**Objetivo:** Llevar el proyecto de estado actual a producción segura y robusta
-**Última actualización:** 18 de julio de 2026
+**Última actualización:** 21 de julio de 2026
+**Estado general:** App en producción estable con motor de automatizaciones completo
 
 ---
 
 ## Resumen de Fases
 
-| Fase | Nombre | Prioridad | Tiempo Estimado | Estado |
-|------|--------|-----------|-----------------|--------|
-| 1 | Seguridad Crítica | URGENTE | 2-3 días | ✅ COMPLETADA |
-| 2 | Deuda Técnica | ALTA | 3-5 días | ✅ COMPLETADA |
-| 3 | Rendimiento & Robustez | MEDIA | 4-6 días | ✅ COMPLETADA |
-| 4 | Funcionalidad Futura | BAJA | Según necesidad | 🚧 En Progreso — Automatizaciones (siguiente) |
+| Fase | Nombre | Prioridad | Estado |
+|------|--------|-----------|--------|
+| 1 | Seguridad Crítica | URGENTE | ✅ COMPLETADA |
+| 2 | Deuda Técnica | ALTA | ✅ COMPLETADA |
+| 3 | Rendimiento & Robustez | MEDIA | ✅ COMPLETADA |
+| 4.5 | Automatizaciones | ALTA | ✅ COMPLETADA |
+| 4.3.2 | WhatsApp | MEDIA | ⏳ SIGUIENTE |
+| 4.2 | Exportación | BAJA | 📋 Diseñada |
+| 4.3.3 | Pasarela de Pago | BAJA | ❌ No iniciada |
+| 4.4 | Personalización | BAJA | ❌ No iniciada |
 
 ---
 
-## Prioridad Actual (nueva)
+## Fases 1-3 (Seguridad, Deuda Técnica, Rendimiento) ✅
 
-1. 🥇 **Tarea 4.5 — Módulo de Automatizaciones** (implementar ahora, 2-3 días)
-2. 🥈 **Tarea 4.3.2 — WhatsApp Cloud API** (después de automatizaciones, 4-6 días)
-3. 🥉 Tareas restantes (Personalización, Exportación, Pasarela de Pago)
+Completadas. Ver PLAN_DE_ACCION.md en historial para detalle de tareas 1.1 a 3.8.
+
+---
+
+## Fase 4.5 — Módulo de Automatizaciones ✅ COMPLETADA
+
+### Tipos implementados y desplegados
+
+| Tipo | Estado | Características |
+|------|--------|-----------------|
+| `REMINDER` | ✅ Producción | Pre-cita (hoursBefore) + Post-cita (hoursAfter). Anti-spam 24h. Placeholders `{nombre}`, `{servicio}`, `{fecha}`, `{hora}`, `{salon}`. |
+| `STATUS_FLOW` | ✅ Producción | NEW→RECURRING (N visits), RECURRING→INACTIVE (X días sin visitas), INACTIVE→RECURRING (1 cita nueva). Umbrales configurables en rule.config. |
+| `LOYALTY` | ✅ Producción | `messageTemplate` con placeholders `{nombre}`, `{visitas}`, `{salon}`. Anti-spam 24h/cliente. `minimumVisits` configurable. Filtro por salón. Múltiplos exactos (5, 10, 15...). |
+| `REACTIVATION` | ✅ Producción | `daysInactiveThreshold` configurable (default 30). Anti-spam 24h/cliente. `messageTemplate`. Filtro solo COMPLETED. |
+| `SMART_CONTACT` | ✅ Producción | Contacto inteligente según ventana configurable. |
+
+### UI
+- Panel de automatizaciones con CRUD completo
+- Formularios con campos dinámicos según tipo
+- Toggle activar/desactivar por regla
+- Botón **Ejecutar individual** en cada tarjeta
+- Botón **Ejecutar todas** global
+- Resultados detallados por regla (acciones generadas)
+- Sugerencias de contacto inteligente
+
+### Motor
+- API `POST /api/automations/run` — acepta `ruleId` opcional para ejecución individual
+- Logging en `AutomationLog` con anti-spam
+- Fallbacks demo via `seed/route.ts` y `src/lib/fallbacks.ts`
+
+### Pruebas realizadas
+- ✅ Test unitario REMINDER pre-cita (validado por usuario)
+- ✅ Test unitario REMINDER post-cita (validado tras corregir template)
+- ✅ Test extremo STATUS_FLOW (6 clientes con escenarios combinados)
+- ✅ Test extremo LOYALTY (5 clientes con múltiplos de visitas)
+- ✅ Test extremo REACTIVATION (~10 clientes elegibles, con anti-spam)
+- ✅ Prueba masiva: ejecución de todas las reglas simultáneamente (~35 acciones totales)
+
+---
+
+## Fase 4.3.2 — WhatsApp Cloud API ⏳ SIGUIENTE
+
+**Prioridad:** Media — se pospuso para completar el motor de automatizaciones primero.
+
+**Prerrequisitos:**
+- [ ] Cuenta Facebook Business
+- [ ] Número real para WhatsApp Business
+- [ ] App en Meta Developer Portal con permiso `whatsapp_business_messaging`
+- [ ] Token permanente para Graph API
+
+**Arquitectura:** Webhook en `POST /api/webhooks/whatsapp`. El motor de automatizaciones ya loguea acciones canal WhatsApp; solo falta implementar el envío real.
+
+**Esfuerzo estimado:** 4-6 días
+
+---
+
+## Tareas Restantes (Baja Prioridad)
+
+### Exportación de Datos (4.2) 📋 Diseñada
+- [ ] `GET /api/export/clients?format=csv`
+- [ ] `GET /api/export/appointments?format=csv&from=&to=`
+- [ ] `GET /api/export/dashboard?format=csv`
+- [ ] Botones "Exportar" en vistas
+
+### Pasarela de Pago (4.3.3) ❌ No iniciada
+- Sin diseño ni requerimientos definidos.
+
+### Personalización del Salón (4.4) ❌ No iniciada
+- Logo personalizable, colores, horario, múltiples estilistas.
+
+---
+
+## Commits Recientes (Julio 2026)
+
+| Fecha | Commit | Descripción |
+|-------|--------|-------------|
+| 21 jul | `2d3a4b2` | fix: div faltante en panel |
+| 21 jul | `03561c4` | feat: botón Ejecutar individual |
+| 21 jul | `4ebd8f0` | fix: REACTIVATION mejorada |
+| 21 jul | `a0611b0` | fix: 5 problemas LOYALTY |
+| 21 jul | `b8b8008` | feat: STATUS_FLOW + UI |
+| 20 jul | (varios) | REMINDER post-cita, deploy fix |
+| 19 jul | (varios) | REMINDER pre-cita completo, anti-spam |
+
+---
+
+## Riesgos Actuales
+
+| Riesgo | Probabilidad | Mitigación |
+|--------|-------------|------------|
+| Meta deniegue verificación WhatsApp | Media | Alternativa Twilio como plan B |
+| RLS policy no cubre AutomationLog/ClientNote | Baja | ✅ Ya auditado y corregido |
+| Crecimiento de AutomationLog sin poda | Baja | Agregar TTL/cron de limpieza mensual si es necesario |
 
 ## Fase 1: Seguridad Crítica (URGENTE — Antes de Producción) ✅ COMPLETADA
 
