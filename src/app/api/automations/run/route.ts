@@ -6,10 +6,17 @@ import { handleApiError } from '@/lib/api-error-handler';
 export async function POST(request: NextRequest) {
   try {
     const userId = await requireAuth(request);
+    const body = await request.json().catch(() => ({}));
+    const singleRuleId = body.ruleId as string | undefined;
 
-    const automations = await db.automationRule.findMany({
+    const where: Parameters<typeof db.automationRule.findMany>[0] = {
       where: { userId, active: true },
-    });
+    };
+    if (singleRuleId) {
+      where.where = { ...where.where, id: singleRuleId };
+    }
+
+    const automations = await db.automationRule.findMany(where);
 
     const results: Array<{
       ruleId: string;

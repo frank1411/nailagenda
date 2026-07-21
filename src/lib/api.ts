@@ -223,6 +223,13 @@ class ApiClient {
     });
   }
 
+  async runSingleAutomation(ruleId: string) {
+    return this.request('/automations/run', {
+      method: 'POST',
+      body: JSON.stringify({ ruleId }),
+    });
+  }
+
   // ── Dashboard ──
   async getDashboard() {
     return this.request('/dashboard');

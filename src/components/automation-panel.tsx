@@ -336,6 +336,7 @@ export default function AutomationPanel() {
 
   // Smart contact suggestions
   const [smartSuggestions, setSmartSuggestions] = useState<SmartContactSuggestion[]>([]);
+  const [runningSingle, setRunningSingle] = useState<string | null>(null);
 
   // Dialogs
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -443,6 +444,28 @@ export default function AutomationPanel() {
       setError(message);
     } finally {
       setRunning(false);
+    }
+  };
+
+  // -- Run a single automation --
+  const handleRunSingle = async (ruleId: string) => {
+    try {
+      setRunningSingle(ruleId);
+      setRunData(null);
+      setSmartSuggestions([]);
+      const data = await api.runSingleAutomation(ruleId);
+      setRunData(data);
+
+      const sections: Record<string, boolean> = {};
+      for (const result of data.results || []) {
+        sections[result.ruleId] = true;
+      }
+      setOpenSections(sections);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al ejecutar la automatización';
+      setError(message);
+    } finally {
+      setRunningSingle(null);
     }
   };
 
@@ -779,6 +802,20 @@ export default function AutomationPanel() {
                       {/* Actions */}
                       <div className="flex items-center gap-2 mt-4">
                         <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleRunSingle(automation.id)}
+                          disabled={runningSingle === automation.id}
+                          className="h-8 text-xs cursor-pointer gap-1"
+                        >
+                          {runningSingle === automation.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Play className="h-3.5 w-3.5" />
+                          )}
+                          {runningSingle === automation.id ? 'Ejecutando...' : 'Ejecutar'}
+                        </Button>
+                        <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleEdit(automation)}
@@ -800,7 +837,6 @@ export default function AutomationPanel() {
                           Eliminar
                         </Button>
                       </div>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
