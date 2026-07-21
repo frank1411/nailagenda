@@ -1137,7 +1137,7 @@ export default function AutomationPanel() {
                       }
                     />
                     <p className="text-xs text-muted-foreground">
-                      Enviar agradecimiento {{'{'}}N horas{{'}'}} después de una cita completada (0 = desactivado)
+                      Enviar agradecimiento N horas después de una cita completada (0 = desactivado)
                     </p>
                   </div>
                   <div className="space-y-2">
