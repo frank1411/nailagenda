@@ -252,5 +252,17 @@ export const FALLBACKS = {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
+    {
+      id: 'auto-4',
+      name: 'Ciclo de Vida',
+      description: 'Gestiona el cambio de estado de clientes automáticamente',
+      type: 'STATUS_FLOW',
+      active: true,
+      config: { completedVisitsForRecurring: 5, inactiveDaysThreshold: 45 },
+      userId: DEMO_USER_ID,
+      _count: { logs: 3 },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
   ],
 };

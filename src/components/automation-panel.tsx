@@ -22,6 +22,9 @@ import {
   Calendar,
   Mail,
   Heart,
+  TrendingUp,
+  TrendingDown,
+  UserCheck,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import {
@@ -77,7 +80,7 @@ import { toast } from 'sonner';
 const ROSE_GOLD = '#B76E79';
 const CHARCOAL = '#2D2D2D';
 
-const AUTOMATION_TYPES = ['REMINDER', 'REACTIVATION', 'LOYALTY', 'SMART_CONTACT'] as const;
+const AUTOMATION_TYPES = ['REMINDER', 'REACTIVATION', 'LOYALTY', 'SMART_CONTACT', 'STATUS_FLOW'] as const;
 type AutomationType = (typeof AUTOMATION_TYPES)[number];
 
 const TYPE_CONFIG: Record<
@@ -128,6 +131,15 @@ const TYPE_CONFIG: Record<
     iconColor: 'text-purple-600 dark:text-purple-400',
     description: 'Analiza patrones y sugiere el mejor momento para contactar',
   },
+  STATUS_FLOW: {
+    label: 'Ciclo de Vida',
+    icon: Users,
+    badgeBg: 'bg-sky-100 dark:bg-sky-900/40',
+    badgeText: 'text-sky-700 dark:text-sky-300',
+    iconBg: 'bg-sky-100 dark:bg-sky-900/40',
+    iconColor: 'text-sky-600 dark:text-sky-400',
+    description: 'Gestiona el cambio de estado de clientes automáticamente',
+  },
 };
 
 const DEFAULT_CONFIGS: Record<AutomationType, Record<string, string | number>> = {
@@ -135,6 +147,7 @@ const DEFAULT_CONFIGS: Record<AutomationType, Record<string, string | number>> =
   REACTIVATION: { daysInactiveThreshold: 30, messageTemplate: 'Hola {nombre}, hace tiempo que no te vemos en {salon}. ¡Te echamos de menos! Ven pronto y llévate un descuento especial.' },
   LOYALTY: { minimumVisits: 5, rewardDescription: 'Descuento del 15% en tu próxima visita como cliente frecuente' },
   SMART_CONTACT: { analysisPeriodDays: 90, contactWindowDays: 7, antiSpamCooldownDays: 7, messageTemplate: 'Hola {nombre}, hace {dias} días que no nos visitas. ¿Te gustaría reservar una cita? ¡Te esperamos!' },
+  STATUS_FLOW: { completedVisitsForRecurring: 5, inactiveDaysThreshold: 45 },
 };
 
 // ---------------------------------------------------------------------------
@@ -221,6 +234,12 @@ function getActionIcon(action: string) {
       return Gift;
     case 'SMART_CONTACT':
       return Brain;
+    case 'STATUS_PROMOTION':
+      return TrendingUp;
+    case 'STATUS_DEMOTION':
+      return TrendingDown;
+    case 'STATUS_REACTIVATION':
+      return UserCheck;
     default:
       return MessageSquare;
   }
@@ -238,6 +257,12 @@ function getActionLabel(action: string): string {
       return 'Premio de fidelidad';
     case 'SMART_CONTACT':
       return 'Contacto inteligente';
+    case 'STATUS_PROMOTION':
+      return 'Promovido a Recurrente';
+    case 'STATUS_DEMOTION':
+      return 'Degradado a Inactivo';
+    case 'STATUS_REACTIVATION':
+      return 'Reactivado a Recurrente';
     default:
       return action;
   }
@@ -255,6 +280,12 @@ function getActionColor(action: string): { bg: string; text: string } {
       return { bg: 'bg-emerald-100 dark:bg-emerald-900/40', text: 'text-emerald-700 dark:text-emerald-300' };
     case 'SMART_CONTACT':
       return { bg: 'bg-purple-100 dark:bg-purple-900/40', text: 'text-purple-700 dark:text-purple-300' };
+    case 'STATUS_PROMOTION':
+      return { bg: 'bg-sky-100 dark:bg-sky-900/40', text: 'text-sky-700 dark:text-sky-300' };
+    case 'STATUS_DEMOTION':
+      return { bg: 'bg-orange-100 dark:bg-orange-900/40', text: 'text-orange-700 dark:text-orange-300' };
+    case 'STATUS_REACTIVATION':
+      return { bg: 'bg-teal-100 dark:bg-teal-900/40', text: 'text-teal-700 dark:text-teal-300' };
     default:
       return { bg: 'bg-gray-100 dark:bg-gray-900/40', text: 'text-gray-700 dark:text-gray-300' };
   }
@@ -547,6 +578,10 @@ export default function AutomationPanel() {
           (sum, r) => sum + r.actions.filter((a) => a.action === 'LOYALTY_REWARD').length,
           0
         ),
+        statusChanges: runData.results.reduce(
+          (sum, r) => sum + r.actions.filter((a) => a.action.startsWith('STATUS_')).length,
+          0
+        ),
       }
     : null;
 
@@ -789,7 +824,7 @@ export default function AutomationPanel() {
           <CardContent className="space-y-6">
             {/* Summary Stats */}
             {runStats && (
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
                 <div className="rounded-xl border p-4 text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1">
                     <Bell className="h-4 w-4 text-amber-600" />
@@ -824,7 +859,7 @@ export default function AutomationPanel() {
                       {runStats.loyaltyRewards}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Premios fidelidad</p>
+                  <p className="text-xs text-muted-foreground">Premios</p>
                 </div>
                 <div className="rounded-xl border p-4 text-center">
                   <div className="flex items-center justify-center gap-1.5 mb-1">
@@ -833,7 +868,16 @@ export default function AutomationPanel() {
                       {runStats.clientsContacted}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Contactos inteligentes</p>
+                  <p className="text-xs text-muted-foreground">Contactos</p>
+                </div>
+                <div className="rounded-xl border p-4 text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <Users className="h-4 w-4 text-sky-600" />
+                    <span className="text-2xl font-bold" style={{ color: CHARCOAL }}>
+                      {runStats.statusChanges}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Cambios de estado</p>
                 </div>
               </div>
             )}
@@ -1241,6 +1285,49 @@ export default function AutomationPanel() {
                       rows={2}
                       className="resize-none"
                     />
+                  </div>
+                </>
+              )}
+
+              {formType === 'STATUS_FLOW' && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="cfg-visits-flow">Visitas completadas para Recurrente</Label>
+                    <Input
+                      id="cfg-visits-flow"
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={String(formConfig.completedVisitsForRecurring ?? 5)}
+                      onChange={(e) =>
+                        setFormConfig((prev) => ({
+                          ...prev,
+                          completedVisitsForRecurring: parseInt(e.target.value) || 5,
+                        }))
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Clientes con este número de visitas completadas pasan automáticamente a Recurrentes
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cfg-inactive">Días sin citas para Inactivo</Label>
+                    <Input
+                      id="cfg-inactive"
+                      type="number"
+                      min={7}
+                      max={365}
+                      value={String(formConfig.inactiveDaysThreshold ?? 45)}
+                      onChange={(e) =>
+                        setFormConfig((prev) => ({
+                          ...prev,
+                          inactiveDaysThreshold: parseInt(e.target.value) || 45,
+                        }))
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Clientes Recurrentes sin citas completadas por más de este número de días pasan a Inactivos
+                    </p>
                   </div>
                 </>
               )}

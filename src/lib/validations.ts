@@ -74,7 +74,7 @@ export const automationConfigSchema = z.any().optional();
 export const createAutomationSchema = z.object({
   name: z.string().min(1, 'Nombre requerido').max(100),
   description: z.string().max(500).nullable().optional(),
-  type: z.enum(['REMINDER', 'REACTIVATION', 'LOYALTY', 'SMART_CONTACT']),
+  type: z.enum(['REMINDER', 'REACTIVATION', 'LOYALTY', 'SMART_CONTACT', 'STATUS_FLOW']),
   config: automationConfigSchema,
   active: z.boolean().default(true),
 });

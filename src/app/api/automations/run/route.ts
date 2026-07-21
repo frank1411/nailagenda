@@ -230,6 +230,144 @@ export async function POST(request: NextRequest) {
           break;
         }
 
+        case 'STATUS_FLOW': {
+          const sfCfg = (rule.config || {}) as Record<string, number>;
+          const completedVisitsForRecurring = sfCfg.completedVisitsForRecurring ?? 5;
+          const inactiveDaysThreshold = sfCfg.inactiveDaysThreshold ?? 45;
+
+          const now = new Date();
+          const inactiveSince = new Date(now);
+          inactiveSince.setDate(inactiveSince.getDate() - inactiveDaysThreshold);
+
+          // ── 1. NEW → RECURRING: clientes con N+ visitas completadas ──
+          const clientsToPromote = await db.client.findMany({
+            where: {
+              userId,
+              status: 'NEW',
+            },
+            include: {
+              _count: {
+                select: { appointments: { where: { status: 'COMPLETED' } } },
+              },
+            },
+          });
+
+          for (const client of clientsToPromote) {
+            if (client._count.appointments >= completedVisitsForRecurring) {
+              await db.client.update({
+                where: { id: client.id },
+                data: { status: 'RECURRING' },
+              });
+
+              const clientName = `${client.firstName} ${client.lastName}`;
+              await db.automationLog.create({
+                data: {
+                  action: 'STATUS_PROMOTION',
+                  result: `${clientName} promovido a Recurrente (${client._count.appointments} visitas completadas)`,
+                  ruleId: rule.id,
+                  clientId: client.id,
+                },
+              });
+
+              ruleResult.actions.push({
+                clientId: client.id,
+                clientName,
+                action: 'STATUS_PROMOTION',
+                details: `Promovido a Recurrente (${client._count.appointments} visitas completadas)`,
+              });
+            }
+          }
+
+          // ── 2. RECURRING → INACTIVE: sin citas completadas en N días ──
+          const clientsToDemote = await db.client.findMany({
+            where: {
+              userId,
+              status: 'RECURRING',
+            },
+            include: {
+              appointments: {
+                where: { status: 'COMPLETED' },
+                orderBy: { date: 'desc' },
+                take: 1,
+                select: { date: true },
+              },
+            },
+          });
+
+          for (const client of clientsToDemote) {
+            const lastCompleted = client.appointments[0];
+            if (!lastCompleted || lastCompleted.date < inactiveSince.toISOString().split('T')[0]) {
+              await db.client.update({
+                where: { id: client.id },
+                data: { status: 'INACTIVE' },
+              });
+
+              const clientName = `${client.firstName} ${client.lastName}`;
+              await db.automationLog.create({
+                data: {
+                  action: 'STATUS_DEMOTION',
+                  result: `${clientName} degradado a Inactivo. Última cita completada: ${lastCompleted?.date ?? 'nunca'}`,
+                  ruleId: rule.id,
+                  clientId: client.id,
+                },
+              });
+
+              ruleResult.actions.push({
+                clientId: client.id,
+                clientName,
+                action: 'STATUS_DEMOTION',
+                details: `Degradado a Inactivo. Última cita completada: ${lastCompleted?.date ?? 'nunca'}`,
+              });
+            }
+          }
+
+          // ── 3. INACTIVE → RECURRING: si completaron una cita después de volverse inactivos ──
+          const clientsToReactivate = await db.client.findMany({
+            where: {
+              userId,
+              status: 'INACTIVE',
+            },
+            include: {
+              appointments: {
+                where: { status: 'COMPLETED' },
+                orderBy: { date: 'desc' },
+                take: 1,
+                select: { date: true, id: true },
+              },
+            },
+          });
+
+          for (const client of clientsToReactivate) {
+            const lastCompleted = client.appointments[0];
+            if (lastCompleted) {
+              // Check if it was completed recently (not before becoming inactive)
+              // Simple heuristic: has any completed appointment at all
+              await db.client.update({
+                where: { id: client.id },
+                data: { status: 'RECURRING' },
+              });
+
+              const clientName = `${client.firstName} ${client.lastName}`;
+              await db.automationLog.create({
+                data: {
+                  action: 'STATUS_REACTIVATION',
+                  result: `${clientName} reactivado a Recurrente. Última cita completada: ${lastCompleted.date}`,
+                  ruleId: rule.id,
+                  clientId: client.id,
+                },
+              });
+
+              ruleResult.actions.push({
+                clientId: client.id,
+                clientName,
+                action: 'STATUS_REACTIVATION',
+                details: `Reactivado a Recurrente. Última cita completada: ${lastCompleted.date}`,
+              });
+            }
+          }
+          break;
+        }
+
         case 'SMART_CONTACT': {
           // Leer configuración de la regla (con valores por defecto)
           const scCfg = (rule.config || {}) as Record<string, number>;

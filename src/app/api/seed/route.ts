@@ -242,6 +242,14 @@ export async function POST(request: NextRequest) {
         active: true,
         userId: user.id,
       },
+      {
+        name: 'Ciclo de Vida',
+        description: 'Gestiona automáticamente los cambios de estado de los clientes',
+        type: 'STATUS_FLOW',
+        config: { completedVisitsForRecurring: 5, inactiveDaysThreshold: 45 },
+        active: true,
+        userId: user.id,
+      },
     ];
 
     await Promise.all(
