@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
         name: 'Programa de Fidelidad',
         description: 'Recompensa a clientes frecuentes cada 5 visitas',
         type: 'LOYALTY',
-        config: { visitsThreshold: 5, reward: '10% descuento' },
+        config: { minimumVisits: 5, messageTemplate: '🎉 ¡Felicidades {nombre}! Has completado {visitas} visitas en {salon}. ¡Gracias por tu preferencia!' },
         active: true,
         userId: user.id,
       },

@@ -145,7 +145,7 @@ const TYPE_CONFIG: Record<
 const DEFAULT_CONFIGS: Record<AutomationType, Record<string, string | number>> = {
   REMINDER: { hoursBefore: 24, hoursAfter: 0, messageTemplate: 'Hola {nombre}, te recordamos tu cita de {servicio} el {fecha} a las {hora}. ¡Te esperamos!' },
   REACTIVATION: { daysInactiveThreshold: 30, messageTemplate: 'Hola {nombre}, hace tiempo que no te vemos en {salon}. ¡Te echamos de menos! Ven pronto y llévate un descuento especial.' },
-  LOYALTY: { minimumVisits: 5, rewardDescription: 'Descuento del 15% en tu próxima visita como cliente frecuente' },
+  LOYALTY: { minimumVisits: 5, messageTemplate: '🎉 ¡Felicidades {nombre}! Has completado {visitas} visitas en {salon}. ¡Gracias por tu preferencia!' },
   SMART_CONTACT: { analysisPeriodDays: 90, contactWindowDays: 7, antiSpamCooldownDays: 7, messageTemplate: 'Hola {nombre}, hace {dias} días que no nos visitas. ¿Te gustaría reservar una cita? ¡Te esperamos!' },
   STATUS_FLOW: { completedVisitsForRecurring: 5, inactiveDaysThreshold: 45 },
 };
@@ -1271,20 +1271,23 @@ export default function AutomationPanel() {
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="cfg-reward">Descripción del premio</Label>
+                    <Label htmlFor="cfg-loy-msg">Plantilla de mensaje</Label>
                     <Textarea
-                      id="cfg-reward"
-                      value={String(formConfig.rewardDescription ?? '')}
+                      id="cfg-loy-msg"
+                      value={String(formConfig.messageTemplate ?? '🎉 ¡Felicidades {nombre}! Has completado {visitas} visitas. ¡Gracias por tu preferencia!')}
                       onChange={(e) =>
                         setFormConfig((prev) => ({
                           ...prev,
-                          rewardDescription: e.target.value,
+                          messageTemplate: e.target.value,
                         }))
                       }
-                      placeholder="Ej: Descuento del 15% en la próxima visita"
-                      rows={2}
+                      placeholder="🎉 ¡Felicidades {nombre}! Has completado {visitas} visitas. ¡Gracias por tu preferencia!"
+                      rows={3}
                       className="resize-none"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Variables: {'{nombre}'}, {'{visitas}'}, {'{salon}'}
+                    </p>
                   </div>
                 </>
               )}

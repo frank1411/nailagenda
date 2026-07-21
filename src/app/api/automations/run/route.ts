@@ -193,39 +193,62 @@ export async function POST(request: NextRequest) {
         }
 
         case 'LOYALTY': {
-          // Buscar clientes RECURRING elegibles para premios de fidelidad (5+ visitas completadas, múltiplos de 5)
-          const recurringClients = await db.client.findMany({
+          const loyCfg = (rule.config || {}) as Record<string, number | string>;
+          const minVisits = Number(loyCfg.minimumVisits) || 5;
+          const msgTemplate = String(loyCfg.messageTemplate || '🎉 ¡Felicidades {nombre}! Has completado {visitas} visitas en {salon}. ¡Gracias por tu preferencia!');
+
+          // Incluir clientes NEW y RECURRING con visitas completadas
+          const eligibleClients = await db.client.findMany({
             where: {
               userId,
-              status: 'RECURRING',
+              status: { in: ['NEW', 'RECURRING'] },
             },
             include: {
-              appointments: {
-                where: { status: 'COMPLETED' },
+              _count: {
+                select: { appointments: { where: { status: 'COMPLETED' } } },
               },
             },
           });
 
-          for (const client of recurringClients) {
-            const completedCount = client.appointments.length;
-            if (completedCount >= 5 && completedCount % 5 === 0) {
-              const clientName = `${client.firstName} ${client.lastName}`;
-              ruleResult.actions.push({
-                clientId: client.id,
-                clientName,
-                action: 'LOYALTY_REWARD',
-                details: `¡${completedCount} visitas completadas! Cliente elegible para premio de fidelidad.`,
-              });
+          for (const client of eligibleClients) {
+            const completedCount = client._count.appointments;
 
-              await db.automationLog.create({
-                data: {
-                  action: 'LOYALTY_REWARD',
-                  result: `Premio de fidelidad para ${clientName}. ${completedCount} visitas completadas.`,
-                  ruleId: rule.id,
-                  clientId: client.id,
-                },
-              });
-            }
+            // Solamente en los hitos: minVisits, minVisits*2, minVisits*3...
+            if (completedCount < minVisits || completedCount % minVisits !== 0) continue;
+
+            // ── Anti-spam: verificar si ya se premió este hito ──
+            const alreadyRewarded = await db.automationLog.findFirst({
+              where: {
+                ruleId: rule.id,
+                clientId: client.id,
+                action: 'LOYALTY_REWARD',
+                result: { contains: `${completedCount} visitas` },
+              },
+            });
+
+            if (alreadyRewarded) continue;
+
+            const clientName = `${client.firstName} ${client.lastName}`;
+            const message = msgTemplate
+              .replace(/\{nombre\}/g, client.firstName)
+              .replace(/\{visitas\}/g, String(completedCount))
+              .replace(/\{salon\}/g, 'MayeNailsArt Studio');
+
+            ruleResult.actions.push({
+              clientId: client.id,
+              clientName,
+              action: 'LOYALTY_REWARD',
+              details: message,
+            });
+
+            await db.automationLog.create({
+              data: {
+                action: 'LOYALTY_REWARD',
+                result: `Premio de fidelidad para ${clientName}. ${completedCount} visitas completadas.`,
+                ruleId: rule.id,
+                clientId: client.id,
+              },
+            });
           }
           break;
         }
