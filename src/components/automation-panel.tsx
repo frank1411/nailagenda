@@ -837,6 +837,7 @@ export default function AutomationPanel() {
                           Eliminar
                         </Button>
                       </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
