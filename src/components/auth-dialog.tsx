@@ -99,10 +99,7 @@ export default function AuthDialog({ open, onOpenChange, onSuccess, defaultMode 
   const handleDemo = async () => {
     setDemoLoading(true);
     try {
-      await authStore.login(
-        process.env.NEXT_PUBLIC_DEMO_EMAIL || 'demo@mayenailsart.com',
-        process.env.NEXT_PUBLIC_DEMO_PASSWORD || ''
-      );
+      await authStore.loginDemo();
       onSuccess();
       onOpenChange(false);
     } catch (err: any) {

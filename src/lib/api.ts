@@ -76,6 +76,13 @@ class ApiClient {
     });
   }
 
+  async demoLogin() {
+    return this.request('/auth', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'demo' }),
+    });
+  }
+
   // ── Clients ──
   async getClients(params?: { status?: string; search?: string }) {
     const query = new URLSearchParams();

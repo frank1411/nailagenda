@@ -22,6 +22,7 @@ interface AuthState {
 
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  loginDemo: () => Promise<void>;
   register: (email: string, name: string, password: string, salonName?: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
@@ -53,6 +54,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const data = await api.login({ email, password });
       // The httpOnly cookie is set by the server response.
       // We only need the user object; the token is irrelevant on the client now.
+      set({ user: data.user, loading: false });
+    } catch (error) {
+      set({ loading: false });
+      throw error;
+    }
+  },
+
+  loginDemo: async () => {
+    // Limpiar SWR cache del usuario anterior
+    await globalMutate(() => true, undefined, { revalidate: false });
+
+    set({ loading: true });
+    try {
+      const data = await api.demoLogin();
       set({ user: data.user, loading: false });
     } catch (error) {
       set({ loading: false });

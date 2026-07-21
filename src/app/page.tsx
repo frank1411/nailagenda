@@ -68,7 +68,7 @@ function AppShellSkeleton() {
 
 // ── Home ──
 export default function Home() {
-  const { user, init, login: authLogin } = useAuthStore();
+  const { user, init, login: authLogin, loginDemo } = useAuthStore();
   const [authOpen, setAuthOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -93,10 +93,7 @@ export default function Home() {
   const handleViewDemo = async () => {
     setDemoLoading(true);
     try {
-      await authLogin(
-        process.env.NEXT_PUBLIC_DEMO_EMAIL || 'demo@mayenailsart.com',
-        process.env.NEXT_PUBLIC_DEMO_PASSWORD || ''
-      );
+      await loginDemo();
     } catch (err: any) {
       console.error('Demo login failed:', err);
     } finally {

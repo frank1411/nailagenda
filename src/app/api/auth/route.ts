@@ -95,6 +95,29 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
+    if (action === 'demo') {
+      const demoEmail = process.env.DEMO_EMAIL || 'demo@mayenailsart.com';
+      const user = await db.user.findUnique({ where: { email: demoEmail } });
+      if (!user) return NextResponse.json({ error: 'Usuario demo no encontrado' }, { status: 404 });
+
+      const token = await createToken(user.id);
+      const response = NextResponse.json({
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            salonName: user.salonName,
+            role: user.role,
+            isDemo: user.isDemo,
+          },
+          token,
+        },
+      });
+      setTokenCookie(response, token);
+      return response;
+    }
+
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
     return handleApiError(error, 'Auth');
